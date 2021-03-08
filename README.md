@@ -2,6 +2,36 @@
 
 This is the add-in for Visual Studio Code that enables Meadow projects to be built and deployed to Meadow device.
 
+## Using the Extension
+
+### Installation
+
+1. Download the extension .vsix file from the latest GitHub release.
+2. In the _Extensions_ tab in VS Code, click the `...` menu and choose _Install from VSIX..._.
+3. Pick the file you downloaded to install.
+
+
+### Create a new Meadow Project
+
+In the terminal:
+
+1. Run `dotnet new -i WildernessLabs.Meadow.Template`
+2. Create and/or navigate into a directory with the name of your new app (ie: `MeadowApp1`).
+3. Run `dotnet new Meadow`
+4. Open the app directory in VS Code
+
+### Building and Deploying your App in VSCode
+
+1. Open your new app's folder in VSCode.
+2. Ensure your Meadow board is plugged in, and up to date.
+3. Choose _Run -> Start Debugging_ (Your code will automatically be built first).
+4. From the list of debugging providers, choose `Meadow`.
+5. If prompted, pick the serial port for your Meadow board.
+6. Watch the output and see your app deploy!
+
+You can optionally create a _launch.json_ file to keep your debug configuration instead of always running it dynamically.  Simply navigate to the Debug tab of VSCode and use the button to create a launch.json file.  Choose `Meadow` again from the list, and the default launch settings will be created for you.
+
+
 ## Building
 
 ### Prerequisites
