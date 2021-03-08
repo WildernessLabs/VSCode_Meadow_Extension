@@ -17,18 +17,17 @@ export class MeadowConfigurationProvider implements vscode.DebugConfigurationPro
 	async resolveDebugConfiguration(folder: WorkspaceFolder | undefined, config: DebugConfiguration, token?: vscode.CancellationToken): Promise<DebugConfiguration> {
 
 		// No launch.json exists, let's help fill out a nice default
-		if (!config.type && !config.request && !config.name)
-		{
+		if (!config.type)
 			config.type = 'meadow';
+
+		if (!config.request)
 			config.request = 'launch';
-			return config;
-		}
+
+		if (!config.name)
+			config.name = 'Deploy';
 
 		// if launch.json is missing or empty
 		if (config.type == 'meadow') {
-			
-			if (!config.request)
-				config.request = 'launch';
 
 			var project = MeadowProjectManager.SelectedProject;
 
