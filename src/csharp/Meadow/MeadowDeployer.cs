@@ -39,7 +39,7 @@ namespace VsCodeMeadowUtil
 
                 await DeployApp(meadow, cts, folder, meadowFiles, localFiles);
 
-                MeadowDeviceManager.MonoEnable(meadow);
+                await MeadowDeviceManager.MonoEnable(meadow);
 
                 //MeadowDeviceManager.VSDebugging(55556);
 
