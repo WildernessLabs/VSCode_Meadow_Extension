@@ -228,7 +228,7 @@ namespace VSCodeDebug
 			try {
 				
 				// DEPLOY
-				meadowSerialDevice = new MeadowSerialDevice(launchOptions.Serial);
+				meadowSerialDevice = new MeadowSerialDevice(launchOptions.Serial, false);
 
 				if (!meadowSerialDevice.Initialize())
 				{
