@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net472</TargetFramework>
+		<LangVersion>8.0</LangVersion>
+		<OutputType>Exe</OutputType>
+		<AssemblyName>vscode-meadow</AssemblyName>
+	</PropertyGroup>
+	
+	<ItemGroup>
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.6.0" />
+		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+		<PackageReference Include="Microsoft.Build" Version="16.5.0" />
+		<PackageReference Include="Microsoft.Build.Engine" Version="16.5.0" />
+		<PackageReference Include="Microsoft.Build.Framework" Version="16.5.0" />
+		<PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.5.0" />
+		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+		<PackageReference Include="Mono.Cecil" Version="0.11.2" />
+		<PackageReference Include="Mono.Options" Version="6.6.0.161" />
+		<PackageReference Include="HidSharp" Version="2.1.0" />
+		<PackageReference Include="WildernessLabs.Meadow.CLI.Core" Version="0.8.1" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Meadow\" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Reference Include="ICSharpCode.NRefactory.CSharp">
+	    <HintPath>..\..\libs\ICSharpCode.NRefactory.CSharp.dll</HintPath>
+	  </Reference>
+	  <Reference Include="ICSharpCode.NRefactory">
+	    <HintPath>..\..\libs\ICSharpCode.NRefactory.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Mono.Debugger.Soft">
+	    <HintPath>..\..\libs\Mono.Debugger.Soft.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Mono.Debugging">
+	    <HintPath>..\..\libs\Mono.Debugging.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Mono.Debugging.Soft">
+	    <HintPath>..\..\libs\Mono.Debugging.Soft.dll</HintPath>
+	  </Reference>
+	</ItemGroup>
+</Project>

@@ -1,0 +1,42 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"preLaunchTask": "NPM",
+			"type": "extensionHost",
+			"request": "launch",
+			"name": "Extension",
+			"runtimeExecutable": "${execPath}",
+			"args": [
+				"--extensionDevelopmentPath=${workspaceRoot}"
+			],
+			"stopOnEntry": false,
+			"outFiles": [
+				"${workspaceRoot}/out/**/*.js"
+			]
+		},
+		{
+			"name": "Server",
+			"type": "coreclr",
+			"request": "launch",
+			"preLaunchTask": "build",
+			// If you have changed target frameworks, make sure to update the program path.
+			"program": "${workspaceFolder}/src/csharp/bin/Debug/net472/vscode-meadow.exe",
+			"args": [ "--server", "--trace=response" ],
+			"cwd": "${workspaceFolder}",
+			// For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
+			"console": "internalConsole",
+			"stopAtEntry": false,
+			"internalConsoleOptions": "openOnSessionStart"
+		}
+	],
+	"compounds": [
+		{
+			"name": "Extension + Server",
+			"configurations": [
+				"Extension",
+				"Server"
+			]
+		}
+	]
+}

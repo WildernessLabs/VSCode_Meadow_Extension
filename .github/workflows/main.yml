@@ -1,0 +1,36 @@
+name: VSIX
+
+on:
+  pull_request:
+  push:
+jobs:
+  build:
+    name: CI
+    env:
+      VSIX_MAJOR: 0.1
+    runs-on: macos-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - run: git submodule update --init --recursive
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.100
+    - name: Use Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: 10.x
+    - name: NPM
+      run: npm install
+    - name: Compile TypeScript
+      run: ./node_modules/.bin/tsc -p ./src/typescript
+    - name: Build VSCodeMeadow
+      run: msbuild /r /p:Configuration=Debug ./src/csharp/VSCodeMeadow.csproj
+    - name: Create VSIX
+      run: ./node_modules/.bin/vsce package
+    - name: Artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: VSIX
+        path: '*.vsix'

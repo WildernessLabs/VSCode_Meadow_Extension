@@ -1,0 +1,18 @@
+{
+	"meadow.label": "Meadow",
+
+	"configure.exceptions.command": "Configure Exceptions",
+
+	"configuration.title": "Meadow",
+	"configuration.exceptionOptions.description": "Configure when exceptions should break (never, always, unhandled). Add more as needed.",
+	"configuration.exceptionOptions.description2": "When should this thrown exception break?",
+
+	"configure.exceptions": "Configure Exceptions",
+	"breakMode.never": "never breaks",
+	"breakMode.always": "breaks when exception handled or unhandled",
+	"breakMode.unhandled": "breaks when exception unhandled",
+
+	"meadow.launch.config.name": "Deploy",
+	"meadow.launch.projectConfiguration.description": "Project Configuration to Deploy",
+	"meadow.launch.projectPath.description": "Path to startup project"
+}

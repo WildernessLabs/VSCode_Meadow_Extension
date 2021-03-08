@@ -1,0 +1,175 @@
+{
+	"name": "meadow",
+	"displayName": "Meadow",
+	"version": "0.1.0",
+	"publisher": "wildernesslabs",
+	"description": "Build and Deploy Meadow applications",
+	"icon": "meadow.png",
+	"categories": [
+		"Debuggers"
+	],
+	"author": {
+		"name": "Jonathan Dick"
+	},
+	"license": "MIT",
+	"private": true,
+	"extensionDependencies": [
+		"ms-dotnettools.csharp"
+	],
+	"scripts": {
+		"prepublish": "",
+		"vscode:prepublish": "",
+		"compile": "tsc -p ./src/typescript",
+		"watch": "tsc -w -p ./src/typescript"
+	},
+	"engines": {
+		"vscode": "^1.47.0",
+		"node": "^6.3.0"
+	},
+	"dependencies": {
+		"@types/execa": "^2.0.0",
+		"@types/lodash": "^4.14.168",
+		"@types/serialport": "^8.0.1",
+		"@types/vscode": "^1.53.0",
+		"@types/xml2js": "^0.4.8",
+		"execa": "^5.0.0",
+		"lodash": "^4.17.21",
+		"rxjs": "^6.6.6",
+		"serialport": "^9.0.7",
+		"vscode-debugprotocol": "^1.45.0",
+		"vscode-nls": "^5.0.0",
+		"vscode-test": "^1.5.1",
+		"xml2js": "^0.4.23"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/redth/VSCode_Meadow_Extension.git"
+	},
+	"bugs": {
+		"url": "https://github.com/redth/VSCode_Meadow_Extension/issues"
+	},
+	"devDependencies": {
+		"@types/mocha": "^8.2.1",
+		"@types/node": "^14.14.31",
+		"mocha": "^8.3.0",
+		"typescript": "^4.2.2",
+		"vsce": "^1.85.0",
+		"vscode-debugadapter-testsupport": "^1.45.0",
+		"vscode-nls-dev": "^3.3.2",
+		"webpack": "^5.24.2",
+		"webpack-cli": "^4.5.0"
+	},
+	"main": "./out/extension",
+	"activationEvents": [
+		"onStartupFinished",
+		"onCommand:extension.meadow.configureExceptions",
+		"onCommand:extension.meadow.startSession"
+	],
+	"contributes": {
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "meadow",
+					"title": "Meadow",
+					"icon": "meadow.png"
+				}
+			]
+		},
+		"configuration": {
+			"type": "object",
+			"title": "%configuration.title%",
+			"properties": {
+				"meadow.exceptionOptions": {
+					"type": "object",
+					"additionalProperties": {
+						"type": "string",
+						"enum": [
+							"never",
+							"always",
+							"unhandled"
+						],
+						"enumDescriptions": [
+							"%breakMode.never%",
+							"%breakMode.always%",
+							"%breakMode.unhandled%"
+						],
+						"description": "%configuration.exceptionOptions.description2%",
+						"default": "never"
+					},
+					"description": "%configuration.exceptionOptions.description%",
+					"default": {
+						"System.Exception": "never",
+						"System.SystemException": "never",
+						"System.ArithmeticException": "never",
+						"System.ArrayTypeMismatchException": "never",
+						"System.DivideByZeroException": "never",
+						"System.IndexOutOfRangeException": "never",
+						"System.InvalidCastException": "never",
+						"System.NullReferenceException": "never",
+						"System.OutOfMemoryException": "never",
+						"System.OverflowException": "never",
+						"System.StackOverflowException": "never",
+						"System.TypeInitializationException": "never"
+					}
+				}
+			}
+		},
+		"taskDefinitions": [
+			{
+				"type": "meadow",
+				"required": [],
+				"properties": {}
+			}
+		],
+		"commands": [
+			{
+				"command": "extension.meadow.configureExceptions",
+				"title": "%configure.exceptions.command%",
+				"category": "Debug"
+			}
+		],
+		"breakpoints": [
+			{
+				"language": "csharp"
+			}
+		],
+		"debuggers": [
+			{
+				"type": "meadow",
+				"label": "Meadow",
+				"program": "./src/csharp/bin/Debug/net472/vscode-meadow.exe",
+				"osx": {
+					"runtime": "mono"
+				},
+				"linux": {
+					"runtime": "mono"
+				},
+				"initialConfigurations": [
+					{
+						"name": "%meadow.launch.config.name%",
+						"type": "meadow",
+						"request": "launch",
+						"preLaunchTask": "meadow: Build"
+					}
+				],
+				"configurationAttributes": {
+					"launch": {
+						"required": [],
+						"properties": {
+							"projectPath": {
+								"type": "string",
+								"description": "%meadow.launch.projectPath.description%",
+								"default": "undefined"
+							},
+							"projectConfiguration": {
+								"type": "string",
+								"description": "%meadow.launch.projectConfiguration.description%",
+								"default": "undefined"
+							}
+						}
+					}
+				}
+			}
+		]
+	}
+}

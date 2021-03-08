@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "meadow": {
+      "commandName": "Project",
+      "commandLineArgs": "--server"
+    }
+  }
+}
