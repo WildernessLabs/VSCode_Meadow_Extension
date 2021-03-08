@@ -184,6 +184,8 @@ namespace VSCodeDebug
 		}
 
 		CancellationTokenSource ctsDeployMeadow;
+		MeadowDeployer meadowDeployer;
+		MeadowSerialDevice meadowSerialDevice;
 
 		public override async void Launch(Response response, dynamic args)
 		{
@@ -221,9 +223,6 @@ namespace VSCodeDebug
 			Log("Starting to Deploy to Meadow...");
 
 			var success = false;
-
-			MeadowDeployer meadowDeployer;
-			MeadowSerialDevice meadowSerialDevice;
 
 			try {
 				
@@ -323,6 +322,10 @@ namespace VSCodeDebug
 		{
 			if (!ctsDeployMeadow.IsCancellationRequested)
 				ctsDeployMeadow.Cancel();
+
+			try {
+				meadowSerialDevice?.SerialPort?.Close();
+			} catch { }
 
 			if (_attachMode) {
 
