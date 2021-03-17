@@ -22,6 +22,8 @@ In the terminal:
 
 ### Building and Deploying your App in VSCode
 
+> **IMPORTANT - macOS Users**: You will need to set `omnisharp.useGlobalMono` to `always` in VSCode's settings (ie: `"omnisharp.useGlobalMono": "always"`) since the MSBuild that ships embedded with VSCode on macOS does not know how to find the .NET 4.7.2 targeting packs (reference assemblies).  This setting might need to be reverted if you want to build .NET Core projects in other solutions.
+
 1. Open your new app's folder in VSCode.
 2. Ensure your Meadow board is plugged in, and up to date.
 3. Choose _Run -> Start Debugging_ (Your code will automatically be built first).
