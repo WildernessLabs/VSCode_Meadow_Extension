@@ -65,15 +65,20 @@ export class MSBuildProjectInfo implements MSBuildProject {
 	IsCore: Boolean;
 }
 
-export class MeadowProjectManager {
-	static SelectedProject: MSBuildProjectInfo;
-	static SelectedProjectConfiguration: string;
-	static SelectedTargetFramework: string;
-	static SelectedDevice: DeviceData;
-	static Devices: DeviceData[];
-	static DebugPort: number = 55555;
+export class MeadowStartupInfo {
+	Project: MSBuildProjectInfo = undefined;
+	Configuration: string = undefined;
+	TargetFramework: string = undefined;
+	Device: DeviceData = undefined;
+	Devices: DeviceData[] = [];
+	DebugPort: number = 55555;
+}
 
+export class MeadowProjectManager {
+	
 	static Shared: MeadowProjectManager;
+
+	StartupInfo: MeadowStartupInfo = new MeadowStartupInfo();
 
 	omnisharp: any;
 
@@ -95,59 +100,23 @@ export class MeadowProjectManager {
 					
 					var msbProjInfo = await MSBuildProjectInfo.fromProject(p);
 
-					if (MeadowProjectManager.getIsSupportedProject(msbProjInfo, p)) {
+					if (MeadowProjectManager.getIsSupportedProject(msbProjInfo)) {
 						this.StartupProjects.push(await MSBuildProjectInfo.fromProject(p));
 					}
 				}
 
-				MeadowProjectManager.SelectedProject = undefined;
-				MeadowProjectManager.SelectedProjectConfiguration = undefined;
-				MeadowProjectManager.SelectedTargetFramework = undefined;
-				MeadowProjectManager.SelectedDevice = undefined;
+				if (!this.StartupInfo)
+					this.StartupInfo = new MeadowStartupInfo();
 
-				// Try and auto select some defaults
-				if (this.StartupProjects.length == 1)
+				if (!this.StartupInfo.Project || !this.StartupProjects.find(p => p.Path === this.StartupInfo.Project.Path))
 				{
-					var sp = this.StartupProjects[0];
+					this.StartupInfo.Project = undefined;
+					this.StartupInfo.Configuration = undefined;
+					this.StartupInfo.TargetFramework = undefined;
+					this.StartupInfo.Device = undefined;
+					this.StartupInfo.Devices = [];
 
-					MeadowProjectManager.SelectedProject = sp;
-
-					var defaultConfig = "Debug";
-
-					if (!sp.Configurations || sp.Configurations.length <= 0)
-					{
-						MeadowProjectManager.SelectedProjectConfiguration = defaultConfig;
-					}
-					else
-					{
-						if (sp.Configurations.includes(defaultConfig))
-							MeadowProjectManager.SelectedProjectConfiguration = defaultConfig;
-						
-						MeadowProjectManager.SelectedProjectConfiguration = sp.Configurations[0];
-					}
-						
-						
-					if (sp.TargetFrameworks)
-					{
-						if (sp.TargetFrameworks.length == 1)
-							MeadowProjectManager.SelectedTargetFramework = this.fixTfm(sp.TargetFrameworks[0].ShortName);
-					}
-					else
-					{
-						MeadowProjectManager.SelectedTargetFramework = this.fixTfm(sp.TargetFramework);
-					}
-
-					var util = new MeadowUtil();
-					var devices = await util.GetDevices();
-					
-					var meadowDevices = devices
-						.map(x => ({
-							label: x.name,
-							device: x,
-						}));
-
-					if (meadowDevices.length == 1)
-						MeadowProjectManager.SelectedDevice = meadowDevices[0].device;
+					this.selectStartupProject(false);
 				}
 
 				this.setupMenus();
@@ -162,14 +131,17 @@ export class MeadowProjectManager {
 
 	setupMenus()
 	{
-		if (this.isMenuSetup)
-			return;
+		if (!this.isMenuSetup)
+		{
+			this.context.subscriptions.push(vscode.commands.registerCommand("meadow.selectProject", () => this.selectStartupProject(true), this));
+			this.context.subscriptions.push(vscode.commands.registerCommand("meadow.selectDevice", this.showDevicePicker, this));
+			this.projectStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+			this.projectStatusBarItem.command = "meadow.selectProject";
+			this.deviceStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+			this.deviceStatusBarItem.command = "meadow.selectDevice";
 
-		this.context.subscriptions.push(vscode.commands.registerCommand("meadow.selectProject", this.showProjectPicker, this));
-		this.context.subscriptions.push(vscode.commands.registerCommand("meadow.selectDevice", this.showDevicePicker, this));
-
-		this.projectStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
-		this.deviceStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+			this.isMenuSetup = true;
+		}
 
 		this.updateProjectStatus();
 		this.updateDeviceStatus();
@@ -182,6 +154,124 @@ export class MeadowProjectManager {
 
 	public StartupProjects = new Array<MSBuildProjectInfo>();
 
+
+	public async selectStartupProject(interactive: boolean = false): Promise<any> {
+
+		var availableProjects = this.StartupProjects;
+
+		if (!availableProjects || availableProjects.length <= 0)
+			return;
+
+		var selectedProject = undefined;
+
+		// Try and auto select some defaults
+		if (availableProjects.length == 1)
+			selectedProject = availableProjects[0];
+		
+		// If there are multiple projects and we allow interactive, show a picker
+		if (!selectedProject && availableProjects.length > 0 && interactive)
+		{
+			var projects = availableProjects
+			.map(x => ({
+				label: x.AssemblyName,
+				project: x,
+			}));
+
+			if (projects && projects.length > 0)
+				selectedProject = (await vscode.window.showQuickPick(projects, { placeHolder: "Meadow Project" })).project;
+		}
+
+		// If we were interactive and didn't select a project, don't assume the first
+		// if non interactive, it's ok to assume the first project
+		if (!selectedProject && !interactive)
+			selectedProject = availableProjects[0];
+		
+		if (!selectedProject)
+			return;
+
+		var selectedTargetFramework = undefined;
+
+		if (selectedProject.TargetFrameworks && selectedProject.TargetFrameworks.length > 0)
+		{
+			// If just 1, use it without asking
+			if (selectedProject.TargetFrameworks.length == 1)
+			{
+				selectedTargetFramework = this.fixTfm(selectedProject.TargetFrameworks[0].ShortName);
+			}
+			else
+			{
+				// If more than 1 and we are interactive, prompt the user to pick
+				if (interactive)
+				{
+					var tfms = selectedProject.TargetFrameworks
+						// Only return supported tfms
+						.filter(x => MeadowProjectManager.getIsSupportedProject(selectedProject))
+						.map(x => x.ShortName);
+
+					var t = await vscode.window.showQuickPick(tfms, { placeHolder: "Startup Project's Target Framework" });
+
+					if (t)
+						selectedTargetFramework = t;
+				}
+				else {
+					// Pick the first one if not interactive
+					selectedTargetFramework = selectedProject.TargetFrameworks[0].ShortName;
+				}
+			}
+		}
+		else if (selectedProject.TargetFramework)
+		{
+			selectedTargetFramework = this.fixTfm(selectedProject.TargetFramework);
+		}
+		
+		if (!selectedTargetFramework)
+			return;
+
+		MeadowProjectManager.Shared.StartupInfo.Project = selectedProject;
+		MeadowProjectManager.Shared.StartupInfo.TargetFramework = selectedTargetFramework;
+
+		var defaultConfig = "Debug";
+
+		var selectedConfiguration = undefined;
+
+		if (selectedProject && selectedProject.Configurations)
+		{
+			if (selectedProject.Configurations.length > 0)
+			{
+				if (selectedProject.Configurations.length == 1)
+				{
+					selectedConfiguration = selectedProject.Configurations[0];
+				}
+				else
+				{
+					if (interactive)
+					{
+						var c = await vscode.window.showQuickPick(selectedProject.Configurations, { placeHolder: "Startup Project's Configuration" });
+
+						if (c)
+							selectedConfiguration = c;
+					}
+					else
+					{
+						if (selectedProject.Configurations.includes(defaultConfig))
+							selectedConfiguration = defaultConfig;
+						else
+							selectedConfiguration = selectedProject.Configurations[0];
+					}
+
+				}
+			}
+			else
+			{
+				selectedConfiguration = defaultConfig;
+			}
+		}
+
+		if (selectedConfiguration)
+			MeadowProjectManager.Shared.StartupInfo.Configuration = selectedConfiguration;
+	}
+
+
 	fixTfm(targetFramework: string) : string {
 
 		// /^net[0-9]{2}(\-[a-z0-9\.]+)?$/gis
@@ -191,73 +281,35 @@ export class MeadowProjectManager {
 		return targetFramework;
 	}
 
-	public async showTfmPicker(projectInfo: MSBuildProjectInfo): Promise<void> {
-		if (projectInfo.TargetFrameworks && projectInfo.TargetFrameworks.length > 0) {
-			// Multi targeted app, ask the user which TFM to startup
-			var tfms = projectInfo.TargetFrameworks
-				.map(x => ({
-					label: x.ShortName,
-					tfm: x
-				}));
-
-
-			const tfm = await vscode.window.showQuickPick(tfms, { placeHolder: "Target Framework" });
-			if (tfm)
-				MeadowProjectManager.SelectedTargetFramework = this.fixTfm(tfm.tfm.ShortName);
-			else
-				MeadowProjectManager.SelectedTargetFramework = this.fixTfm(projectInfo.TargetFramework);
-		}
-		else {
-			// Not multi targeted, don't need to ask the user
-			MeadowProjectManager.SelectedTargetFramework = this.fixTfm(projectInfo.TargetFramework);
-		}
-	}
-	public async showProjectPicker(): Promise<void> {
-		var projects = this.StartupProjects
-			.map(x => ({
-				//description: x.type.toString(),
-				label: x.AssemblyName,
-				project: x,
-			}));
-		const p = await vscode.window.showQuickPick(projects, { placeHolder: "Select a Startup Project" });
-		if (p) {
-
-			// Next pick TFM
-			await this.showTfmPicker(p.project);
-
-			var config = "Debug";
-
-			if (p.project.Configurations && p.project.Configurations.length > 0)
-			{
-				const c = await vscode.window.showQuickPick(p.project.Configurations, { placeHolder: "Build Configuration" });
-				if (c)
-					config = c;
-			}
-
-			MeadowProjectManager.SelectedProject = p.project;
-			MeadowProjectManager.SelectedProjectConfiguration = config;
-			MeadowProjectManager.SelectedDevice = undefined;
-		}
-		
-		this.updateProjectStatus();
-		this.updateDeviceStatus();
-	}
 
 	public async updateProjectStatus() {
-		var selProj = MeadowProjectManager.SelectedProject;
+	
+		var selProj = MeadowProjectManager.Shared.StartupInfo?.Project;
+		var selConfig = MeadowProjectManager.Shared.StartupInfo?.Configuration;
 
-		var projectString = selProj === undefined ? "Startup Project" : `${selProj.Name ?? selProj.AssemblyName} | ${MeadowProjectManager.SelectedProjectConfiguration}`;
-		this.projectStatusBarItem.text = "$(project) " + projectString;
-		this.projectStatusBarItem.tooltip = selProj === undefined ? "Select a Startup Project" : selProj.Path;
-		this.projectStatusBarItem.command = "meadow.selectProject";
-		this.projectStatusBarItem.show();
+		var projStr = "Meadow Project";
+		if (selProj)
+		{
+			projStr = selProj.Name ?? selProj.AssemblyName ?? "Meadow Project";
+
+			if (selConfig)
+				projStr += " | " + selConfig;
+		}
+
+		this.projectStatusBarItem.text = "$(project) " + projStr;
+		this.projectStatusBarItem.tooltip = selProj === undefined ? "Select a Meadow Project" : selProj.Path;
+		
+		if (this.StartupProjects && this.StartupProjects.length > 0)
+			this.projectStatusBarItem.show();
+		else
+			this.projectStatusBarItem.hide();
 	}
 
 
 	public async showDevicePicker(): Promise<void> {
 
-		if (MeadowProjectManager.SelectedProject === undefined) {
-			await vscode.window.showInformationMessage("Select a Startup Project first.");
+		if (MeadowProjectManager.Shared?.StartupInfo?.Project === undefined) {
+			await vscode.window.showInformationMessage("Select a Meadow Project first.");
 			return;
 		}
 
@@ -286,7 +338,7 @@ export class MeadowProjectManager {
 
 		const p = await vscode.window.showQuickPick(pickerDevices, { placeHolder: "Select a Device" });
 		if (p) {
-			MeadowProjectManager.SelectedDevice = p.device;
+			MeadowProjectManager.Shared.StartupInfo.Device = p.device;
 		}
 		
 
@@ -294,14 +346,24 @@ export class MeadowProjectManager {
 	}
 
 	public async updateDeviceStatus() {
-		var deviceStr = MeadowProjectManager.SelectedDevice === undefined ? "Select a Device" : `${MeadowProjectManager.SelectedDevice.name}`;
+		
+		var selDevice = MeadowProjectManager.Shared?.StartupInfo?.Device;
+
+		var deviceStr = "Meadow Device";
+		
+		if (selDevice && selDevice?.name)
+			deviceStr = selDevice.name;
+		
 		this.deviceStatusBarItem.text = "$(device-mobile) " + deviceStr;
-		this.deviceStatusBarItem.tooltip = MeadowProjectManager.SelectedProject === undefined ? "Select a Device" : deviceStr;
-		this.deviceStatusBarItem.command = "meadow.selectDevice";
-		this.deviceStatusBarItem.show();
+		this.deviceStatusBarItem.tooltip = deviceStr;
+
+		if (this.StartupProjects && this.StartupProjects.length > 0)
+			this.deviceStatusBarItem.show();
+		else
+			this.deviceStatusBarItem.hide();
 	}
 
-	public static getIsSupportedProject(projectInfo: MSBuildProjectInfo, project: MSBuildProject): boolean
+	public static getIsSupportedProject(projectInfo: MSBuildProjectInfo): boolean
 	{
 		if ((projectInfo?.Sdk?.toLowerCase()?.indexOf("meadow") ?? -1) >= 0)
 			return true;

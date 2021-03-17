@@ -109,14 +109,16 @@ export class MeadowBuildTaskProvider implements vscode.TaskProvider {
 
 	private async getTasks(): Promise<vscode.Task[]> {
 		
-		if (!MeadowProjectManager.SelectedProject)
+		var startupInfo = MeadowProjectManager.Shared.StartupInfo;
+
+		if (!startupInfo.Project)
 		{
 			vscode.window.showInformationMessage("Startup Project not selected!");
 			return undefined;
 		}
 
-		this.csproj = MeadowProjectManager.SelectedProject.Path;
-		this.configuration = MeadowProjectManager.SelectedProjectConfiguration;
+		this.csproj = startupInfo.Project.Path;
+		this.configuration = startupInfo.Configuration;
 
 		var flags = [];
 		var command = "dotnet";
@@ -132,11 +134,14 @@ export class MeadowBuildTaskProvider implements vscode.TaskProvider {
 	}
 
 	private getTask(command:string ,target: string, flags: string[], definition?: MeadowBuildTaskDefinition): vscode.Task{
-		var configuration = MeadowProjectManager.SelectedProjectConfiguration;
-		var csproj = MeadowProjectManager.SelectedProject.Path;
-		var isCore = MeadowProjectManager.SelectedProject.IsCore;
-		var tfm = MeadowProjectManager.SelectedTargetFramework;
-		var device = MeadowProjectManager.SelectedDevice;
+
+		var startupInfo = MeadowProjectManager.Shared.StartupInfo;
+
+		var configuration = startupInfo.Configuration;
+		var csproj = startupInfo.Project.Path;
+		var isCore = startupInfo.Project.IsCore;
+		var tfm = startupInfo.TargetFramework;
+		var device = startupInfo.Device;
 
 		if (definition === undefined) {
 			definition = {

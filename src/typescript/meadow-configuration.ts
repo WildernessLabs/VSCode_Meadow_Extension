@@ -17,8 +17,10 @@ export class MeadowConfigurationProvider implements vscode.DebugConfigurationPro
 	async resolveDebugConfiguration(folder: WorkspaceFolder | undefined, config: DebugConfiguration, token?: vscode.CancellationToken): Promise<DebugConfiguration> {
 
 		// No launch.json exists, let's help fill out a nice default
-		if (!config.type)
-			config.type = 'meadow';
+		if (!config.type || config.type !== 'meadow')
+			return null;
+		
+		var startupInfo = MeadowProjectManager.Shared.StartupInfo;
 
 		if (!config.request)
 			config.request = 'launch';
@@ -29,18 +31,20 @@ export class MeadowConfigurationProvider implements vscode.DebugConfigurationPro
 		// if launch.json is missing or empty
 		if (config.type == 'meadow') {
 
-			var project = MeadowProjectManager.SelectedProject;
+			var project = startupInfo.Project;
 
 			if (!project)
 			{
-				await MeadowProjectManager.Shared.showProjectPicker();
-				project = MeadowProjectManager.SelectedProject;
+				await MeadowProjectManager.Shared.selectStartupProject();
+				project = startupInfo.Project;
 			}
 
 			if (!project) {
 				vscode.window.showErrorMessage("Startup Project not selected!");
 				return undefined;
 			}
+
+			startupInfo = MeadowProjectManager.Shared.StartupInfo;
 
 			if (project) {
 
@@ -51,21 +55,21 @@ export class MeadowConfigurationProvider implements vscode.DebugConfigurationPro
 					config['projectOutputPath'] = project.OutputPath;
 
 				if (!config['projectConfiguration'])
-					config['projectConfiguration'] = MeadowProjectManager.SelectedProjectConfiguration;
+					config['projectConfiguration'] = startupInfo.Configuration;
 
-				var projectIsCore = MeadowProjectManager.SelectedProject.IsCore;
+				var projectIsCore = startupInfo.Project.IsCore;
 
 				config['projectIsCore'] = projectIsCore;
-				config['projectTargetFramework'] = MeadowProjectManager.SelectedTargetFramework;
+				config['projectTargetFramework'] = startupInfo.TargetFramework;
 
-				config['debugPort'] = MeadowProjectManager.DebugPort;
+				config['debugPort'] = startupInfo.DebugPort;
 
-				var device = MeadowProjectManager.SelectedDevice;
+				var device = startupInfo.Device;
 
 				if (!device)
 				{ 
 					await MeadowProjectManager.Shared.showDevicePicker();
-					device = MeadowProjectManager.SelectedDevice;
+					device = startupInfo.Device;
 				}
 
 				if (!device) {
