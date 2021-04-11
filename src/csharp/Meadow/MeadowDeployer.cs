@@ -27,7 +27,7 @@ namespace VsCodeMeadowUtil
             Console.WriteLine(message);
         }
 
-        public async Task<bool> Deploy(MeadowSerialDevice meadow, CancellationTokenSource cts, string folder)
+        public async Task<bool> Deploy(MeadowSerialDevice meadow, CancellationTokenSource cts, string folder, int debugPort)
         {
             try
             {
@@ -41,7 +41,11 @@ namespace VsCodeMeadowUtil
 
                 await MeadowDeviceManager.MonoEnable(meadow);
 
-                //MeadowDeviceManager.VSDebugging(55556);
+                if (debugPort > 1000)
+                {
+                    Log($"Creating debugger service: {debugPort}");
+                    MeadowDeviceManager.CreateDebuggingServer(meadow, debugPort);
+                }
 
                 Log("Resetting Meadow and starting app");
                 return true;

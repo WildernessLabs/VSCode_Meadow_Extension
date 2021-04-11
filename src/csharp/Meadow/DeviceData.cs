@@ -39,7 +39,7 @@ namespace VsCodeMeadowUtil
 		public string ProjectTargetFramework { get; set; }
 		public bool ProjectIsCore { get; set; }
 		public string OutputDirectory { get; set; }
-		public int DebugPort { get; set; }
+		public int DebugPort { get; set; } = -1;
 
 		public string Serial { get;set; }
 

@@ -236,7 +236,7 @@ namespace VSCodeDebug
 				}
 
 				meadowDeployer = new MeadowDeployer(meadowSerialDevice, Log);
-				success = await meadowDeployer.Deploy(meadowSerialDevice, ctsDeployMeadow, fullOutputPath);
+				success = await meadowDeployer.Deploy(meadowSerialDevice, ctsDeployMeadow, fullOutputPath, launchOptions.DebugPort);
 			} catch (Exception ex) {
 				SendErrorResponse(response, 3002, "Deploy failed: " + ex.Message);
 				return;
@@ -251,7 +251,12 @@ namespace VSCodeDebug
 
 			meadowDeployer.MeadowDevice.OnMeadowMessage += MeadowMesssageRx;
 
-			// Connect (launchOptions, address, port);
+
+			if (port > 1000)
+			{
+				Log($"Connecting to debugger: {address}:{port}");
+				Connect (launchOptions, address, port);
+			}
 
 			SendResponse (response);
 		}
