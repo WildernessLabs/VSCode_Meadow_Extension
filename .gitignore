@@ -351,4 +351,6 @@ MigrationBackup/
 
 .DS_Store
 
-out/
+/out/
+
+/dist/

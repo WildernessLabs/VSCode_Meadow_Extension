@@ -16,24 +16,23 @@ function BuildNet
 {
 	Write-Host "Building .NET Project..."
 
-	& msbuild /r /p:Configuration=Debug /p:nugetInteractive=true ./src/csharp/VSCodeMeadow.csproj
+	& msbuild /r /p:Configuration=Debug ./src/csharp/VSCodeMeadow.csproj
 
 	Write-Host "Done .NET Project "
 }
 
 function BuildTypeScript
 {
-	Write-Host "Building TypeScript..."
+	Write-Host "Building WebPack..."
 
-	& tsc -p ./src/typescript
+	& npm run webpack
 
-	Write-Host "Done TypeScript."
+	Write-Host "Done WebPack."
 }
 
 
 switch ($cmd) {
 	"all" {
-		Debug
 		BuildNet
 		BuildTypeScript
 		Vsix

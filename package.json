@@ -19,8 +19,8 @@
 	"scripts": {
 		"prepublish": "",
 		"vscode:prepublish": "",
-		"compile": "tsc -p ./src/typescript",
-		"watch": "tsc -w -p ./src/typescript"
+		"webpack": "webpack --mode development",
+		"webpack-dev": "webpack --mode development --watch"
 	},
 	"engines": {
 		"vscode": "^1.47.0",
@@ -36,6 +36,7 @@
 		"lodash": "^4.17.21",
 		"rxjs": "^6.6.6",
 		"serialport": "^9.0.7",
+		"ts-loader": "^8.1.0",
 		"vscode-debugprotocol": "^1.45.0",
 		"vscode-nls": "^5.0.0",
 		"vscode-test": "^1.5.1",
@@ -59,7 +60,7 @@
 		"webpack": "^5.24.2",
 		"webpack-cli": "^4.5.0"
 	},
-	"main": "./out/extension",
+	"main": "./dist/extension",
 	"activationEvents": [
 		"onStartupFinished",
 		"onCommand:extension.meadow.configureExceptions",
