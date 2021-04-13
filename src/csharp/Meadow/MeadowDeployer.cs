@@ -90,6 +90,7 @@ namespace VsCodeMeadowUtil
                         s.EndsWith(".json") ||
                         s.EndsWith(".xml") ||
                         s.EndsWith(".yml") ||
+                        s.EndsWith(".so") ||
                         s.EndsWith("Meadow.Foundation.dll"));
 
             var dependences = AssemblyManager.GetDependencies("App.exe", folder);
