@@ -11,7 +11,7 @@ using System.Net;
 using VsCodeMeadowUtil;
 using Mono.Debugging.Client;
 using System.Threading.Tasks;
-using MeadowCLI.DeviceManagement;
+using Meadow.CLI.Core.DeviceManagement;
 
 namespace VSCodeDebug
 {
@@ -186,6 +186,7 @@ namespace VSCodeDebug
 		CancellationTokenSource ctsDeployMeadow;
 		MeadowDeployer meadowDeployer;
 		MeadowSerialDevice meadowSerialDevice;
+		Meadow.CLI.Core.Internals.MeadowCommunication.ReceiveClasses.DebuggingServer meadowDebuggingServer;
 
 		public override async void Launch(Response response, dynamic args)
 		{
@@ -227,7 +228,8 @@ namespace VSCodeDebug
 			try {
 				
 				// DEPLOY
-				meadowSerialDevice = new MeadowSerialDevice(launchOptions.Serial, false);
+				meadowSerialDevice = new MeadowSerialDevice(launchOptions.Serial,
+					new DebugSessionLogger(msg => Log(msg)));
 
 				if (!meadowSerialDevice.Initialize())
 				{
@@ -235,8 +237,17 @@ namespace VSCodeDebug
 					return;
 				}
 
-				meadowDeployer = new MeadowDeployer(meadowSerialDevice, Log);
-				success = await meadowDeployer.Deploy(meadowSerialDevice, ctsDeployMeadow, fullOutputPath, launchOptions.DebugPort);
+				meadowDeployer = new MeadowDeployer(meadowSerialDevice);
+				
+				await meadowDeployer.Deploy(meadowSerialDevice, ctsDeployMeadow, fullOutputPath, port > 1000);
+
+				success = true;
+
+				if (port > 1000)
+				{
+					//meadowDebuggingServer = meadowSerialDevice.debug
+					//meadowDebuggingServer?.StartListening(meadowSerialDevice);
+				}
 			} catch (Exception ex) {
 				SendErrorResponse(response, 3002, "Deploy failed: " + ex.Message);
 				return;
@@ -248,23 +259,13 @@ namespace VSCodeDebug
 				return;
 			}
 
-
-			meadowDeployer.MeadowDevice.OnMeadowMessage += MeadowMesssageRx;
-
-
 			if (port > 1000)
 			{
-				Log($"Connecting to debugger: {address}:{port}");
-				Connect (launchOptions, address, port);
+				//Log($"Connecting to debugger: {address}:{port}");
+				//Connect (launchOptions, address, port);
 			}
 
 			SendResponse (response);
-		}
-
-		void MeadowMesssageRx(object sender, MeadowCLI.Hcom.MeadowMessageEventArgs e)
-		{
-			if (e.MessageType == MeadowCLI.Hcom.MeadowMessageType.AppOutput)
-				Log(e.Message);
 		}
 
 		void Log(string message)

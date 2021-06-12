@@ -1,5 +1,4 @@
-﻿using MeadowCLI.DeviceManagement;
-using Mono.Options;
+﻿using Mono.Options;
 using System;
 using System.Collections;
 using System.Collections.Generic;
