@@ -122,11 +122,6 @@ export class MeadowBuildTaskProvider implements vscode.TaskProvider {
 
 		var flags = [];
 		var command = "dotnet";
-		
-		//TODO: Eventually can support dotnet core and use dotnet build
-		// Use MSBuild for old projects
-		//if (!MeadowProjectManager.SelectedProject.IsCore)
-		command = await MeadowBuildTaskProvider.locateMSBuild();
 
 		return [
 			this.getTask(command, "Build", flags)
@@ -158,12 +153,11 @@ export class MeadowBuildTaskProvider implements vscode.TaskProvider {
 		var args = [csproj, `-r`, `-t:${target}`, `-p:Configuration=${configuration}`];
 
 		// dotnet needs the build verb
-		// if (isCore) {
-		// 	args.unshift("build");
+		args.unshift("build");
+
 		// 	if (tfm)
 		// 		args.push(`-p:TargetFramework=${tfm}`);
-		// }
-
+		
 		args.concat(flags);
 		var task = new vscode.Task(definition, definition.target, 'meadow', new vscode.ProcessExecution(command, args),
 			"$msCompile");
