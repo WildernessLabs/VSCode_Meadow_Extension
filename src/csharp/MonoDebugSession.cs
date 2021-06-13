@@ -231,7 +231,7 @@ namespace VSCodeDebug
 				meadowSerialDevice = new MeadowSerialDevice(launchOptions.Serial,
 					new DebugSessionLogger(msg => Log(msg)));
 
-				if (!meadowSerialDevice.Initialize())
+				if (!(await meadowSerialDevice.InitializeAsync(ctsDeployMeadow.Token)))
 				{
 					SendErrorResponse(response, 3002, "Failed to initialize Meadow: " + launchOptions.Serial);
 					return;
