@@ -16,7 +16,7 @@ function BuildNet
 {
 	Write-Host "Building .NET Project..."
 
-	& msbuild /r /p:Configuration=Debug ./src/csharp/VSCodeMeadow.csproj
+	& dotnet build -p:Configuration=Debug ./src/csharp/VSCodeMeadow.csproj
 
 	Write-Host "Done .NET Project "
 }
