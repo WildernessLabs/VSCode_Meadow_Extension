@@ -150,7 +150,7 @@ export class MeadowBuildTaskProvider implements vscode.TaskProvider {
 			};
 		}
 
-		var args = [csproj, `-r`, `-t:${target}`, `-p:Configuration=${configuration}`];
+		var args = [csproj, `-t:${target}`, `-p:Configuration=${configuration}`];
 
 		// dotnet needs the build verb
 		args.unshift("build");
