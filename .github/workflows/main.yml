@@ -26,7 +26,7 @@ jobs:
     - name: Compile TypeScript
       run: ./node_modules/.bin/tsc -p ./src/typescript
     - name: Build VSCodeMeadow
-      run: msbuild /r /p:Configuration=Debug ./src/csharp/VSCodeMeadow.csproj
+      run: dotnet build -p:Configuration=Debug ./src/csharp/VSCodeMeadow.csproj
     - name: Create VSIX
       run: ./node_modules/.bin/vsce package
     - name: Artifacts
