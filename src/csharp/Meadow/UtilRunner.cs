@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using VSCodeDebug;
+using Meadow.CLI.Core.DeviceManagement;
 
 namespace VsCodeMeadowUtil
 {
@@ -83,66 +84,9 @@ namespace VsCodeMeadowUtil
 		{
 			var devices = new List<DeviceData>();
 
-			if (ShellProcessRunner.IsWindows)
-				return System.IO.Ports.SerialPort.GetPortNames().Select(p => new DeviceData { Name = p, Serial = p });
+			var ports = MeadowDeviceManager.GetSerialPorts() ?? new List<string>();
 
-			return GetMeadowSerialPortsMac().Select(p => new DeviceData { Name = p, Serial = p });
-		}
-
-
-		static List<string> GetMeadowSerialPortsMac()
-		{
-			var ports = new List<string>();
-
-			var psi = new ProcessStartInfo
-			{
-				FileName = "/usr/sbin/ioreg",
-				UseShellExecute = false,
-				RedirectStandardOutput = true,
-				Arguments = "-r -c IOUSBHostDevice -l"
-			};
-
-			string output = string.Empty;
-
-			using (var p = Process.Start(psi))
-			{
-				if (p != null)
-				{
-					output = p.StandardOutput.ReadToEnd();
-					p.WaitForExit();
-				}
-			}
-
-			//split into lines
-			var lines = output.Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-
-			bool foundMeadow = false;
-			for (int i = 0; i < lines.Length; i++)
-			{
-				//first level devices 
-				if (lines[i].IndexOf("+-o") == 0)
-				{
-					//we reset here so we don't read a serial port name for a non-Meadow device
-					foundMeadow = false;
-					if (lines[i].Contains("Meadow"))
-					{
-						//found a meadow device
-						foundMeadow = true;
-					}
-				}
-
-				//now find the IODialinDevice entry which contains the serial port name
-				if (foundMeadow && lines[i].Contains("IODialinDevice"))
-				{
-					int startIndex = lines[i].IndexOf("/");
-					int endIndex = lines[i].IndexOf("\"", startIndex + 1);
-					var port = lines[i].Substring(startIndex, endIndex - startIndex);
-
-					ports.Add(port);
-					foundMeadow = false;
-				}
-			}
-			return ports;
+			return ports.Select(p => new DeviceData { Name = p, Serial = p });
 		}
 	}
 }
