@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using VsCodeMeadowUtil;
@@ -24,7 +25,8 @@ namespace VSCodeDebug
 
 		public Action<string> OutputHandler { get; private set; }
 
-		public static bool IsWindows => Environment.OSVersion.Platform == PlatformID.Win32NT;
+		public static bool IsWindows => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+		public static bool IsOsx => RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
 
 		public ShellProcessRunner(string executable, string args, System.Threading.CancellationToken cancellationToken, Action<string> outputHandler = null)
 		{
