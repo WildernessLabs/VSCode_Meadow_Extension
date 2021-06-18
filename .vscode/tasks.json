@@ -23,7 +23,7 @@
 		{
 			"label": "build",
 			"type": "shell",
-			"command": "msbuild /r /t:Build /p:Configuration=Debug ./src/csharp/VSCodeMeadow.csproj"
+			"command": "dotnet build -p:Configuration=Debug ./src/csharp/VSCodeMeadow.csproj"
 		},
 	]
 }
