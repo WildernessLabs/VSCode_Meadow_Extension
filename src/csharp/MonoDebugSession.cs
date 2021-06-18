@@ -12,6 +12,7 @@ using VsCodeMeadowUtil;
 using Mono.Debugging.Client;
 using System.Threading.Tasks;
 using Meadow.CLI.Core.DeviceManagement;
+using Meadow.CLI.Core.Devices;
 
 namespace VSCodeDebug
 {
@@ -186,6 +187,7 @@ namespace VSCodeDebug
 		CancellationTokenSource ctsDeployMeadow;
 		MeadowDeployer meadowDeployer;
 		MeadowSerialDevice meadowSerialDevice;
+
 		Meadow.CLI.Core.Internals.MeadowCommunication.ReceiveClasses.DebuggingServer meadowDebuggingServer;
 
 		public override async void Launch(Response response, dynamic args)
@@ -215,8 +217,6 @@ namespace VSCodeDebug
 
 			ctsDeployMeadow = new CancellationTokenSource();
 
-
-
 			var fullOutputPath = Path.Combine(
 				Path.GetDirectoryName(launchOptions.Project),
 				Utilities.FixPathSeparators(launchOptions.OutputDirectory));
@@ -226,6 +226,7 @@ namespace VSCodeDebug
 			var success = false;
 
 			try {
+				
 				
 				// DEPLOY
 				meadowSerialDevice = new MeadowSerialDevice(launchOptions.Serial,
