@@ -186,9 +186,6 @@ namespace VSCodeDebug
 
 		CancellationTokenSource ctsDeployMeadow;
 		MeadowDeployer meadowDeployer;
-		MeadowSerialDevice meadowSerialDevice;
-
-		Meadow.CLI.Core.Internals.MeadowCommunication.ReceiveClasses.DebuggingServer meadowDebuggingServer;
 
 		public override async void Launch(Response response, dynamic args)
 		{
@@ -202,8 +199,6 @@ namespace VSCodeDebug
 				SendErrorResponse (response, 3002, valid.message);
 				return;
 			}
-
-			int port = launchOptions.DebugPort;
 
 			var host = getString (args, "address");
 			IPAddress address = string.IsNullOrWhiteSpace (host) ? IPAddress.Loopback : Utilities.ResolveIPAddress (host);
@@ -221,35 +216,38 @@ namespace VSCodeDebug
 				Path.GetDirectoryName(launchOptions.Project),
 				Utilities.FixPathSeparators(launchOptions.OutputDirectory));
 
+
 			Log("Starting to Deploy to Meadow...");
 
 			var success = false;
 
+			var tcsDebugStarted = new TaskCompletionSource<object>();
+
 			try {
 				
-				
+				var logger = new DebugSessionLogger(l => Log(l));
 				// DEPLOY
-				meadowSerialDevice = new MeadowSerialDevice(launchOptions.Serial,
-					new DebugSessionLogger(msg => Log(msg)));
-
-				if (!(await meadowSerialDevice.InitializeAsync(ctsDeployMeadow.Token)))
-				{
-					SendErrorResponse(response, 3002, "Failed to initialize Meadow: " + launchOptions.Serial);
-					return;
-				}
-
-				meadowDeployer = new MeadowDeployer(meadowSerialDevice);
+				meadowDeployer = new MeadowDeployer(logger, launchOptions.Serial, ctsDeployMeadow.Token);
 				
-				await meadowDeployer.Deploy(meadowSerialDevice, ctsDeployMeadow, fullOutputPath, port > 1000);
+				await meadowDeployer.Deploy(fullOutputPath, launchOptions.DebugPort, async () =>
+				{
+					_attachMode = true;
+					Log($"Connecting to debugger: {address}:{launchOptions.DebugPort}");
+
+					await Task.Delay(1000);
+					Connect(IPAddress.Loopback, launchOptions.DebugPort);
+
+					tcsDebugStarted.TrySetResult(new object());
+
+				});
+
+				if (launchOptions.DebugPort < 1000)
+					tcsDebugStarted.TrySetResult(new object());
 
 				success = true;
 
-				if (port > 1000)
-				{
-					//meadowDebuggingServer = meadowSerialDevice.debug
-					//meadowDebuggingServer?.StartListening(meadowSerialDevice);
-				}
 			} catch (Exception ex) {
+				success = false;
 				SendErrorResponse(response, 3002, "Deploy failed: " + ex.Message);
 				return;
 			}
@@ -260,13 +258,11 @@ namespace VSCodeDebug
 				return;
 			}
 
-			if (port > 1000)
-			{
-				//Log($"Connecting to debugger: {address}:{port}");
-				//Connect (launchOptions, address, port);
-			}
 
-			SendResponse (response);
+			await tcsDebugStarted.Task;
+
+			SendResponse(response);
+
 		}
 
 		void Log(string message)
@@ -287,7 +283,6 @@ namespace VSCodeDebug
 					TimeBetweenConnectionAttempts = CONNECTION_ATTEMPT_INTERVAL
 				};
 
-				Console.WriteLine ("Listening for debugger!");
 				_debuggeeExecuting = true;
 				_session.Run (new Mono.Debugging.Soft.SoftDebuggerStartInfo (args), _debuggerSessionOptions);
 
@@ -329,10 +324,6 @@ namespace VSCodeDebug
 		{
 			if (!ctsDeployMeadow.IsCancellationRequested)
 				ctsDeployMeadow.Cancel();
-
-			try {
-				meadowSerialDevice?.SerialPort?.Close();
-			} catch { }
 
 			if (_attachMode) {
 
