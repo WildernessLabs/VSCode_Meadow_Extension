@@ -13,6 +13,7 @@ using Mono.Debugging.Client;
 using System.Threading.Tasks;
 using Meadow.CLI.Core.DeviceManagement;
 using Meadow.CLI.Core.Devices;
+using Meadow.CLI.Core.Internals.MeadowCommunication.ReceiveClasses;
 
 namespace VSCodeDebug
 {
@@ -186,6 +187,7 @@ namespace VSCodeDebug
 
 		CancellationTokenSource ctsDeployMeadow;
 		MeadowDeployer meadowDeployer;
+		DebuggingServer meadowDebuggingServer;
 
 		public override async void Launch(Response response, dynamic args)
 		{
@@ -216,33 +218,26 @@ namespace VSCodeDebug
 				Path.GetDirectoryName(launchOptions.Project),
 				Utilities.FixPathSeparators(launchOptions.OutputDirectory));
 
-
 			Log("Starting to Deploy to Meadow...");
 
 			var success = false;
 
-			var tcsDebugStarted = new TaskCompletionSource<object>();
-
 			try {
 				
 				var logger = new DebugSessionLogger(l => Log(l));
+				
 				// DEPLOY
 				meadowDeployer = new MeadowDeployer(logger, launchOptions.Serial, ctsDeployMeadow.Token);
-				
-				await meadowDeployer.Deploy(fullOutputPath, launchOptions.DebugPort, async () =>
+
+				meadowDebuggingServer = await meadowDeployer.Deploy(fullOutputPath, launchOptions.DebugPort);
+
+				if (meadowDebuggingServer != null)
 				{
 					_attachMode = true;
 					Log($"Connecting to debugger: {address}:{launchOptions.DebugPort}");
 
-					await Task.Delay(1000);
 					Connect(IPAddress.Loopback, launchOptions.DebugPort);
-
-					tcsDebugStarted.TrySetResult(new object());
-
-				});
-
-				if (launchOptions.DebugPort < 1000)
-					tcsDebugStarted.TrySetResult(new object());
+				}
 
 				success = true;
 
@@ -258,11 +253,7 @@ namespace VSCodeDebug
 				return;
 			}
 
-
-			await tcsDebugStarted.Task;
-
 			SendResponse(response);
-
 		}
 
 		void Log(string message)
@@ -320,8 +311,19 @@ namespace VSCodeDebug
 			SendResponse(response);
 		}
 
-		public override void Disconnect(Response response, dynamic args)
+		public override async void Disconnect(Response response, dynamic args)
 		{
+			if (meadowDeployer != null)
+				meadowDeployer.Dispose();
+
+			if (meadowDebuggingServer != null)
+			{
+				try { await meadowDebuggingServer.StopListeningAsync(); } catch { }
+
+				try { meadowDebuggingServer.Dispose(); }
+				finally { meadowDebuggingServer = null; }
+			}
+
 			if (!ctsDeployMeadow.IsCancellationRequested)
 				ctsDeployMeadow.Cancel();
 
