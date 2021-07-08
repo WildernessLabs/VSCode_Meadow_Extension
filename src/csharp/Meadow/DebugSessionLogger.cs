@@ -20,7 +20,7 @@ namespace VsCodeMeadowUtil
 			if (System.Diagnostics.Debugger.IsAttached)
 				return true;
 
-			return logLevel != LogLevel.Trace && logLevel != LogLevel.Debug;
+			return logLevel == LogLevel.Information;
 		}
 
 		public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)

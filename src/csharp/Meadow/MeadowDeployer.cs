@@ -6,29 +6,59 @@ using System.Threading;
 using System.Threading.Tasks;
 using Meadow.CLI.Core.DeviceManagement;
 using Meadow.CLI.Core.Devices;
+using Meadow.CLI.Core.Internals.MeadowCommunication.ReceiveClasses;
 using Microsoft.Extensions.Logging;
 
 namespace VsCodeMeadowUtil
 {
-    public class MeadowDeployer
+    public class MeadowDeployer : IDisposable
     {
-        public MeadowSerialDevice MeadowDevice { get; private set; }
-
-        public MeadowDeployer(MeadowSerialDevice meadowSerialDevice)
+        public MeadowDeployer(ILogger logger, string serial, CancellationToken cancellationToken)
         {
-            MeadowDevice = meadowSerialDevice;
+            Logger = logger;
+            Serial = serial;
+            CancelToken = cancellationToken;
         }
 
-        public async Task Deploy(MeadowSerialDevice meadow, CancellationTokenSource cts, string folder, bool debug = false)
-        {
-            var dllPath = Path.Combine(folder, "App.dll");
-            var exePath = Path.Combine(folder, "App.exe");
-            if (File.Exists(dllPath))
-                File.Copy(dllPath, exePath, true);
+        public ILogger Logger { get; private set; }
+        public string Serial { get; private set; }
+        public CancellationToken CancelToken { get; private set; }
 
-            await meadow.MonoDisableAsync(cts.Token).ConfigureAwait(false);
-            await meadow.DeployAppAsync(exePath, debug, cts.Token);
-            await meadow.MonoEnableAsync(cts.Token).ConfigureAwait(false);
+        MeadowDeviceHelper meadow = null;
+
+        public async void Dispose()
+        {
+            try
+            {
+                if (meadow != null)
+                    await meadow.MonoDisableAsync(CancelToken);
+            } catch { }
+
+            try { meadow.Dispose(); }
+            finally { meadow = null; }
+        }
+        public async Task<DebuggingServer> Deploy(string folder, int debugPort = -1)
+        {
+            if (meadow == null)
+            {
+                var m = await MeadowDeviceManager.GetMeadowForSerialPort(Serial, logger: Logger).ConfigureAwait(false);
+                if (m == null)
+                    throw new InvalidOperationException("Meadow device not found");
+
+                meadow = new MeadowDeviceHelper(m, Logger);
+            }
+
+            var dllPath = Path.Combine(folder, "App.dll");
+
+            await meadow.MonoDisableAsync(CancelToken).ConfigureAwait(false);
+            await meadow.DeployAppAsync(dllPath, debugPort > 1000, CancelToken).ConfigureAwait(false);
+            await meadow.MonoEnableAsync(CancelToken).ConfigureAwait(false);
+
+            // Debugger only returns when session is done
+            if (debugPort > 1000)
+                return await meadow.StartDebuggingSessionAsync(debugPort, CancelToken);
+
+            return null;
         }
     }
 }

@@ -62,7 +62,9 @@ export class MeadowConfigurationProvider implements vscode.DebugConfigurationPro
 				config['projectIsCore'] = projectIsCore;
 				config['projectTargetFramework'] = startupInfo.TargetFramework;
 
-				config['debugPort'] = startupInfo.DebugPort;
+				// Only set the debug port for debug config
+				if (startupInfo.Configuration.toLowerCase() === 'debug')
+					config['debugPort'] = startupInfo.DebugPort;
 
 				var device = startupInfo.Device;
 

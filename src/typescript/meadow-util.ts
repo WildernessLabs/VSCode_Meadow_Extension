@@ -42,7 +42,7 @@ export class MeadowUtil
 
 		var extPath = thisExtension.extensionPath;
 
-		this.UtilPath = path.join(extPath, 'src', 'csharp', 'bin', 'Debug', 'net5.0', 'vscode-meadow.dll');
+		this.UtilPath = path.join(extPath, 'src', 'csharp', 'bin', 'Debug', 'net472', 'vscode-meadow.exe');
 	}
 
 	async RunCommand<TResult>(cmd: string, args: string[] = null)
@@ -58,10 +58,10 @@ export class MeadowUtil
 
 		var proc: any;
 
-		//if (this.isUnix)
+		if (this.isUnix)
 			proc = await execa('dotnet', [ this.UtilPath ].concat(stdargs));
-		// else
-		// 	proc = await execa(this.UtilPath, stdargs);
+		else
+			proc = await execa(this.UtilPath, stdargs);
 
 		var txt = proc['stdout'];
 

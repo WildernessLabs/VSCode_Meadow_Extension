@@ -71,7 +71,7 @@ export class MeadowStartupInfo {
 	TargetFramework: string = undefined;
 	Device: DeviceData = undefined;
 	Devices: DeviceData[] = [];
-	DebugPort: number = -1;
+	DebugPort: number = 5881;
 }
 
 export class MeadowProjectManager {
