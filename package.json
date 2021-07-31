@@ -63,6 +63,7 @@
 	"main": "./dist/extension",
 	"activationEvents": [
 		"onStartupFinished",
+		"onDebug",
 		"onCommand:extension.meadow.configureExceptions",
 		"onCommand:extension.meadow.startSession"
 	],
