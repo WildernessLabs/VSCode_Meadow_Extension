@@ -80,6 +80,8 @@ export class MeadowProjectManager {
 
 	StartupInfo: MeadowStartupInfo = new MeadowStartupInfo();
 
+	HasSupportedProjects: boolean;
+
 	omnisharp: any;
 
 	context: vscode.ExtensionContext;
@@ -104,6 +106,9 @@ export class MeadowProjectManager {
 						this.StartupProjects.push(await MSBuildProjectInfo.fromProject(p));
 					}
 				}
+
+				// Determine if meadow projects found at all
+				this.HasSupportedProjects = (this.StartupProjects?.length ?? 0) > 0;
 
 				if (!this.StartupInfo)
 					this.StartupInfo = new MeadowStartupInfo();
