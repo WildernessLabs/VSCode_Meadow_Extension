@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using VSCodeDebug;
 using Meadow.CLI.Core.DeviceManagement;
+using Meadow.CLI.Core.Devices;
 
 namespace VsCodeMeadowUtil
 {
@@ -84,9 +85,9 @@ namespace VsCodeMeadowUtil
 		{
 			var devices = new List<DeviceData>();
 
-			var ports = MeadowDeviceManager.GetSerialPorts() ?? new List<string>();
+			var ports = MeadowDeviceManager.GetSerialPorts() ?? new List<MeadowDeviceEntity>();
 
-			return ports.Select(p => new DeviceData { Name = p, Serial = p });
+			return ports.Select(p => new DeviceData { Name = p.Port, Serial = p.SerialNumber });
 		}
 	}
 }

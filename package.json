@@ -138,13 +138,8 @@
 			{
 				"type": "meadow",
 				"label": "Meadow",
-				"program": "./src/csharp/bin/Debug/net472/vscode-meadow.exe",
-				"osx": {
-					"runtime": "mono"
-				},
-				"linux": {
-					"runtime": "mono"
-				},
+				"program": "./src/csharp/bin/Debug/net5.0/vscode-meadow.dll",
+				"runtime": "dotnet",
 				"initialConfigurations": [
 					{
 						"name": "%meadow.launch.config.name%",
