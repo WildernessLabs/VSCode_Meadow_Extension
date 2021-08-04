@@ -23,12 +23,9 @@ jobs:
         node-version: 10.x
     - name: NPM
       run: npm install
-    - name: Build VSCodeMeadow
-      run: dotnet build -p:Configuration=Debug ./src/csharp/VSCodeMeadow.csproj
-    - name: Compile TypeScript
-      run: npm run webpack
-    - name: Create VSIX
-      run: ./node_modules/.bin/vsce package
+    - name: Build VSIX
+      shell: pwsh
+      run: ./build.ps1 vsix
     - name: Artifacts
       uses: actions/upload-artifact@v2
       with:
