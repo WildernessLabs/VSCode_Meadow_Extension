@@ -24,7 +24,7 @@ jobs:
     - name: NPM
       run: npm install
     - name: Compile TypeScript
-      run: ./node_modules/.bin/tsc -p ./src/typescript
+      run: npm run webpack
     - name: Build VSCodeMeadow
       run: dotnet build -p:Configuration=Debug ./src/csharp/VSCodeMeadow.csproj
     - name: Create VSIX
