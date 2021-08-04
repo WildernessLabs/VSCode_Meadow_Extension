@@ -1,7 +1,7 @@
 *
 */**
 **/.DS_Store
-!src/csharp/bin/Debug/net5.0/**/*
+!src/csharp/bin/Debug/**/*
 !dist/extension.js
 !node_modules/vscode-nls/**/*
 !node_modules/vscode-debugprotocol/**/*
