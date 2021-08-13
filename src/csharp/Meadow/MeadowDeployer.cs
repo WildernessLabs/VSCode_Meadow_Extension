@@ -34,7 +34,7 @@ namespace VsCodeMeadowUtil
                     await meadow.MonoDisableAsync(true, CancelToken);
             } catch { }
 
-            try { meadow.Dispose(); }
+            try { meadow?.Dispose(); }
             finally { meadow = null; }
         }
         public async Task<DebuggingServer> Deploy(string folder, int debugPort = -1)
@@ -50,10 +50,8 @@ namespace VsCodeMeadowUtil
 
             var dllPath = Path.Combine(folder, "App.dll");
 
-            await meadow.MonoDisableAsync(true, CancelToken).ConfigureAwait(false);
             await meadow.DeployAppAsync(dllPath, debugPort > 1000, CancelToken).ConfigureAwait(false);
-            await meadow.MonoEnableAsync(true, CancelToken).ConfigureAwait(false);
-
+            
             // Debugger only returns when session is done
             if (debugPort > 1000)
                 return await meadow.StartDebuggingSessionAsync(debugPort, CancelToken);
