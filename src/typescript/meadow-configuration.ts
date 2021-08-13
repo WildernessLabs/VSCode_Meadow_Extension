@@ -93,7 +93,7 @@ export class MeadowConfigurationProvider implements vscode.DebugConfigurationPro
 			}
 
 			if (device && device.serial) {
-				config['serial'] = device.serial;
+				config['serial'] = device.name;
 			}
 		}
 
