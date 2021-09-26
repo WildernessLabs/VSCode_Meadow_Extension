@@ -22,7 +22,7 @@ In the terminal:
 
 ### Building and Deploying your App in VSCode
 
-> **IMPORTANT - macOS Users**: You will need to set `omnisharp.useGlobalMono` to `always` in VSCode's settings (ie: `"omnisharp.useGlobalMono": "always"`) since the MSBuild that ships embedded with VSCode on macOS does not know how to find the .NET 4.7.2 targeting packs (reference assemblies).  This setting might need to be reverted if you want to build .NET Core projects in other solutions.
+> **IMPORTANT - macOS Users**: If you had previously set `omnisharp.useGlobalMono` to `always` in VSCode's settings (ie: `"omnisharp.useGlobalMono": "always"`), try removing the setting.  As of `0.3.0` of the Meadow Extension, you _may_ need to set this to `never` (the opposite of the previous requirement) since the extension is now built with .NET 5.0.
 
 1. Open your new app's folder in VSCode.
 2. Ensure your Meadow board is plugged in, and up to date.
@@ -33,6 +33,21 @@ In the terminal:
 
 You can optionally create a _launch.json_ file to keep your debug configuration instead of always running it dynamically.  Simply navigate to the Debug tab of VSCode and use the button to create a launch.json file.  Choose `Meadow` again from the list, and the default launch settings will be created for you.
 
+### Example launch.json
+
+```
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Deploy",
+			"type": "meadow",
+			"request": "launch",
+			"preLaunchTask": "meadow: Build"
+		}
+	]
+}
+```
 
 ## Building
 
