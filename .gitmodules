@@ -1,3 +1,9 @@
 [submodule "externals/Meadow.CLI"]
 	path = externals/Meadow.CLI
 	url = https://github.com/WildernessLabs/Meadow.CLI.git
+[submodule "externals/debugger-libs"]
+	path = externals/debugger-libs
+	url = https://github.com/mono/debugger-libs.git
+[submodule "externals/NRefactory"]
+	path = externals/NRefactory
+	url = https://github.com/xamarin/NRefactory

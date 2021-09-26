@@ -85,9 +85,9 @@ namespace VsCodeMeadowUtil
 		{
 			var devices = new List<DeviceData>();
 
-			var ports = MeadowDeviceManager.GetSerialPorts() ?? new List<MeadowDeviceEntity>();
+			var ports = MeadowDeviceManager.GetSerialPorts() ?? new List<string>();
 
-			return ports.Select(p => new DeviceData { Name = p.Port, Serial = p.SerialNumber });
+			return ports.Select(p => new DeviceData { Name = p, Serial = p });
 		}
 	}
 }
