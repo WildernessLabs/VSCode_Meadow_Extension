@@ -52,15 +52,15 @@ You can optionally create a _launch.json_ file to keep your debug configuration 
 
 ```
 {
-	"version": "0.2.0",
-	"configurations": [
-		{
-			"name": "Deploy",
-			"type": "meadow",
-			"request": "launch",
-			"preLaunchTask": "meadow: Build"
-		}
-	]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Deploy",
+      "type": "meadow",
+      "request": "launch",
+      "preLaunchTask": "meadow: Build"
+    }
+  ]
 }
 ```
 
