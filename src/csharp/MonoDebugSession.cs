@@ -220,7 +220,7 @@ namespace VSCodeDebug
 
 			Log("Starting to Deploy to Meadow...");
 
-			var success = false;
+			var errorMsg = string.Empty;
 
 			try {
 				
@@ -239,21 +239,19 @@ namespace VSCodeDebug
 					Connect(IPAddress.Loopback, launchOptions.DebugPort);
 				}
 
-				success = true;
+				SendResponse(response);
+				return;
 
 			} catch (Exception ex) {
-				success = false;
-				SendErrorResponse(response, 3002, "Deploy failed: " + ex.Message);
-				return;
+				errorMsg = ex.Message;
 			}
 
-			if (!success)
-			{
-				SendErrorResponse(response, 3002, "Deploy failed");
-				return;
-			}
+			SendErrorResponse(response, 3002, $"Deploy failed {errorMsg}");
+			
+			Disconnect(response, null);
 
-			SendResponse(response);
+			Terminate("Deploy failed.");
+
 		}
 
 		void Log(string message)
