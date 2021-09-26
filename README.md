@@ -1,6 +1,9 @@
 # Visual Studio Code Meadow Extension
 
-This is the add-in for Visual Studio Code that enables Meadow projects to be built and deployed to Meadow device.
+This is the add-in for Visual Studio Code that enables Meadow projects to be built, deployed, and debugged to Meadow device.
+
+<img width="1392" alt="Screen Shot 2021-09-26 at 2 40 16 PM" src="https://user-images.githubusercontent.com/271950/134820282-83c9842a-023a-47ae-976e-7b6c58e851c0.png">
+
 
 ## Using the Extension
 
@@ -31,9 +34,21 @@ In the terminal:
 5. If prompted, pick the serial port for your Meadow board.
 6. Watch the output and see your app deploy!
 
-You can optionally create a _launch.json_ file to keep your debug configuration instead of always running it dynamically.  Simply navigate to the Debug tab of VSCode and use the button to create a launch.json file.  Choose `Meadow` again from the list, and the default launch settings will be created for you.
+### .NET Version
+
+You may need to add a `global.json` file to your project's directory to tell it to use .NET 5.0:
+
+```
+{
+  "sdk": {
+    "version": "5.0.401"
+  }
+}
+```
 
 ### Example launch.json
+
+You can optionally create a _launch.json_ file to keep your debug configuration instead of always running it dynamically.  Simply navigate to the Debug tab of VSCode and use the button to create a launch.json file.  Choose `Meadow` again from the list, and the default launch settings will be created for you.
 
 ```
 {
@@ -49,7 +64,7 @@ You can optionally create a _launch.json_ file to keep your debug configuration 
 }
 ```
 
-## Building
+## Building the Extension
 
 ### Prerequisites
 
