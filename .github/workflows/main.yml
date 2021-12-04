@@ -31,22 +31,40 @@ jobs:
       with:
         dotnet-version: 5.0.x
 
+    - name: Setup Nuget
+      uses: Nuget/setup-nuget@v1.0.5
+
     - name: Setup Node.js 10.x
       uses: actions/setup-node@v1
       with:
         node-version: 10.x
-
+    
     - name: Install NPM
       run: npm install
 
+    - name: Install vsce
+      run: npm install -g vsce
+
+    - name: Restore dependencies
+      run: dotnet restore main/VSCodeMeadow.sln
+
+    - name: Build .NET Project
+      run: msbuild main/src/csharp/VSCodeMeadow.sln /t:Rebuild /p:Configuration=Release
+
+    - name: Build TypeScript WebPack
+      run: npm run webpack
+
     - name: Build VSIX
-      run: |
-        cd main
-        ./build.ps1 vsix
-      shell: pwsh
+      run: vsce package
+
+#   - name: Build VSIX
+#     run: |
+#       cd main
+#       ./build.ps1 vsix
+#     shell: pwsh
 
     - name: Upload VSIX Artifacts
       uses: actions/upload-artifact@v2
       with:
         name: VSCodeMeadow.vsix
-        path: 'main\VSCodeMeadow\VSCodeMeadow\bin\Release\*.vsix'
+        path: 'main/src/csharp/bin/Release/net5.0/*.vsix'
