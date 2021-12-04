@@ -39,17 +39,11 @@ jobs:
       with:
         node-version: 10.x
 
-    - name: Install TypeScript
+    - name: Build VSIX
       run: |
         cd main
-        ./build.ps1
+        ./build.ps1 vsix
       shell: pwsh
-
-#   - name: Build VSIX
-#     run: |
-#       cd main
-#       ./build.ps1 vsix
-#     shell: pwsh
 
     - name: Upload VSIX Artifacts
       uses: actions/upload-artifact@v2
