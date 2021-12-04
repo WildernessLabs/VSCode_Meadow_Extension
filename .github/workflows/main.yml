@@ -45,6 +45,9 @@ jobs:
     - name: Install webpack
       run: npm install -g webpack
 
+    - name: Install webpack-cli
+      run: npm install -g webpack-cli
+
     - name: Install vsce
       run: npm install -g vsce
 
