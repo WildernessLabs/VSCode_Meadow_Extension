@@ -11,13 +11,13 @@ function Vsix
 	Write-Host "Creating VSIX..."
 	& npm install -g vsce
 	& vsce package
-	Write-Host "Done."
+	Write-Host "Done VSIX"
 }
 function BuildNet
 {
 	Write-Host "Building .NET Project..."
 
-	& dotnet build -p:Configuration=Debug ./src/csharp/VSCodeMeadow.sln
+	& dotnet build -p:Configuration=Release ./src/csharp/VSCodeMeadow.sln
 
 	Write-Host "Done .NET Project "
 }
