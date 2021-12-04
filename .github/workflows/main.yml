@@ -40,14 +40,17 @@ jobs:
         node-version: 10.x
     
     - name: Install NPM
+      run: npm install
+
+    - name: Install TypeScript
       run: |
-        npm install
+        npm install -g typescript
+        npm install -g ts-loader
 
     - name: Install webpack
-      run: npm install -g webpack
-
-    - name: Install webpack-cli
-      run: npm install -g webpack-cli
+      run: |
+        npm install -g webpack
+        npm install -g webpack-cli
 
     - name: Install vsce
       run: npm install -g vsce
@@ -58,16 +61,14 @@ jobs:
     - name: Build .NET Project
       run: msbuild main/src/csharp/VSCodeMeadow.sln /t:Rebuild /p:Configuration=Release
 
-    - name: Build VSIX
-      run: |
-        cd main
-        vsce package
-
     - name: Build TypeScript WebPack
       run: |
+        cd main
         npm run webpack
 
-
+    - name: Build VSIX
+      run: |
+        vsce package
 
 #   - name: Build VSIX
 #     run: |
