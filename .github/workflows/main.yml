@@ -59,7 +59,7 @@ jobs:
       run: msbuild main/src/csharp/VSCodeMeadow.sln /t:Rebuild /p:Configuration=Release
 
      - name: Build VSIX
-      run: |
+       run: |
         cd main
         vsce package
 
