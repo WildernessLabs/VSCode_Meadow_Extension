@@ -42,7 +42,6 @@ jobs:
     - name: Install NPM
       run: |
         npm install
-        npm start
 
     - name: Install webpack
       run: npm install -g webpack
@@ -59,13 +58,16 @@ jobs:
     - name: Build .NET Project
       run: msbuild main/src/csharp/VSCodeMeadow.sln /t:Rebuild /p:Configuration=Release
 
-    - name: Build TypeScript WebPack
+     - name: Build VSIX
       run: |
         cd main
+        vsce package
+
+    - name: Build TypeScript WebPack
+      run: |
         npm run webpack
 
-    - name: Build VSIX
-      run: vsce package
+
 
 #   - name: Build VSIX
 #     run: |
