@@ -40,7 +40,9 @@ jobs:
         node-version: 10.x
     
     - name: Install NPM
-      run: npm install
+      run: |
+        npm install
+        npm start
 
     - name: Install webpack
       run: npm install -g webpack
