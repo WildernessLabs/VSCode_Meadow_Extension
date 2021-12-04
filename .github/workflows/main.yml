@@ -46,7 +46,7 @@ jobs:
       run: npm install -g vsce
 
     - name: Restore dependencies
-      run: dotnet restore main/VSCodeMeadow.sln
+      run: dotnet restore main/src/csharp/VSCodeMeadow.sln
 
     - name: Build .NET Project
       run: msbuild main/src/csharp/VSCodeMeadow.sln /t:Rebuild /p:Configuration=Release
