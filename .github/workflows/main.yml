@@ -52,7 +52,9 @@ jobs:
       run: msbuild main/src/csharp/VSCodeMeadow.sln /t:Rebuild /p:Configuration=Release
 
     - name: Build TypeScript WebPack
-      run: npm run webpack
+      run: |
+        cd main
+        npm run webpack
 
     - name: Build VSIX
       run: vsce package
