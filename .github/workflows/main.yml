@@ -58,8 +58,8 @@ jobs:
     - name: Build .NET Project
       run: msbuild main/src/csharp/VSCodeMeadow.sln /t:Rebuild /p:Configuration=Release
 
-     - name: Build VSIX
-       run: |
+    - name: Build VSIX
+      run: |
         cd main
         vsce package
 
