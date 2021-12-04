@@ -38,37 +38,12 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 10.x
-    
-    - name: Install NPM
-      run: npm install
 
     - name: Install TypeScript
       run: |
-        npm install -g typescript
-        npm install -g ts-loader
-
-    - name: Install webpack
-      run: |
-        npm install -g webpack
-        npm install -g webpack-cli
-
-    - name: Install vsce
-      run: npm install -g vsce
-
-    - name: Restore dependencies
-      run: dotnet restore main/src/csharp/VSCodeMeadow.sln
-
-    - name: Build .NET Project
-      run: msbuild main/src/csharp/VSCodeMeadow.sln /t:Rebuild /p:Configuration=Release
-
-    - name: Build TypeScript WebPack
-      run: |
         cd main
-        npm run webpack
-
-    - name: Build VSIX
-      run: |
-        vsce package
+        ./build.ps1
+      shell: pwsh
 
 #   - name: Build VSIX
 #     run: |
@@ -80,4 +55,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: VSCodeMeadow.vsix
-        path: 'main/src/csharp/bin/Release/net5.0/*.vsix'
+        path: 'main/*.vsix'
