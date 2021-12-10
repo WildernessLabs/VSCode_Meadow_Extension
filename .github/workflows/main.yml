@@ -1,33 +1,52 @@
-name: VSIX
+name: VSCode Extension
 
 on:
-  pull_request:
   push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
 jobs:
-  build:
-    name: CI
+  code_build:
+    runs-on: macos-latest
+    name: Build VSCode Extension
     env:
       VSIX_MAJOR: 0.1
-    runs-on: macos-latest
+    
     steps:
-    - name: Checkout
+    - name: Checkout current repo
       uses: actions/checkout@v2
-    - run: git submodule update --init --recursive
-    - name: Setup .NET Core
+      with:
+        path: main
+        submodules: true
+
+    - name: Checkout Meadow.CLI.Core side-by-side
+      uses: actions/checkout@v2
+      with:
+        repository: WildernessLabs/Meadow.CLI
+        path: Meadow.CLI
+
+    - name: Setup .NET Core 5.0.x
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.x
-    - name: Use Node.js
-      uses: actions/setup-node@v1
+
+    - name: Setup Nuget
+      uses: Nuget/setup-nuget@v1.0.5
+
+    - name: Setup Node.js 14
+      uses: actions/setup-node@v2
       with:
-        node-version: 10.x
-    - name: NPM
-      run: npm install
+        node-version: '14'
+
     - name: Build VSIX
+      run: |
+        cd main
+        ./build.ps1 vsix
       shell: pwsh
-      run: ./build.ps1 vsix
-    - name: Artifacts
+
+    - name: Upload VSIX Artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: VSIX
-        path: '*.vsix'
+        name: VSCodeMeadow.vsix
+        path: 'main/*.vsix'

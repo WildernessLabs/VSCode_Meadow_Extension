@@ -9,14 +9,15 @@ if (-Not $cmd)
 function Vsix
 {
 	Write-Host "Creating VSIX..."
-	& ./node_modules/.bin/vsce package
-	Write-Host "Done."
+	& npm install -g vsce
+	& vsce package
+	Write-Host "Done VSIX"
 }
 function BuildNet
 {
 	Write-Host "Building .NET Project..."
 
-	& dotnet build -p:Configuration=Debug ./src/csharp/VSCodeMeadow.csproj
+	& dotnet build -p:Configuration=Release ./src/csharp/VSCodeMeadow.sln
 
 	Write-Host "Done .NET Project "
 }
@@ -25,11 +26,13 @@ function BuildTypeScript
 {
 	Write-Host "Building WebPack..."
 
+	& npm install -g webpack
 	& npm run webpack
 
 	Write-Host "Done WebPack."
 }
 
+npm install
 
 switch ($cmd) {
 	"all" {
