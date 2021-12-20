@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Meadow.CLI.Core;
 using Meadow.CLI.Core.DeviceManagement;
 using Meadow.CLI.Core.Devices;
 using Meadow.CLI.Core.Internals.MeadowCommunication.ReceiveClasses;
@@ -46,6 +47,20 @@ namespace VsCodeMeadowUtil
                     throw new InvalidOperationException("Meadow device not found");
 
                 meadow = new MeadowDeviceHelper(m, Logger);
+            }
+
+            //wrap this is a try/catch so it doesn't crash if the developer is offline
+            try
+            {
+                string osVersion = await meadow.GetOSVersion(TimeSpan.FromSeconds(30), CancelToken)
+                    .ConfigureAwait(false);
+
+                await new DownloadManager(Logger).DownloadLatestAsync(osVersion)
+                    .ConfigureAwait(false);
+            }
+            catch
+            {
+                Logger.LogInformation("OS download failed, make sure you have an active internet connection");
             }
 
             var dllPath = Path.Combine(folder, "App.dll");
