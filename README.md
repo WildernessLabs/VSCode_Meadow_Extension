@@ -1,6 +1,4 @@
-# Visual Studio Code Meadow Extension
-
-This is the add-in for Visual Studio Code that enables Meadow projects to be built, deployed, and debugged to Meadow device.
+<img src="Design/banner.jpg" style="margin-bottom:10px" />
 
 <img width="1392" alt="Screen Shot 2021-09-26 at 2 40 16 PM" src="https://user-images.githubusercontent.com/271950/134820282-83c9842a-023a-47ae-976e-7b6c58e851c0.png">
 
