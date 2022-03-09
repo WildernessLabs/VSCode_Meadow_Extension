@@ -54,7 +54,7 @@ jobs:
     - name: Install vsce
       run: npm i -g vsce
 
-#    - if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-    - name: Publish VSCode Extension
+    - if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      name: Publish VSCode Extension
       run: |
         vsce publish -p ${{ secrets.VSCODE_EXTENSION_PAT }}
