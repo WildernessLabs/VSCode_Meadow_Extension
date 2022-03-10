@@ -50,3 +50,11 @@ jobs:
       with:
         name: VSCodeMeadow.vsix
         path: 'main/*.vsix'
+
+    - name: Install vsce
+      run: npm i -g vsce
+
+    - if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      name: Publish VSCode Extension
+      run: |
+        vsce publish -p ${{ secrets.VSCODE_EXTENSION_PAT }}
