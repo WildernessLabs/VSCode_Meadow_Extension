@@ -58,4 +58,4 @@ jobs:
     - name: Publish VSCode Extension
       run: |
         cd main
-        vsce publish -p ${{ secrets.VSCODE_EXTENSION_PAT }} -i '*.vsix'
+        vsce publish -p ${{ secrets.VSCODE_EXTENSION_PAT }}
