@@ -17,6 +17,7 @@
 		"ms-dotnettools.csharp"
 	],
 	"scripts": {
+		"deploy": "vsce publish --yarn",
 		"prepublish": "",
 		"vscode:prepublish": "",
 		"webpack": "webpack --mode development",

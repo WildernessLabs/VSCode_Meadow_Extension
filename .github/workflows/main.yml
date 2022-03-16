@@ -52,10 +52,10 @@ jobs:
         path: 'main/*.vsix'
 
     - name: Install vsce
-      run: npm i -g vsce
+      run: npm i -g vsce --save-dev
 
-    - if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-      name: Publish VSCode Extension
-      run: |
-        cd main
-        vsce publish -p ${{ secrets.VSCODE_EXTENSION_PAT }}
+#    - if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    - name: Publish VSCode Extension
+      run: npm run deploy
+      env:
+        VSCE_PAT: ${{ secrets.VSCODE_EXTENSION_PAT }}
