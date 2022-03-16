@@ -57,4 +57,5 @@ jobs:
     - if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
       name: Publish VSCode Extension
       run: |
+        cd main
         vsce publish -p ${{ secrets.VSCODE_EXTENSION_PAT }}
