@@ -8,7 +8,7 @@ on:
 
 jobs:
   code_build:
-    runs-on: macos-latest
+    runs-on: windows-2019
     name: Build VSCode Extension
     env:
       VSIX_MAJOR: 0.1
@@ -39,8 +39,20 @@ jobs:
       with:
         node-version: '14'
 
+    - name: Install NPM
+      run: |
+        npm install
+        npm update
+
+    - name: Install vsce
+      run: |
+        npm i -g vsce
+
+    - name: Add MSBuild to Path
+      uses: microsoft/setup-msbuild@v1.1
+
     - name: Restore VSCode Extension dependencies
-      run: msbuild main/src/csharp/VSCodeMeadow.sln /t:Restore
+      run: msbuild main/src/csharp/VSCodeMeadow.sln /t:Restore /p:Configuration=Release
 
     - name: Build VSCode Extension
       id: VSCode-Extension
@@ -48,12 +60,14 @@ jobs:
 
     - name: Build WebPack
       run: |
+        cd main
         npm install -g webpack
+        npm install -D ts-loader
         npm run webpack
 
     - name: Build VSIX
       run: |
-        npm install -g vsce
+        cd main
         vsce package
 
     - name: Upload VSIX Artifacts
@@ -61,9 +75,6 @@ jobs:
       with:
         name: VSCodeMeadow.vsix
         path: 'main/*.vsix'
-
-    - name: Install vsce
-      run: npm i -g vsce
 
     - if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
       name: Publish VSCode Extension

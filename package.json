@@ -3,7 +3,7 @@
 	"displayName": "Meadow",
 	"version": "0.19.1",
 	"publisher": "WildernessLabs",
-	"description": "Build, Debug  and Deploy Meadow applications",
+	"description": "Build, Debug and Deploy Meadow applications",
 	"icon": "meadow.png",
 	"categories": [
 		"Debuggers"
