@@ -39,11 +39,22 @@ jobs:
       with:
         node-version: '14'
 
+    - name: Restore VSCode Extension dependencies
+      run: msbuild main/src/csharp/VSCodeMeadow.sln /t:Restore
+
+    - name: Build VSCode Extension
+      id: VSCode-Extension
+      run: msbuild main/src/csharp/VSCodeMeadow.sln /t:Rebuild /p:Configuration=Release
+
+    - name: Build WebPack
+      run: |
+        npm install -g webpack
+        npm run webpack
+
     - name: Build VSIX
       run: |
-        cd main
-        ./build.ps1 vsix
-      shell: pwsh
+        npm install -g vsce
+        vsce package
 
     - name: Upload VSIX Artifacts
       uses: actions/upload-artifact@v2
