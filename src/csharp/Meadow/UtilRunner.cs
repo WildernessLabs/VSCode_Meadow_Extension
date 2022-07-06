@@ -81,11 +81,11 @@ namespace VsCodeMeadowUtil
 		static object Version()
 			=> new { Version = "0.1.0" };
 
-		static IEnumerable<DeviceData> AllDevices()
+		static async Task<IEnumerable<DeviceData>> AllDevices()
 		{
 			var devices = new List<DeviceData>();
 
-			var ports = MeadowDeviceManager.GetSerialPorts() ?? new List<string>();
+			var ports = await MeadowDeviceManager.GetSerialPorts() ?? new List<string>();
 
 			return ports.Select(p => new DeviceData { Name = p, Serial = p });
 		}
