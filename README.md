@@ -71,7 +71,7 @@ You can optionally create a _launch.json_ file to keep your debug configuration 
 
 After selecting the device deployment target the first time, the selected serial port value will be used for future deployments. If you want to change which device is targeted for deployment, select the current device serial port section to prompt for a different connected Meadow device.
 
-![Visual Studio Code status bar showing the Meadow device selection details.](https://user-images.githubusercontent.com/713665/177654870-fb981e17-8de5-41d8-be1f-3672f6f86790.png)
+![Visual Studio Code status bar showing the Meadow device selection details.](/Design/vscode-device-target-status.png)
 
 ## Building the Extension
 
