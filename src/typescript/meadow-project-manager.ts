@@ -360,7 +360,7 @@ export class MeadowProjectManager {
 			deviceStr = selDevice.name;
 		
 		this.deviceStatusBarItem.text = "$(device-mobile) " + deviceStr;
-		this.deviceStatusBarItem.tooltip = deviceStr;
+		this.deviceStatusBarItem.tooltip = "Short-Cut Ctrl/Cmd+Shift+D";
 
 		if (this.StartupProjects && this.StartupProjects.length > 0)
 			this.deviceStatusBarItem.show();
