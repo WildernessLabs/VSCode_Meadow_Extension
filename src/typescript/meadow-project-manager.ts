@@ -4,6 +4,7 @@ import { BaseEvent, WorkspaceInformationUpdated } from './omnisharp/loggingEvent
 import { EventType } from './omnisharp/EventType';
 import { MsBuildProjectAnalyzer } from './msbuild-project-analyzer';
 import { DeviceData, MeadowUtil } from "./meadow-util";
+import * as extension from './extension';
 
 let fs = require('fs');
 
@@ -360,7 +361,12 @@ export class MeadowProjectManager {
 			deviceStr = selDevice.name;
 		
 		this.deviceStatusBarItem.text = "$(device-mobile) " + deviceStr;
-		this.deviceStatusBarItem.tooltip = "Short-Cut Ctrl/Cmd+Shift+D";
+		if (extension.isMacOS) {
+			this.deviceStatusBarItem.tooltip = "Refresh Cmd+Shift+R";
+		}
+		else{
+			this.deviceStatusBarItem.tooltip = "Refresh Ctrl+Shift+R";
+		}
 
 		if (this.StartupProjects && this.StartupProjects.length > 0)
 			this.deviceStatusBarItem.show();

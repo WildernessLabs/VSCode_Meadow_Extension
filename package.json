@@ -172,10 +172,10 @@
 			{
 				"command": "meadow.selectDevice",
 				"when": "editorTextFocus",
-				"mac": "cmd+shift+d",
-				"linux": "ctrl+shift+d",
-				"win": "ctrl+shift+d",
-				"key": "ctrl+shift+d"
+				"mac": "cmd+shift+r",
+				"linux": "ctrl+shift+r",
+				"win": "ctrl+shift+r",
+				"key": "ctrl+shift+r"
 			}
 		]
 	}

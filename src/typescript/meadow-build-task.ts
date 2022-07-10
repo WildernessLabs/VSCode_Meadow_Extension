@@ -4,6 +4,7 @@ let path = require('path')
 import * as vscode from 'vscode';
 import { MeadowProjectManager as MeadowProjectManager, ProjectType } from './meadow-project-manager';
 import * as child from 'child_process';
+import * as extension from './extension';
 
 interface ExecResult {
     stdout: string,
@@ -80,7 +81,7 @@ export class MeadowBuildTaskProvider implements vscode.TaskProvider {
 
 	private static async locateMSBuildImpl(): Promise<string> {
 
-		if (process.platform !== "win32") {
+		if (extension.isWindows) {
 			return "msbuild";
 		}
 	
