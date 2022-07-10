@@ -79,7 +79,9 @@ export class MeadowConfigurationProvider implements vscode.DebugConfigurationPro
 			if (startupInfo.Configuration.toLowerCase() === 'debug')
 				config['debugPort'] = startupInfo.DebugPort;
 
-			var device = startupInfo.Device;
+			config['serial'] = config['name'];
+
+			/*var device = startupInfo.Device;
 
 			if (!device)
 			{ 
@@ -94,7 +96,7 @@ export class MeadowConfigurationProvider implements vscode.DebugConfigurationPro
 
 			if (device && device.serial) {
 				config['serial'] = device.name;
-			}
+			}*/
 		}
 
 		return config;

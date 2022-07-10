@@ -74,8 +74,7 @@ export class MeadowStartupInfo {
 	DebugPort: number = 5881;
 }
 
-export class MeadowProjectManager {
-	
+export class MeadowProjectManager {	
 	static Shared: MeadowProjectManager;
 
 	StartupInfo: MeadowStartupInfo = new MeadowStartupInfo();
@@ -127,7 +126,8 @@ export class MeadowProjectManager {
 				this.setupMenus();
 
 				this.updateProjectStatus();
-				this.updateDeviceStatus();
+				MeadowProjectManager.refreshDeviceList();
+				//this.updateDeviceStatus();
 			}
 		});
 	}
@@ -139,17 +139,19 @@ export class MeadowProjectManager {
 		if (!this.isMenuSetup)
 		{
 			this.context.subscriptions.push(vscode.commands.registerCommand("meadow.selectProject", () => this.selectStartupProject(true), this));
-			this.context.subscriptions.push(vscode.commands.registerCommand("meadow.selectDevice", this.showDevicePicker, this));
+			//this.context.subscriptions.push(vscode.commands.registerCommand("meadow.selectDevice", this.showDevicePicker, this));
+			this.context.subscriptions.push(vscode.commands.registerCommand("meadow.refreshDeviceList", MeadowProjectManager.refreshDeviceList, this));
 			this.projectStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
 			this.projectStatusBarItem.command = "meadow.selectProject";
-			this.deviceStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
-			this.deviceStatusBarItem.command = "meadow.selectDevice";
+			//this.deviceStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+			//this.deviceStatusBarItem.command = "meadow.selectDevice";
 
 			this.isMenuSetup = true;
 		}
 
 		this.updateProjectStatus();
-		this.updateDeviceStatus();
+		//MeadowProjectManager.refreshDeviceList();
+		//this.updateDeviceStatus();
 
 		this.isMenuSetup = true;
 	}
@@ -381,5 +383,54 @@ export class MeadowProjectManager {
 			return true;
 
 		return false;
+	}
+
+	static launchConfiguration = vscode.workspace.getConfiguration('launch');
+	static savedConfigurations: any;
+
+	public static async refreshDeviceList(): Promise<void> {
+		var util = new MeadowUtil();
+		var meadowDevices : DeviceData[] = [];
+
+		await vscode.window.withProgress({
+			location: vscode.ProgressLocation.Notification,
+			cancellable: false,
+			title: 'Refreshing Device List'
+		}, async (progress) => {
+			// Load devices
+			progress.report({  increment: 0 });
+			meadowDevices = await util.GetDevices();
+			progress.report({ increment: 100 });
+		});
+
+		if (this.savedConfigurations === undefined){
+			this.savedConfigurations = this.launchConfiguration['configurations'];
+		}
+
+		let configurations = this.savedConfigurations;
+		var count = 0;
+		meadowDevices.forEach(item => {
+			// check if device is already part of the list before adding it
+			if (!configurations.some(c => c["name"] === item.name)) {
+				// Add newly found device to list.
+				configurations.push({
+					"name": item.name,
+					"type": "meadow",
+					"request": "launch",
+					"preLaunchTask": "meadow: Build",
+				});
+				count++;
+			}
+		});
+
+		if (count > 0) {
+			this.launchConfiguration.update('configurations', configurations, false).then(() => 
+				vscode.window.showInformationMessage('Devices Added!')
+			);
+		}
+	}
+
+	public static async resetLaunchConfigurations(){
+		this.launchConfiguration.update('configurations', this.savedConfigurations, false);
 	}
 }
