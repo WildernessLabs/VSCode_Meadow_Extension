@@ -73,6 +73,12 @@ After selecting the device deployment target the first time, the selected serial
 
 ![Visual Studio Code status bar showing the Meadow device selection details.](/Design/vscode-device-target-status.png)
 
+You can also use the following short-cut on
+
+Mac use: `Cmd+Shift+R`
+
+Other platforms use: `Ctrl+Shift+R`
+
 ## Building the Extension
 
 ### Prerequisites
