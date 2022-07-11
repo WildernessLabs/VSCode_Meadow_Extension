@@ -167,6 +167,16 @@
 					}
 				}
 			}
+		],
+		"keybindings": [
+			{
+				"command": "meadow.refreshDeviceList",
+				"when": "editorTextFocus",
+				"mac": "cmd+shift+r",
+				"linux": "ctrl+shift+r",
+				"win": "ctrl+shift+r",
+				"key": "ctrl+shift+r"
+			}
 		]
 	}
 }

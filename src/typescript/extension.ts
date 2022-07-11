@@ -21,7 +21,7 @@ let output: OutputChannel = null;
 
 var currentDebugSession: vscode.DebugSession;
 
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
 
 	output = vscode.window.createOutputChannel("Meadow");
 
@@ -66,6 +66,7 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 export function deactivate() {
+	MeadowProjectManager.resetLaunchConfigurations();
 }
 
 //----- configureExceptions ---------------------------------------------------------------------------------------------------
