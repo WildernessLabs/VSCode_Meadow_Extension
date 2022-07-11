@@ -407,7 +407,7 @@ export class MeadowProjectManager {
 			this.savedConfigurations = this.launchConfiguration['configurations'];
 		}
 
-		let configurations = this.savedConfigurations;
+		var configurations = JSON.parse(JSON.stringify(this.savedConfigurations));
 		var count = 0;
 		meadowDevices.forEach(item => {
 			// check if device is already part of the list before adding it
