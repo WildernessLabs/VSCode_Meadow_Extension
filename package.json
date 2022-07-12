@@ -130,7 +130,7 @@
 				"category": "Debug"
 			},
 			{
-				"command": "meadow.selectDevice",
+				"command": "meadow.refreshDeviceList",
 				"title": "Meadow: Select device"
 			}
 		],
