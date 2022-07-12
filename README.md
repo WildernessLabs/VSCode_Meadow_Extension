@@ -75,9 +75,11 @@ After selecting the device deployment target the first time, the selected serial
 
 You can also use the following short-cut on
 
-Mac use: `Cmd+Shift+R`
+Mac use: `Cmd+Alt+Shift+R`
 
-Other platforms use: `Ctrl+Shift+R`
+Other platforms use: `Ctrl+Alt+Shift+R`
+
+or search for the select device command by pressing `Ctrl+Shift+P` and typing "Meadow" when prompted
 
 ## Building the Extension
 

@@ -130,7 +130,7 @@
 				"category": "Debug"
 			},
 			{
-				"command": "meadow.refreshDeviceList",
+				"command": "meadow.selectDevice",
 				"title": "Meadow: Select device"
 			}
 		],
@@ -176,10 +176,10 @@
 			{
 				"command": "meadow.selectDevice",
 				"when": "editorTextFocus",
-				"mac": "cmd+shift+r",
-				"linux": "ctrl+shift+r",
-				"win": "ctrl+shift+r",
-				"key": "ctrl+shift+r"
+				"mac": "cmd+alt+shift+r",
+				"linux": "ctrl+alt+shift+r",
+				"win": "ctrl+alt+shift+r",
+				"key": "ctrl+alt+shift+r"
 			}
 		]
 	}

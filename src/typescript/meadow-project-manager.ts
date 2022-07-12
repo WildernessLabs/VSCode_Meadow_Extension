@@ -362,10 +362,10 @@ export class MeadowProjectManager {
 		
 		this.deviceStatusBarItem.text = "$(device-mobile) " + deviceStr;
 		if (extension.isMacOS) {
-			this.deviceStatusBarItem.tooltip = "Refresh Cmd+Shift+R";
+			this.deviceStatusBarItem.tooltip = "Select Device - Cmd+Alt+Shift+R";
 		}
 		else{
-			this.deviceStatusBarItem.tooltip = "Refresh Ctrl+Shift+R";
+			this.deviceStatusBarItem.tooltip = "Select Device - Ctrl+Alt+Shift+R";
 		}
 
 		if (this.StartupProjects && this.StartupProjects.length > 0)
