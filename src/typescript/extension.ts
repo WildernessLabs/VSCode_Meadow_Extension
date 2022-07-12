@@ -20,6 +20,9 @@ let omnisharp: any = null;
 let output: OutputChannel = null;
 
 var currentDebugSession: vscode.DebugSession;
+export const isWindows = process.platform == "win32";
+export const isMacOS = process.platform == "darwin";
+export const isLinux = process.platform == "linux";
 
 export function activate(context: vscode.ExtensionContext) {
 
