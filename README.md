@@ -13,7 +13,7 @@ The [Meadow.CLI](https://github.com/WildernessLabs/Meadow.CLI) repo must be clon
 
 ### Installation
 
-1. Download the extension .vsix file from the latest GitHub release.
+1. Download the extension .vsix file from the [latest GitHub release](https://github.com/WildernessLabs/VSCode_Meadow_Extension/releases).
 2. In the _Extensions_ tab in VS Code, click the `...` menu and choose _Install from VSIX..._.
 3. Pick the file you downloaded to install.
 
