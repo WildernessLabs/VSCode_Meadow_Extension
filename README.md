@@ -85,11 +85,11 @@ or search for the select device command by pressing `Ctrl+Shift+P` and typing "M
 
 ### Prerequisites
 
-1. Node.js (and npm)
-2. Typescript
-3. .NET (Mono on macOS, .NET 4.7.2 on Windows)
-4. .NET Core 3.1.x+
-5. Powershell
+1. [Node.js](https://nodejs.org/en/download/) (and npm)
+2. [TypeScript](https://www.typescriptlang.org/download) (`npm install typescript --save-dev`)
+3. .NET ([Mono on macOS](https://www.mono-project.com/download/stable/#download-mac), [.NET 4.7.2 on Windows](https://dotnet.microsoft.com/en-us/download/dotnet-framework/net472))
+4. [.NET Core 3.1.x+](https://dotnet.microsoft.com/en-us/download/dotnet/3.1)
+5. [PowerShell](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell)
 
 ### Initial setup
 
@@ -97,7 +97,7 @@ With all the listed preqrequisites installed, run `npm i` to ensure all of the p
 
 ### Building the Extension
 
-To build both the C# and Typescript code simply run: `pwsh build.ps1`
+To build both the C# and TypeScript code simply run: `pwsh build.ps1`
 
 ### Packaging VSIX
 
@@ -111,7 +111,7 @@ To produce a VSIX for the VSCode extension run: `pwsh build.ps1 vsix`
 3. Choose `Extension` from the Debug menu in VSCode and run it.
 4. Open a meadow project in the new instance of VSCode which now includes the extension.
 
-You can set breakpoints in the host instance of VSCode and debug the typescript.
+You can set breakpoints in the host instance of VSCode and debug the TypeScript.
 
 ### Debugging C#
 
