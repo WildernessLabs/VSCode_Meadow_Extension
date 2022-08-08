@@ -25,6 +25,7 @@ jobs:
       with:
         repository: WildernessLabs/Meadow.CLI
         path: Meadow.CLI
+        ref: develop
 
     - name: Setup .NET Core 5.0.x
       uses: actions/setup-dotnet@v1
