@@ -49,26 +49,26 @@ namespace VsCodeMeadowUtil
 				responseObject = command switch
 				{
 					"version" => Version(),
-					"devices" => AllDevices(),
+					"devices" => AllDevices().Result,
 					_ => Version()
 				};
+
+				response.Response = responseObject;
+
+				var json = Newtonsoft.Json.JsonConvert.SerializeObject(response,
+					Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.JsonSerializerSettings
+					{
+						Formatting = Newtonsoft.Json.Formatting.None,
+						NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore,
+					});
+
+				Console.WriteLine(json);
 			}
 			catch (Exception ex)
 			{
 				response.Error = ex.Message;
 			}
-
-			response.Response = responseObject;
-
-			var json = Newtonsoft.Json.JsonConvert.SerializeObject(response,
-				Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.JsonSerializerSettings
-				{
-					Formatting = Newtonsoft.Json.Formatting.None,
-					NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore,
-				});
-			
-			Console.WriteLine(json);
-		}
+        }
 
 		static void ShowHelp(OptionSet p)
 		{
