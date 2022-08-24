@@ -47,7 +47,7 @@ jobs:
 
     - name: Install vsce
       run: |
-        npm i -g vsce
+        npm i --location=global vsce
 
     - name: Add MSBuild to Path
       uses: microsoft/setup-msbuild@v1.1
@@ -62,8 +62,9 @@ jobs:
     - name: Build WebPack
       run: |
         cd main
-        npm install -g webpack
+        npm install --location=global webpack
         npm install -D ts-loader
+        npm install -D webpack-cli
         npm run webpack
 
     - name: Build VSIX
