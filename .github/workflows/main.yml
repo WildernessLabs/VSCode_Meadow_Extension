@@ -55,11 +55,11 @@ jobs:
       uses: microsoft/setup-msbuild@v1.1
 
     - name: Restore VSCode Extension dependencies
-      run: msbuild main/src/csharp/VSCodeMeadow.sln /t:Restore /p:Configuration=Release
+      run: dotnet restore main/src/csharp/VSCodeMeadow.sln /p:Configuration=Release
 
     - name: Build VSCode Extension
       id: VSCode-Extension
-      run: msbuild main/src/csharp/VSCodeMeadow.sln /t:Rebuild /p:Configuration=Release
+      run: dotnet build main/src/csharp/VSCodeMeadow.sln /p:Configuration=Release
 
     - name: Build WebPack
       run: |
