@@ -55,11 +55,11 @@ jobs:
       uses: microsoft/setup-msbuild@v1.1
 
     - name: Restore VSCode Extension dependencies
-      run: dotnet restore main/src/csharp/VSCodeMeadow.sln /p:Configuration=Release
+      run: dotnet restore main/src/csharp/VSCodeMeadow.csproj /p:Configuration=Debug
 
     - name: Build VSCode Extension
       id: VSCode-Extension
-      run: dotnet build main/src/csharp/VSCodeMeadow.sln /p:Configuration=Release
+      run: dotnet build main/src/csharp/VSCodeMeadow.csproj /p:Configuration=Debug
 
     - name: Build WebPack
       run: |
@@ -68,7 +68,14 @@ jobs:
         npm install -D ts-loader
         npm run webpack
 
-    - name: Build VSIX
+    - if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/develop' }}
+      name: Build Pre-Release VSIX on develop
+      run: |
+        cd main
+        vsce package --pre-release
+
+    - if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      name: Build Release VSIX on main
       run: |
         cd main
         vsce package
