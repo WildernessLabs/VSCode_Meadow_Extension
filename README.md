@@ -39,14 +39,14 @@ In the terminal:
 
 ### .NET Version
 
-You may need to add a `global.json` file to your project's directory to tell it to use .NET 5.0:
+You may need to add a `global.json` file to your project's directory to tell it to use .NET 6.0:
 
 ```
-{
-  "sdk": {
-    "version": "5.0.401"
-  }
-}
+"sdk": {
+		"version": "6.0.101",
+		"allowPrerelease": false,
+		"rollForward": "latestMinor"
+	}
 ```
 
 ### Example launch.json

@@ -49,27 +49,31 @@ namespace VsCodeMeadowUtil
                 meadow = new MeadowDeviceHelper(m, Logger);
             }
 
-            //wrap this is a try/catch so it doesn't crash if the developer is offline
-            try
+            var appPathDll = Path.Combine(folder, "App.dll");
+
+            if (meadow.DeviceAndAppVersionsMatch(appPathDll))
             {
-                string osVersion = await meadow.GetOSVersion(TimeSpan.FromSeconds(30), CancelToken)
-                    .ConfigureAwait(false);
+                //wrap this is a try/catch so it doesn't crash if the developer is offline
+                try
+                {
+                    string osVersion = await meadow.GetOSVersion(TimeSpan.FromSeconds(30), CancelToken)
+                        .ConfigureAwait(false);
 
-                await new DownloadManager(Logger).DownloadLatestAsync(osVersion)
-                    .ConfigureAwait(false);
+                    await new DownloadManager(Logger).DownloadLatestAsync(osVersion)
+                        .ConfigureAwait(false);
+                }
+                catch
+                {
+                    Logger.LogInformation("OS download failed, make sure you have an active internet connection");
+                }
+
+                var isDebugging = debugPort > 1000;
+                await meadow.DeployAppAsync(appPathDll, isDebugging, CancelToken).ConfigureAwait(false);
+
+                // Debugger only returns when session is done
+                if (isDebugging)
+                    return await meadow.StartDebuggingSessionAsync(debugPort, CancelToken);
             }
-            catch
-            {
-                Logger.LogInformation("OS download failed, make sure you have an active internet connection");
-            }
-
-            var dllPath = Path.Combine(folder, "App.dll");
-
-            await meadow.DeployAppAsync(dllPath, debugPort > 1000, CancelToken).ConfigureAwait(false);
-            
-            // Debugger only returns when session is done
-            if (debugPort > 1000)
-                return await meadow.StartDebuggingSessionAsync(debugPort, CancelToken);
 
             return null;
         }
