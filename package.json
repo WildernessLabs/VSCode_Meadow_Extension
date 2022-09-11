@@ -1,7 +1,7 @@
 {
 	"name": "meadow",
 	"displayName": "Meadow",
-	"version": "0.19.6",
+	"version": "0.19.7",
 	"publisher": "WildernessLabs",
 	"description": "Build, Debug and Deploy Meadow applications",
 	"icon": "meadow.png",
@@ -23,7 +23,7 @@
 		"webpack-dev": "webpack --mode development --watch"
 	},
 	"engines": {
-		"vscode": "^1.47.0",
+		"vscode": "^1.63.0",
 		"node": "^6.3.0"
 	},
 	"dependencies": {
@@ -143,7 +143,7 @@
 			{
 				"type": "meadow",
 				"label": "Meadow",
-				"program": "./src/csharp/bin/Debug/net5.0/vscode-meadow.dll",
+				"program": "./src/csharp/bin/Debug/net6.0/vscode-meadow.dll",
 				"runtime": "dotnet",
 				"initialConfigurations": [
 					{

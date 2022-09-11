@@ -27,10 +27,12 @@ jobs:
         path: Meadow.CLI
         ref: develop
 
-    - name: Setup .NET Core 5.0.x
+    - name: Setup .NET Core 5.0.x and 6.0.x
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0.x
+        dotnet-version: | 
+          6.0.x
+          5.0.x
 
     - name: Setup Nuget
       uses: Nuget/setup-nuget@v1.0.5
@@ -53,11 +55,11 @@ jobs:
       uses: microsoft/setup-msbuild@v1.1
 
     - name: Restore VSCode Extension dependencies
-      run: msbuild main/src/csharp/VSCodeMeadow.sln /t:Restore /p:Configuration=Release
+      run: dotnet restore main/src/csharp/VSCodeMeadow.csproj /p:Configuration=Debug
 
     - name: Build VSCode Extension
       id: VSCode-Extension
-      run: msbuild main/src/csharp/VSCodeMeadow.sln /t:Rebuild /p:Configuration=Release
+      run: dotnet build main/src/csharp/VSCodeMeadow.csproj /p:Configuration=Debug
 
     - name: Build WebPack
       run: |
@@ -66,7 +68,14 @@ jobs:
         npm install -D ts-loader
         npm run webpack
 
-    - name: Build VSIX
+    - if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/develop' }}
+      name: Build Pre-Release VSIX on develop
+      run: |
+        cd main
+        vsce package --pre-release
+
+    - if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      name: Build Release VSIX on main
       run: |
         cd main
         vsce package
