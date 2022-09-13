@@ -54,13 +54,6 @@ jobs:
     - name: Add MSBuild to Path
       uses: microsoft/setup-msbuild@v1.1
 
-    - name: Restore VSCode Extension dependencies
-      run: dotnet restore main/src/csharp/VSCodeMeadow.csproj /p:Configuration=Debug
-
-    - name: Build VSCode Extension
-      id: VSCode-Extension
-      run: dotnet build main/src/csharp/VSCodeMeadow.csproj /p:Configuration=Debug
-
     - name: Build WebPack
       run: |
         cd main
@@ -69,14 +62,18 @@ jobs:
         npm run webpack
 
     - if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/develop' }}
-      name: Build Pre-Release VSIX on develop
+      name: Build Pre-Release VSIX on develop from Debug Configuration
       run: |
+        dotnet restore main/src/csharp/VSCodeMeadow.csproj /p:Configuration=Debug
+        dotnet build main/src/csharp/VSCodeMeadow.csproj /p:Configuration=Debug
         cd main
         vsce package --pre-release
 
     - if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-      name: Build Release VSIX on main
+      name: Build Release VSIX on main from Release Configuration
       run: |
+        dotnet restore main/src/csharp/VSCodeMeadow.csproj /p:Configuration=Release
+        dotnet build main/src/csharp/VSCodeMeadow.csproj /p:Configuration=Release
         cd main
         vsce package
 

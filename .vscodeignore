@@ -1,6 +1,7 @@
 *
 */**
 **/.DS_Store
+!src/csharp/bin/Release/**/*
 !src/csharp/bin/Debug/**/*
 !dist/extension.js
 !node_modules/vscode-nls/**/*
