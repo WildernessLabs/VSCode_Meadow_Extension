@@ -66,8 +66,7 @@ jobs:
         npm install -D ts-loader
         npm run webpack
 
-    - if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/develop' }}
-      name: Build Pre-Release VSIX on develop branch
+    - name: Build Pre-Release VSIX on develop branch
       run: |
         cd main
         vsce package --pre-release
