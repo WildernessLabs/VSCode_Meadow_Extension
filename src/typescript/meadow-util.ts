@@ -44,12 +44,6 @@ export class MeadowUtil
 		var extPath = thisExtension.extensionPath;
 
 		this.UtilPath = path.join(extPath, 'src', 'csharp', 'bin', 'Debug', 'net6.0', 'vscode-meadow.dll');
-
-		// If the debug path doesn't exist, we must be in Release mode
-		if (!this.Exists(this.UtilPath))
-		{
-			this.UtilPath = path.join(extPath, 'src', 'csharp', 'bin', 'Release', 'net6.0', 'vscode-meadow.dll');
-		}
 	}
 
 	async RunCommand<TResult>(cmd: string, args: string[] = null)
@@ -81,10 +75,6 @@ export class MeadowUtil
 		return r.response;
 	}
 
-	public async Exists(path)
-	{
-		return Fs.existsSync(path)
-	}
 	// SerialPort doesn't work on M1 Apple Silicon yet :(
 	// public async GetDevices()
 	// {

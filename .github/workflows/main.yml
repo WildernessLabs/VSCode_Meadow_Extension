@@ -56,8 +56,8 @@ jobs:
 
     - name: Restore and Build VSCode Extension
       run: |
-        dotnet restore main/src/csharp/VSCodeMeadow.csproj /p:Configuration=Release
-        dotnet build main/src/csharp/VSCodeMeadow.csproj /p:Configuration=Release
+        dotnet restore main/src/csharp/VSCodeMeadow.csproj /p:Configuration=Debug
+        dotnet build main/src/csharp/VSCodeMeadow.csproj /p:Configuration=Debug
 
     - name: Build WebPack
       run: |
