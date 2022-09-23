@@ -1,7 +1,7 @@
 {
 	"name": "meadow",
 	"displayName": "Meadow",
-	"version": "0.19.8.1",
+	"version": "0.19.8",
 	"publisher": "WildernessLabs",
 	"description": "Build, Debug and Deploy Meadow applications",
 	"icon": "meadow.png",
