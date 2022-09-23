@@ -1,5 +1,5 @@
 import * as SerialPort  from 'serialport';
-import { promises as Fs } from 'fs';
+import * as Fs from 'fs';
 
 interface CommandResponse<T> {
 	id: string;
@@ -83,13 +83,7 @@ export class MeadowUtil
 
 	public async Exists(path)
 	{
-		try
-		{
-			await Fs.access(path)
-			return true
-		} catch {
-			return false
-		}
+		return Fs.existsSync(path)
 	}
 	// SerialPort doesn't work on M1 Apple Silicon yet :(
 	// public async GetDevices()
