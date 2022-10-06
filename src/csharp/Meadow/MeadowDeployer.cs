@@ -32,7 +32,7 @@ namespace VsCodeMeadowUtil
             try
             {
                 if (meadow != null)
-                    await meadow.MonoDisableAsync(true, CancelToken);
+                    await meadow.MonoDisable(true, CancelToken);
             } catch { }
 
             try { meadow?.Dispose(); }
@@ -59,7 +59,7 @@ namespace VsCodeMeadowUtil
                     string osVersion = await meadow.GetOSVersion(TimeSpan.FromSeconds(30), CancelToken)
                         .ConfigureAwait(false);
 
-                    await new DownloadManager(Logger).DownloadLatestAsync(osVersion)
+                    await new DownloadManager(Logger).DownloadOsBinaries(osVersion)
                         .ConfigureAwait(false);
                 }
                 catch
@@ -68,11 +68,11 @@ namespace VsCodeMeadowUtil
                 }
 
                 var isDebugging = debugPort > 1000;
-                await meadow.DeployAppAsync(appPathDll, isDebugging, CancelToken).ConfigureAwait(false);
+                await meadow.DeployApp(appPathDll, isDebugging, CancelToken).ConfigureAwait(false);
 
                 // Debugger only returns when session is done
                 if (isDebugging)
-                    return await meadow.StartDebuggingSessionAsync(debugPort, CancelToken);
+                    return await meadow.StartDebuggingSession(debugPort, CancelToken);
             }
 
             return null;

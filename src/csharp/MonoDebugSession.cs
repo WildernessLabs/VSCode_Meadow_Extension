@@ -316,7 +316,7 @@ namespace VSCodeDebug
 
 			if (meadowDebuggingServer != null)
 			{
-				try { await meadowDebuggingServer.StopListeningAsync(); } catch { }
+				try { await meadowDebuggingServer.StopListening(); } catch { }
 
 				try { meadowDebuggingServer.Dispose(); }
 				finally { meadowDebuggingServer = null; }
