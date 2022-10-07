@@ -32,7 +32,7 @@ namespace VsCodeMeadowUtil
             try
             {
                 if (meadow != null)
-                    await meadow.MonoDisableAsync(true, CancelToken);
+                    await meadow.MonoDisable(true, CancelToken);
             } catch { }
 
             try { meadow?.Dispose(); }
@@ -42,7 +42,7 @@ namespace VsCodeMeadowUtil
         {
             if (meadow == null)
             {
-                var m = await MeadowDeviceManager.GetMeadowForSerialPort(Serial, logger: Logger).ConfigureAwait(false);
+                var m = await MeadowDeviceManager.GetMeadowForSerialPort(Serial, logger: Logger);
                 if (m == null)
                     throw new InvalidOperationException("Meadow device not found");
 
@@ -56,11 +56,9 @@ namespace VsCodeMeadowUtil
                 //wrap this is a try/catch so it doesn't crash if the developer is offline
                 try
                 {
-                    string osVersion = await meadow.GetOSVersion(TimeSpan.FromSeconds(30), CancelToken)
-                        .ConfigureAwait(false);
+                    string osVersion = await meadow.GetOSVersion(TimeSpan.FromSeconds(30), CancelToken);
 
-                    await new DownloadManager(Logger).DownloadLatestAsync(osVersion)
-                        .ConfigureAwait(false);
+                    await new DownloadManager(Logger).DownloadOsBinaries(osVersion);
                 }
                 catch
                 {
@@ -68,11 +66,11 @@ namespace VsCodeMeadowUtil
                 }
 
                 var isDebugging = debugPort > 1000;
-                await meadow.DeployAppAsync(appPathDll, isDebugging, CancelToken).ConfigureAwait(false);
+                await meadow.DeployApp(appPathDll, isDebugging, CancelToken);
 
                 // Debugger only returns when session is done
                 if (isDebugging)
-                    return await meadow.StartDebuggingSessionAsync(debugPort, CancelToken);
+                    return await meadow.StartDebuggingSession(debugPort, CancelToken);
             }
 
             return null;
