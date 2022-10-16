@@ -1,7 +1,7 @@
 {
 	"name": "meadow",
 	"displayName": "Meadow",
-	"version": "0.19.11",
+	"version": "0.19.12",
 	"publisher": "WildernessLabs",
 	"description": "Build, Debug and Deploy Meadow applications",
 	"icon": "meadow.png",
@@ -9,7 +9,7 @@
 		"Debuggers"
 	],
 	"author": {
-		"name": "Jonathan Dick"
+		"name": "Jonathan Dick, Dominique Louis"
 	},
 	"license": "LICENSE",
 	"private": true,
