@@ -51,7 +51,7 @@ namespace VsCodeMeadowUtil
 
             var appPathDll = Path.Combine(folder, "App.dll");
 
-            if (meadow.DeviceAndAppVersionsMatch(appPathDll))
+            // TODO not working reliably enough for RC1, will investigate further // if (meadow.DeviceAndAppVersionsMatch(appPathDll))
             {
                 //wrap this is a try/catch so it doesn't crash if the developer is offline
                 try
