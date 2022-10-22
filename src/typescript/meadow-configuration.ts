@@ -43,7 +43,7 @@ export class MeadowConfigurationProvider implements vscode.DebugConfigurationPro
 			config.name = 'Deploy';
 
 		if (!config.type)
-			config.type = 'meadow';
+			config.type = MeadowUtil.MeadowVSCodeScriptType;
 
 		var project = startupInfo.Project;
 

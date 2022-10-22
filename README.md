@@ -66,9 +66,9 @@ You can optionally create a _launch.json_ file to keep your debug configuration 
   "configurations": [
     {
       "name": "Deploy",
-      "type": "meadow.vscode",
+      "type": "meadow-vscode",
       "request": "launch",
-      "preLaunchTask": "meadow.vscode: Build"
+      "preLaunchTask": "meadow-vscode: Build"
     }
   ]
 }

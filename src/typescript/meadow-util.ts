@@ -26,7 +26,7 @@ import * as vscode from 'vscode';
 
 export class MeadowUtil
 {
-	static MeadowVSCodeScriptType: string = 'meadow.vscode';
+	static MeadowVSCodeScriptType: string = 'meadow-vscode';
 	public UtilPath: string;
 
 	isUnix: boolean = true;
