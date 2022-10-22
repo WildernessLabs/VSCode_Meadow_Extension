@@ -72,7 +72,7 @@ namespace VsCodeMeadowUtil
 
 		static void ShowHelp(OptionSet p)
 		{
-			Console.WriteLine("Usage: vscode-meadow [OPTIONS]+");
+			Console.WriteLine("Usage: meadow-vscode [OPTIONS]+");
 			Console.WriteLine();
 			Console.WriteLine("Options:");
 			p.WriteOptionDescriptions(Console.Out);
