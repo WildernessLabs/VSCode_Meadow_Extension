@@ -11,6 +11,7 @@ import { MeadowProjectManager } from "./meadow-project-manager";
 import { MeadowConfigurationProvider } from "./meadow-configuration";
 import { OutputChannel } from 'vscode';
 import { MeadowBuildTaskProvider } from './meadow-build-task';
+import { MeadowUtil } from './meadow-util';
 
 const localize = nls.config({ locale: process.env.VSCODE_NLS_CONFIG })();
 
@@ -40,7 +41,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	this.MeadowProjectManager = new MeadowProjectManager(context);
 
-	this.meadowBuildTaskProvider = vscode.tasks.registerTaskProvider(MeadowBuildTaskProvider.MeadowBuildScriptType, new MeadowBuildTaskProvider(vscode.workspace.rootPath));
+	this.meadowBuildTaskProvider = vscode.tasks.registerTaskProvider(MeadowUtil.MeadowVSCodeScriptType, new MeadowBuildTaskProvider(vscode.workspace.rootPath));
 	
 	omnisharp = vscode.extensions.getExtension("ms-dotnettools.csharp").exports;
 
@@ -50,7 +51,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand('extension.meadow.startSession', config => startSession(config)));
 
 	const provider = new MeadowConfigurationProvider();
-	context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('meadow', provider, vscode.DebugConfigurationProviderTriggerKind.Initial | vscode.DebugConfigurationProviderTriggerKind.Dynamic));
+	context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider(MeadowUtil.MeadowVSCodeScriptType, provider, vscode.DebugConfigurationProviderTriggerKind.Initial | vscode.DebugConfigurationProviderTriggerKind.Dynamic));
 
 	context.subscriptions.push(vscode.debug.onDidStartDebugSession(async (s) => {
 		let type = s.type;

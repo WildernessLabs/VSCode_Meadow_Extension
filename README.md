@@ -66,9 +66,9 @@ You can optionally create a _launch.json_ file to keep your debug configuration 
   "configurations": [
     {
       "name": "Deploy",
-      "type": "meadow",
+      "type": "meadow.vscode",
       "request": "launch",
-      "preLaunchTask": "meadow: Build"
+      "preLaunchTask": "meadow.vscode: Build"
     }
   ]
 }
@@ -128,6 +128,6 @@ This will launch the server process in debug listening mode.
 
 This requires that you add `"debugServer": 4711` to the launch.json configuration of the Meadow project you are debugging in the hosted debug extension instance of VSCode.
 
-This does not allow you to debug the arbitrary commands sent to the meadow-vscode.exe process from the extension for things like getting a list of devices.  This will only allow you to debug the code path of a VSCode instance starting a Deploy/Debug session.
+This does not allow you to debug the arbitrary commands sent to the meadow-vscode.dll process from the extension for things like getting a list of devices.  This will only allow you to debug the code path of a VSCode instance starting a Deploy/Debug session.
 
 

@@ -26,13 +26,14 @@ import * as vscode from 'vscode';
 
 export class MeadowUtil
 {
+	static MeadowVSCodeScriptType: string = 'meadow.vscode';
 	public UtilPath: string;
 
 	isUnix: boolean = true;
 
 	constructor()
 	{
-		var thisExtension = vscode.extensions.getExtension('wildernesslabs.meadow');
+		var thisExtension = vscode.extensions.getExtension('wildernesslabs.' + MeadowUtil.MeadowVSCodeScriptType);
 
 		var os = require('os');
 

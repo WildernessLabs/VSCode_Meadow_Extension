@@ -5,6 +5,7 @@ import * as vscode from 'vscode';
 import { MeadowProjectManager as MeadowProjectManager, ProjectType } from './meadow-project-manager';
 import * as child from 'child_process';
 import * as extension from './extension';
+import { MeadowUtil } from './meadow-util';
 
 interface ExecResult {
     stdout: string,
@@ -43,8 +44,8 @@ interface MeadowBuildTaskDefinition extends vscode.TaskDefinition {
 	flags?: string[];
 }
 
-export class MeadowBuildTaskProvider implements vscode.TaskProvider {
-	static MeadowBuildScriptType: string = 'meadow';
+export class MeadowBuildTaskProvider implements vscode.TaskProvider 
+{
 	private csproj:string;
 	private configuration:string;
 	
@@ -143,7 +144,7 @@ export class MeadowBuildTaskProvider implements vscode.TaskProvider {
 			definition = {
 				task: "MSBuild",
 				command,
-				type: MeadowBuildTaskProvider.MeadowBuildScriptType,
+				type: MeadowUtil.MeadowVSCodeScriptType,
 				csproj,
 				configuration,
 				target,
@@ -160,7 +161,7 @@ export class MeadowBuildTaskProvider implements vscode.TaskProvider {
 		// 		args.push(`-p:TargetFramework=${tfm}`);
 		
 		args.concat(flags);
-		var task = new vscode.Task(definition, vscode.TaskScope.Workspace, definition.target, MeadowBuildTaskProvider.MeadowBuildScriptType, new vscode.ProcessExecution(command, args), "$msCompile");
+		var task = new vscode.Task(definition, vscode.TaskScope.Workspace, definition.target, MeadowUtil.MeadowVSCodeScriptType, new vscode.ProcessExecution(command, args), "$msCompile");
 		return task;
 	}
 }

@@ -1,5 +1,5 @@
 {
-	"name": "meadow",
+	"name": "meadow.vscode",
 	"displayName": "VSCode Tools For Meadow",
 	"version": "0.97.0",
 	"publisher": "WildernessLabs",
@@ -118,7 +118,7 @@
 		},
 		"taskDefinitions": [
 			{
-				"type": "meadow",
+				"type": "meadow.vscode",
 				"required": [],
 				"properties": {}
 			}
@@ -141,16 +141,21 @@
 		],
 		"debuggers": [
 			{
+<<<<<<< HEAD
 				"type": "meadow",
 				"label": "Meadow (Debug)",
+=======
+				"type": "meadow.vscode",
+				"label": "Meadow",
+>>>>>>> 0e6ee65 (Centralise meadow.vscode in MeadowUtil.MeadowVSCodeScriptType static variable and reuse.)
 				"program": "./src/csharp/bin/Debug/net6.0/meadow-vscode.dll",
 				"runtime": "dotnet",
 				"initialConfigurations": [
 					{
 						"name": "%meadow.launch.config.name%",
-						"type": "meadow",
+						"type": "meadow.vscode",
 						"request": "launch",
-						"preLaunchTask": "meadow: Build"
+						"preLaunchTask": "meadow.vscode: Build"
 					}
 				],
 				"configurationAttributes": {

@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { WorkspaceFolder, DebugConfiguration } from 'vscode';
 import { MeadowProjectManager, ProjectType } from './meadow-project-manager';
+import { MeadowUtil } from './meadow-util';
 
 export class MeadowConfiguration implements DebugConfiguration {
 	[key: string]: any;
@@ -20,9 +21,9 @@ export class MeadowConfigurationProvider implements vscode.DebugConfigurationPro
 		return [
 			{
 				name: "Deploy",
-				type: "meadow",
+				type: MeadowUtil.MeadowVSCodeScriptType,
 				request: "launch",
-				preLaunchTask: "meadow: Build"
+				preLaunchTask: MeadowUtil.MeadowVSCodeScriptType + ": Build"
 			}
 		];
 	}
