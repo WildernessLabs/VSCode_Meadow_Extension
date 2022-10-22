@@ -1,4 +1,5 @@
 import * as SerialPort  from 'serialport';
+import * as Fs from 'fs';
 
 interface CommandResponse<T> {
 	id: string;

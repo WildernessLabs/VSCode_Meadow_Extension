@@ -56,8 +56,8 @@ jobs:
 
     - name: Restore and Build VSCode Extension
       run: |
-        dotnet restore main/src/csharp/VSCodeMeadow.csproj /p:Configuration=Release
-        dotnet build main/src/csharp/VSCodeMeadow.csproj /p:Configuration=Release
+        dotnet restore main/src/csharp/VSCodeMeadow.csproj /p:Configuration=Debug
+        dotnet build main/src/csharp/VSCodeMeadow.csproj /p:Configuration=Debug
 
     - name: Build WebPack
       run: |
@@ -66,8 +66,8 @@ jobs:
         npm install -D ts-loader
         npm run webpack
 
-    - if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/develop' }}
-      name: Build Pre-Release VSIX on develop branch
+    - if: ${{ github.ref != 'refs/heads/main' }}
+      name: Build Pre-Release VSIX on non main branch
       run: |
         cd main
         vsce package --pre-release
