@@ -160,7 +160,7 @@ export class MeadowBuildTaskProvider implements vscode.TaskProvider {
 		// 		args.push(`-p:TargetFramework=${tfm}`);
 		
 		args.concat(flags);
-		var task = new vscode.Task(definition, vscode.TaskScope.Workspace, definition.target, 'meadow', new vscode.ProcessExecution(command, args), "$msCompile");
+		var task = new vscode.Task(definition, vscode.TaskScope.Workspace, definition.target, MeadowBuildTaskProvider.MeadowBuildScriptType, new vscode.ProcessExecution(command, args), "$msCompile");
 		return task;
 	}
 }
