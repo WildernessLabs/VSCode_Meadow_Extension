@@ -17,7 +17,7 @@ function BuildNet
 {
 	Write-Host "Building .NET Project..."
 
-	& dotnet build -p:Configuration=Release ./src/csharp/VSCodeMeadow.sln
+	& dotnet build -p:Configuration=Debug ./src/csharp/VSCodeMeadow.sln
 
 	Write-Host "Done .NET Project "
 }
