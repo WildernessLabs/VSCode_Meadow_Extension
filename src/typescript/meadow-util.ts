@@ -43,7 +43,7 @@ export class MeadowUtil
 
 		var extPath = thisExtension.extensionPath;
 
-		this.UtilPath = path.join(extPath, 'src', 'csharp', 'bin', 'Debug', 'net6.0', 'vscode-meadow.dll');
+		this.UtilPath = path.join(extPath, 'src', 'csharp', 'bin', 'Debug', 'net7.0', 'vscode-meadow.dll');
 	}
 
 	async RunCommand<TResult>(cmd: string, args: string[] = null)
