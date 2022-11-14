@@ -260,24 +260,6 @@ namespace VSCodeDebug
 			SendEvent(new ConsoleOutputEvent(message + Environment.NewLine));
 		}
 
-		private void Connect (LaunchData options, IPAddress address, int port)
-		{
-			lock (_lock) {
-
-				_debuggeeKilled = false;
-
-				Mono.Debugging.Soft.SoftDebuggerStartArgs args = null;
-				args = new Mono.Debugging.Soft.SoftDebuggerConnectArgs (options.AppName, address, port) {
-					MaxConnectionAttempts = MAX_CONNECTION_ATTEMPTS,
-					TimeBetweenConnectionAttempts = CONNECTION_ATTEMPT_INTERVAL
-				};
-
-				_debuggeeExecuting = true;
-				_session.Run (new Mono.Debugging.Soft.SoftDebuggerStartInfo (args), _debuggerSessionOptions);
-
-			}
-		}
-
 		public override void Attach(Response response, dynamic args)
 		{
 			_attachMode = true;
