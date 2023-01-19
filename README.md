@@ -21,10 +21,17 @@ The [Meadow.CLI](https://github.com/WildernessLabs/Meadow.CLI) repo must be clon
 
 In the terminal:
 
-1. Run `dotnet new -i WildernessLabs.Meadow.Template`
+1. Run `dotnet new install WildernessLabs.Meadow.Template`
 2. Create and/or navigate into a directory with the name of your new app (ie: `MeadowApp1`).
 3. Run `dotnet new Meadow`
-4. Open the app directory in VS Code
+
+    Alternatively, you can also specify the folder where your new project will go directly by appending the `--output` parameter.
+    
+    ```console
+    dotnet new Meadow --output MyNewMeadowApp
+    ```
+
+5. Open the app directory in VS Code
 
 ### Building and Deploying your App in VSCode
 
