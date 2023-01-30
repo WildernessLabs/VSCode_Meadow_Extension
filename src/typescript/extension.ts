@@ -17,7 +17,7 @@ const localize = nls.config({ locale: process.env.VSCODE_NLS_CONFIG })();
 const configuration = vscode.workspace.getConfiguration('meadow');
 
 let omnisharp: any = null;
-let output: OutputChannel = null;
+let meadowOutputChannel: OutputChannel = null;
 
 var currentDebugSession: vscode.DebugSession;
 export const isWindows = process.platform == "win32";
@@ -26,7 +26,7 @@ export const isLinux = process.platform == "linux";
 
 export function activate(context: vscode.ExtensionContext) {
 
-	output = vscode.window.createOutputChannel("Meadow");
+	meadowOutputChannel = vscode.window.createOutputChannel("Meadow");
 
 	this.MeadowProjectManager = new MeadowProjectManager(context);
 
@@ -65,7 +65,7 @@ export function activate(context: vscode.ExtensionContext) {
 	}));
 
 	//output.appendLine("Initialization succeeded");
-	output.show();
+	meadowOutputChannel.show();
 }
 
 export function deactivate() {

@@ -179,6 +179,17 @@ namespace VSCodeDebug
 			}) { }
 	}
 
+	public class MeadowOutputEvent : Event
+	{
+		public MeadowOutputEvent(string outpt)
+			: base("output", new
+			{
+				category = "Meadow",
+				output = outpt
+			})
+		{ }
+	}
+
 	// ---- Response -------------------------------------------------------------------------
 
 	public class Capabilities : ResponseBody {

@@ -257,7 +257,18 @@ namespace VSCodeDebug
 		void Log(string message)
 		{
 			Console.WriteLine(message);
-			SendEvent(new ConsoleOutputEvent(message + Environment.NewLine));
+
+            if(message.Contains("StdOut") || message.Contains("StdInfo"))
+            {
+                // This appears in the "Meadow" tab
+                SendEvent(new MeadowOutputEvent(message));
+            }
+            else 
+            {
+                // This appears in the "Console" tab
+                SendEvent(new ConsoleOutputEvent(message + Environment.NewLine));
+            }
+			
 		}
 
 		private void Connect (LaunchData options, IPAddress address, int port)
