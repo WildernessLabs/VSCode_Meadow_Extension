@@ -18,6 +18,7 @@ const configuration = vscode.workspace.getConfiguration('meadow');
 
 let omnisharp: any = null;
 let meadowOutputChannel: OutputChannel = null;
+let meadowProgressBar: any = null;
 
 var currentDebugSession: vscode.DebugSession;
 export const isWindows = process.platform == "win32";
@@ -27,6 +28,15 @@ export const isLinux = process.platform == "linux";
 export function activate(context: vscode.ExtensionContext) {
 
 	meadowOutputChannel = vscode.window.createOutputChannel("Meadow");
+
+	meadowProgressBar = vscode.window.withProgress({
+		location: vscode.ProgressLocation.Notification,
+		title:"File Transferring",
+		cancellable: false
+	  }, async (progress) => {
+		progress.report({increment:10});
+		}
+	);
 
 	this.MeadowProjectManager = new MeadowProjectManager(context);
 
@@ -64,8 +74,7 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	}));
 
-	//output.appendLine("Initialization succeeded");
-	meadowOutputChannel.show();
+	//meadowOutputChannel.show();
 }
 
 export function deactivate() {

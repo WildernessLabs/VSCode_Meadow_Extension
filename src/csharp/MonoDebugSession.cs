@@ -727,7 +727,16 @@ namespace VSCodeDebug
 				if (data[data.Length-1] != '\n') {
 					data += '\n';
 				}
-				SendEvent(new OutputEvent(category, data));
+
+				if(category.Contains("stdout") || category.Contains("stderr")) {
+					// This appears in the "Meadow" tab
+					SendEvent(new MeadowOutputEvent(data));
+				}
+				else
+				{
+					// This appears in the "Console" tab
+					SendEvent(new ConsoleOutputEvent(data + Environment.NewLine));
+				}
 			}
 		}
 
