@@ -49,7 +49,7 @@ jobs:
 
     - name: Install vsce
       run: |
-        npm i -g vsce
+        npm i -g @vscode/vsce
 
     - name: Add MSBuild to Path
       uses: microsoft/setup-msbuild@v1.1
