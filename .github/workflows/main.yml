@@ -25,7 +25,7 @@ jobs:
       with:
         repository: WildernessLabs/Meadow.CLI
         path: Meadow.CLI
-        ref: dominique-ProgressBarRefactor
+        ref: develop
 
     - name: Setup .NET Core 6.0.x and 7.0.x
       uses: actions/setup-dotnet@v1
