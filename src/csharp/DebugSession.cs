@@ -170,15 +170,6 @@ namespace VSCodeDebug
 		{ }
 	}
 
-	public class OutputEvent : Event
-	{
-		public OutputEvent(string cat, string outpt)
-			: base("output", new {
-				category = cat,
-				output = outpt
-			}) { }
-	}
-
 	public class MeadowOutputEvent : Event
 	{
 		public MeadowOutputEvent(string outpt)
