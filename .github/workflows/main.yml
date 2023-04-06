@@ -85,7 +85,8 @@ jobs:
         name: VSCodeMeadow.vsix
         path: 'main/*.vsix'
 
-    - name: Publish VSCode Extension
+    - if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      name: Publish VSCode Extension
       run: |
         cd main
         vsce publish -p ${{ secrets.MARKETPLACE_PUBLISH_PAT }}
