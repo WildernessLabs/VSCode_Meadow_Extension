@@ -73,7 +73,8 @@ jobs:
         cd main
         vsce package --pre-release
 
-    - name: Build Release VSIX on main branch
+    - if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      name: Build Release VSIX on main branch
       run: |
         cd main
         vsce package
