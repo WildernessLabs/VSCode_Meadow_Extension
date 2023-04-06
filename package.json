@@ -1,6 +1,6 @@
 {
 	"name": "meadow",
-	"displayName": "Meadow",
+	"displayName": "VSCode Tools For Meadow",
 	"version": "0.96.2",
 	"publisher": "WildernessLabs",
 	"description": "Build, Debug and Deploy Meadow applications",
