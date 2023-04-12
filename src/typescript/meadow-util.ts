@@ -43,7 +43,10 @@ export class MeadowUtil
 
 		var extPath = thisExtension.extensionPath;
 
-		this.UtilPath = path.join(extPath, 'src', 'csharp', 'bin', 'Debug', 'net6.0', 'vscode-meadow.dll');
+		const isProduction = process.env.NODE_ENV === "production";
+		const debugOrRelease = isProduction ? "Release" : "Debug";
+
+		this.UtilPath = path.join(extPath, 'src', 'csharp', 'bin', debugOrRelease, 'net6.0', 'vscode-meadow.dll');
 	}
 
 	async RunCommand<TResult>(cmd: string, args: string[] = null)
