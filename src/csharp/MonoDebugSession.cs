@@ -261,7 +261,7 @@ namespace VSCodeDebug
             if(message.Contains("StdOut") || message.Contains("StdInfo"))
             {
                 // This appears in the "Meadow" tab
-                SendEvent(new MeadowOutputEvent(message + Environment.NewLine));
+                SendEvent(new MeadowOutputEvent(message.Substring(15) + Environment.NewLine));
             }
             else 
             {
