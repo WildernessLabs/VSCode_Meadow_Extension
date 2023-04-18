@@ -21,9 +21,14 @@
 			"problemMatcher": "$tsc-watch"
 		},
 		{
-			"label": "build",
+			"label": "Debug Build",
 			"type": "shell",
 			"command": "dotnet build -p:Configuration=Debug ./src/csharp/VSCodeMeadow.csproj"
+		},
+		{
+			"label": "Release Build",
+			"type": "shell",
+			"command": "dotnet build -p:Configuration=Release ./src/csharp/VSCodeMeadow.csproj"
 		},
 	]
 }

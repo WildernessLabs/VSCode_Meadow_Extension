@@ -39,7 +39,7 @@
 		"vscode-debugprotocol": "^1.45.0",
 		"vscode-nls": "^5.0.0",
 		"vscode-test": "^1.5.1",
-		"xml2js": "^0.4.23"
+		"xml2js": "^0.5.0"
 	},
 	"repository": {
 		"type": "git",
@@ -142,8 +142,39 @@
 		"debuggers": [
 			{
 				"type": "meadow",
-				"label": "Meadow",
+				"label": "Meadow (Debug)",
 				"program": "./src/csharp/bin/Debug/net6.0/vscode-meadow.dll",
+				"runtime": "dotnet",
+				"initialConfigurations": [
+					{
+						"name": "%meadow.launch.config.name%",
+						"type": "meadow",
+						"request": "launch",
+						"preLaunchTask": "meadow: Build"
+					}
+				],
+				"configurationAttributes": {
+					"launch": {
+						"required": [],
+						"properties": {
+							"projectPath": {
+								"type": "string",
+								"description": "%meadow.launch.projectPath.description%",
+								"default": "undefined"
+							},
+							"projectConfiguration": {
+								"type": "string",
+								"description": "%meadow.launch.projectConfiguration.description%",
+								"default": "undefined"
+							}
+						}
+					}
+				}
+			},
+			{
+				"type": "meadow",
+				"label": "Meadow (Release)",
+				"program": "./src/csharp/bin/Release/net6.0/vscode-meadow.dll",
 				"runtime": "dotnet",
 				"initialConfigurations": [
 					{
