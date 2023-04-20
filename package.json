@@ -141,17 +141,9 @@
 		],
 		"debuggers": [
 			{
-<<<<<<< HEAD
-<<<<<<< HEAD
 				"type": "meadow",
 				"label": "Meadow (Debug)",
-=======
-				"type": "meadow.vscode",
-=======
 				"type": "meadow-vscode",
->>>>>>> a3e26ec (Rename type to have - instead of . between names. vsce package doesn't like . :))
-				"label": "Meadow",
->>>>>>> 0e6ee65 (Centralise meadow.vscode in MeadowUtil.MeadowVSCodeScriptType static variable and reuse.)
 				"program": "./src/csharp/bin/Debug/net6.0/meadow-vscode.dll",
 				"runtime": "dotnet",
 				"initialConfigurations": [
