@@ -7,6 +7,8 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
+
 using VsCodeMeadowUtil;
 
 namespace VSCodeDebug
@@ -19,7 +21,7 @@ namespace VSCodeDebug
 		private static bool trace_responses;
 		static string LOG_FILE_PATH = null;
 
-		private static void Main(string[] argv)
+		private static async Task Main(string[] argv)
 		{
 			if (argv.Length > 0 && argv[0] == "util")
 			{
@@ -64,11 +66,11 @@ namespace VSCodeDebug
 			if (port > 0) {
 				// TCP/IP server
 				Program.Log("waiting for debug protocol on port " + port);
-				RunServer(port);
+				await RunServer(port);
 			} else {
 				// stdin/stdout
 				Program.Log("waiting for debug protocol on stdin/stdout");
-				RunSession(Console.OpenStandardInput(), Console.OpenStandardOutput());
+				await RunSession(Console.OpenStandardInput(), Console.OpenStandardOutput());
 			}
 		}
 
@@ -116,47 +118,39 @@ namespace VSCodeDebug
 			}
 		}
 
-		private static void RunSession(Stream inputStream, Stream outputStream)
-		{
+		private static async Task RunSession(Stream inputStream, Stream outputStream) {
 			DebugSession debugSession = new MonoDebugSession();
 			debugSession.TRACE = trace_requests;
 			debugSession.TRACE_RESPONSE = trace_responses;
-			debugSession.Start(inputStream, outputStream).Wait();
+			await debugSession.Start(inputStream, outputStream);
 
-			if (logFile!=null)
-			{
+			if (logFile != null) {
 				logFile.Flush();
 				logFile.Close();
 				logFile = null;
 			}
 		}
-
-		private static void RunServer(int port)
-		{
-			TcpListener serverSocket = new TcpListener(IPAddress.Parse("127.0.0.1"), port);
+		private static async Task RunServer(int port) {
+			var serverSocket = new TcpListener(IPAddress.Parse("127.0.0.1"), port);
 			serverSocket.Start();
 
-			new System.Threading.Thread(() => {
-				while (true) {
-					var clientSocket = serverSocket.AcceptSocket();
-					if (clientSocket != null) {
-						Program.Log(">> accepted connection from client");
+			while (true) {
+				var clientSocket = await serverSocket.AcceptSocketAsync();
+				if (clientSocket != null) {
+					Program.Log(">> accepted connection from client");
 
-						new System.Threading.Thread(() => {
-							using (var networkStream = new NetworkStream(clientSocket)) {
-								try {
-									RunSession(networkStream, networkStream);
-								}
-								catch (Exception e) {
-									Console.Error.WriteLine("Exception: " + e);
-								}
-							}
-							clientSocket.Close();
-							Console.Error.WriteLine(">> client connection closed");
-						}).Start();
+					using (var networkStream = new NetworkStream(clientSocket)) {
+						try {
+							await RunSession(networkStream, networkStream);
+						} catch (Exception e) {
+							Console.Error.WriteLine("Exception: " + e);
+						}
 					}
+
+					clientSocket.Close();
+					Program.Log(">> client connection closed");
 				}
-			}).Start();
+			}
 		}
 	}
 }
