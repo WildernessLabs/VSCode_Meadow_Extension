@@ -7,11 +7,9 @@ on:
     branches: [ main, develop ]
 
 jobs:
-  code_build:
-    runs-on: windows-2019
+  build-vscode:
+    runs-on: windows-latest
     name: Build VSCode Extension
-    env:
-      VSIX_MAJOR: 0.1
     
     steps:
     - name: Checkout current repo
@@ -20,12 +18,20 @@ jobs:
         path: main
         submodules: true
 
-    - name: Checkout Meadow.CLI.Core side-by-side
+    - if: ${{ github.ref == 'refs/heads/main' }}
+      name: Checkout Meadow.CLI.Core side-by-side
       uses: actions/checkout@v2
       with:
         repository: WildernessLabs/Meadow.CLI
         path: Meadow.CLI
-        ref: develop
+        ref: main
+
+    - if: ${{ github.ref != 'refs/heads/main' }}
+      name: Checkout Meadow.CLI.Core side-by-side
+      uses: actions/checkout@v2
+      with:
+        repository: WildernessLabs/Meadow.CLI
+        path: Meadow.CLI
 
     - name: Setup .NET Core 6.0.x and 7.0.x
       uses: actions/setup-dotnet@v1
@@ -55,10 +61,12 @@ jobs:
     - name: Add MSBuild to Path
       uses: microsoft/setup-msbuild@v1.1
 
-    - name: Restore and Build VSCode Extension
-      run: |
-        dotnet restore main/src/csharp/VSCodeMeadow.csproj /p:Configuration=Release
-        dotnet build main/src/csharp/VSCodeMeadow.csproj /p:Configuration=Release
+    - name: Restore VSCode Extension dependencies
+      run: dotnet restore main/src/csharp/VSCodeMeadow.csproj /p:Configuration=Debug
+
+    - name: Build VSCode Extension
+      id: VSCode-Extension
+      run: dotnet build main/src/csharp/VSCodeMeadow.csproj /p:Configuration=Debug
 
     - name: Build WebPack
       run: |
@@ -73,7 +81,7 @@ jobs:
         cd main
         vsce package --pre-release
 
-    - if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    - if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' }}
       name: Build Release VSIX on main branch
       run: |
         cd main
@@ -85,8 +93,8 @@ jobs:
         name: VSCodeMeadow.vsix
         path: 'main/*.vsix'
 
-#    - if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-#      name: Publish VSCode Extension
-#      run: |
-#        cd main
-#        vsce publish -p ${{ secrets.MARKETPLACE_PUBLISH_PAT }}
+    - if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' }}
+      name: Publish VSCode Extension
+      run: |
+        cd vs-code
+        vsce publish -p ${{ secrets.MARKETPLACE_PUBLISH_PAT }}
