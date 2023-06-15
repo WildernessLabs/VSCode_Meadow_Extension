@@ -1,7 +1,7 @@
 {
 	"name": "meadow",
 	"displayName": "VSCode Tools For Meadow",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"publisher": "WildernessLabs",
 	"description": "Build, Debug and Deploy Meadow applications",
 	"icon": "meadow.png",
