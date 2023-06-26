@@ -73,9 +73,11 @@ jobs:
 
     - name: Restore VSCode Extension dependencies
       run: |
-        rm -rf main/externals/**/NuGet.config
+        rm main/externals/debugger-libs/NuGet.config
+        rm main/externals/debugger-libs/MonoDevelop.Debugger.Tests.NonUserCodeTestLibCore/NuGet.config
+        rm main/externals/debugger-libs/MonoDevelop.Debugger.Tests.TestAppCore/NuGet.config
         dotnet restore main/src/VSCodeMeadow.sln -p:Configuration=Debug -v:diag -bl:restore.binlog
-  
+
     - name: Build VSCode Extension
       id: VSCode-Extension
       run: dotnet build main/src/VSCodeMeadow.sln -p:Configuration=Debug -v:diag -bl:build.binlog
