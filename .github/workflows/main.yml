@@ -37,12 +37,12 @@ jobs:
       with:
         repository: WildernessLabs/Meadow.CLI
         path: Meadow.CLI
+        ref: dominique-RevertDeveloperLevel2
 
     - name: Setup .NET Core 6.0.x and 7.0.x
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: | 
-          6.0.x
           7.0.x
 
     - name: Setup Nuget
