@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
@@ -33,30 +35,59 @@ namespace VsCodeMeadowUtil
 	}
 
 	public class LaunchData {
-		public string AppName { get; set; } = "";
-		public string Project { get; set; }
-		public string Configuration { get; set; }
-		public string ProjectTargetFramework { get; set; }
-		public bool ProjectIsCore { get; set; }
-		public string OutputDirectory { get; set; }
+		
+		public string ProjectPath { get; set; }
+		public string ProjectConfiguration { get; set; }
+		public string MSBuildPropertyFile { get; set; }
+
 		public int DebugPort { get; set; } = -1;
 
 		public string Serial { get;set; }
 
+		public IReadOnlyDictionary<string, string> MSBuildProperties { get; set; }
+
 		public LaunchData ()
 		{
-
 		}
+
 		public LaunchData(dynamic args)
 		{
-			Project = getString (args, VSCodeKeys.LaunchConfig.ProjectPath);
-			Configuration = getString (args, VSCodeKeys.LaunchConfig.Configuration, "Debug");
-			//Platform = getString (args, VSCodeKeys.LaunchConfig.Platform, "AnyCPU");
-			OutputDirectory = cleanseStringPaths(getString (args, VSCodeKeys.LaunchConfig.Output));
-			ProjectTargetFramework = getString(args, VSCodeKeys.LaunchConfig.ProjectTargetFramework);
-			ProjectIsCore = getBool(args, VSCodeKeys.LaunchConfig.ProjectIsCore, false);
+			ProjectPath = getString (args, VSCodeKeys.LaunchConfig.ProjectPath);
+			ProjectConfiguration = getString (args, VSCodeKeys.LaunchConfig.Configuration, "Debug");
 			DebugPort = getInt(args, VSCodeKeys.LaunchConfig.DebugPort, 55555);
 			Serial = getString(args, VSCodeKeys.LaunchConfig.Serial);
+			MSBuildPropertyFile = cleanseStringPaths(getString(args, VSCodeKeys.LaunchConfig.MSBuildPropertyFile));
+		}
+
+		private Dictionary<string, string> debugInfoProps = new Dictionary<string, string>();
+
+		public string GetBuildProperty(string propertyName, string defaultValue = null)
+		{
+			if (debugInfoProps.Count <= 0)
+			{
+				ParseDebugInfoPropsFile();
+			}
+
+			if (debugInfoProps.TryGetValue(propertyName.ToLowerInvariant(), out var value))
+			{
+				return value;
+			}
+
+			return defaultValue;
+		}
+
+		void ParseDebugInfoPropsFile()
+		{
+			if (File.Exists(MSBuildPropertyFile))
+			{
+				var lines = File.ReadAllLines(MSBuildPropertyFile);
+				foreach (var line in lines)
+				{
+					var parts = line.Split('=', 2, StringSplitOptions.TrimEntries);
+					if (parts.Length == 2)
+						debugInfoProps[parts[0].ToLowerInvariant()] = parts[1];
+				}
+			}
 		}
 
 		public (bool success, string message) Validate ()
@@ -64,9 +95,10 @@ namespace VsCodeMeadowUtil
 			(bool success, string message) validateString (string value, string name)
 				=> string.IsNullOrWhiteSpace(value) ? (false, $"{name} is not valid") : (true, "");
 			var checks = new[] {
-				validateString(Project,nameof(Project)),
-				validateString(Configuration,nameof(Configuration)),
-				validateString(OutputDirectory,nameof(OutputDirectory)),
+				validateString(ProjectPath,nameof(ProjectPath)),
+				validateString(ProjectConfiguration,nameof(ProjectConfiguration)),
+				validateString(Serial, nameof(Serial)),
+				validateString(MSBuildPropertyFile,nameof(MSBuildPropertyFile)),
 			};
 			foreach(var check in checks) {
 				if (!check.success)
@@ -117,6 +149,28 @@ namespace VsCodeMeadowUtil
 				return dflt;
 			}
 			return s;
+		}
+
+		private static IReadOnlyDictionary<string, string> getDictionary(dynamic container, string propertyName)
+		{
+			try
+			{
+				var c = container[propertyName];
+				var d = new Dictionary<string, string>();
+				foreach (var propertyDescriptor in System.ComponentModel.TypeDescriptor.GetProperties(c))
+				{
+					string obj = propertyDescriptor?.GetValue(c);
+					if (!string.IsNullOrEmpty(obj))
+						d.Add(propertyDescriptor.Name, obj);
+				}
+
+				return d;
+			}
+			catch (Exception)
+			{
+				// ignore and return default value
+			}
+			return new Dictionary<string, string>();
 		}
 
 	}

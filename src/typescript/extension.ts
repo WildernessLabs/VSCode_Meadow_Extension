@@ -39,12 +39,12 @@ export function activate(context: vscode.ExtensionContext) {
 
 	this.MeadowProjectManager = new MeadowProjectManager(context);
 
-	this.meadowBuildTaskProvider = vscode.tasks.registerTaskProvider(MeadowBuildTaskProvider.MeadowBuildScriptType, new MeadowBuildTaskProvider(vscode.workspace.rootPath));
+	this.meadowBuildTaskProvider = vscode.tasks.registerTaskProvider(MeadowBuildTaskProvider.MeadowBuildScriptType, new MeadowBuildTaskProvider(context));
 	
 	context.subscriptions.push(vscode.commands.registerCommand('extension.meadow.configureExceptions', () => configureExceptions()));
 	context.subscriptions.push(vscode.commands.registerCommand('extension.meadow.startSession', config => startSession(config)));
 
-	const provider = new MeadowConfigurationProvider();
+	const provider = new MeadowConfigurationProvider(context);
 	context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('meadow', provider, vscode.DebugConfigurationProviderTriggerKind.Initial | vscode.DebugConfigurationProviderTriggerKind.Dynamic));
 
 	context.subscriptions.push(vscode.debug.onDidStartDebugSession(async (s) => {

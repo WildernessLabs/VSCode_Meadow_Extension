@@ -214,9 +214,8 @@ namespace VSCodeDebug
 
 			ctsDeployMeadow = new CancellationTokenSource();
 
-			var fullOutputPath = Path.Combine(
-				Path.GetDirectoryName(launchOptions.Project),
-				Utilities.FixPathSeparators(launchOptions.OutputDirectory));
+			var fullOutputPath =
+				Utilities.FixPathSeparators(launchOptions.GetBuildProperty("OutputPath"));
 
 			Log("Starting to Deploy to Meadow...");
 
@@ -278,7 +277,7 @@ namespace VSCodeDebug
 				_debuggeeKilled = false;
 
 				Mono.Debugging.Soft.SoftDebuggerStartArgs args = null;
-				args = new Mono.Debugging.Soft.SoftDebuggerConnectArgs (options.AppName, address, port) {
+				args = new Mono.Debugging.Soft.SoftDebuggerConnectArgs (options.GetBuildProperty("AssemblyName", ""), address, port) {
 					MaxConnectionAttempts = MAX_CONNECTION_ATTEMPTS,
 					TimeBetweenConnectionAttempts = CONNECTION_ATTEMPT_INTERVAL
 				};
