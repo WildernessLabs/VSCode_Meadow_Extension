@@ -56,12 +56,13 @@ jobs:
     - name: Install NPM
       run: |
         cd main
-        npm install
+        npm i -g npm@latest
         npm update
 
     - name: Install vsce
       run: |
         npm i -g @vscode/vsce
+        npm i -g @vscode/debugprotocol
 
     - name: Add MSBuild to Path
       uses: microsoft/setup-msbuild@v1.1
