@@ -104,6 +104,7 @@ jobs:
         path: 'main/*.vsix'
 
     - name: Upload Binlog Artifacts
+      if: always()
       uses: actions/upload-artifact@v3
       with:
         name: BinLogs
