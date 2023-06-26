@@ -5,12 +5,12 @@
 'use strict';
 
 import * as vscode from 'vscode';
-import * as nls from 'vscode-nls';
-import { DebugProtocol } from 'vscode-debugprotocol';
 import { MeadowProjectManager } from "./meadow-project-manager";
 import { MeadowConfigurationProvider } from "./meadow-configuration";
 import { OutputChannel } from 'vscode';
 import { MeadowBuildTaskProvider } from './meadow-build-task';
+import { DebugProtocol } from '@vscode/debugprotocol';
+import * as nls from 'vscode-nls';
 
 const localize = nls.config({ locale: process.env.VSCODE_NLS_CONFIG })();
 
