@@ -16,7 +16,6 @@ const localize = nls.config({ locale: process.env.VSCODE_NLS_CONFIG })();
 
 const configuration = vscode.workspace.getConfiguration('meadow');
 
-let omnisharp: any = null;
 let meadowOutputChannel: OutputChannel = null;
 let meadowProgressBar: any = null;
 
@@ -42,10 +41,6 @@ export function activate(context: vscode.ExtensionContext) {
 
 	this.meadowBuildTaskProvider = vscode.tasks.registerTaskProvider(MeadowBuildTaskProvider.MeadowBuildScriptType, new MeadowBuildTaskProvider(vscode.workspace.rootPath));
 	
-	omnisharp = vscode.extensions.getExtension("ms-dotnettools.csharp").exports;
-
-	omnisharp.eventStream.subscribe((e: any) => console.log(JSON.stringify(e)));
-
 	context.subscriptions.push(vscode.commands.registerCommand('extension.meadow.configureExceptions', () => configureExceptions()));
 	context.subscriptions.push(vscode.commands.registerCommand('extension.meadow.startSession', config => startSession(config)));
 
