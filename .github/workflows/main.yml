@@ -72,11 +72,11 @@ jobs:
         $newcontent | Set-Content vs-code/package.json
 
     - name: Restore VSCode Extension dependencies
-      run: dotnet restore main/src/VSCodeMeadow.sln /p:Configuration=Debug
-
+      run: dotnet restore main/src/VSCodeMeadow.sln -p:Configuration=Debug -v:diag
+  
     - name: Build VSCode Extension
       id: VSCode-Extension
-      run: dotnet build main/src/VSCodeMeadow.sln /p:Configuration=Debug
+      run: dotnet build main/src/VSCodeMeadow.sln -p:Configuration=Debug -v:diag
 
     - name: Build WebPack
       run: |
