@@ -87,7 +87,7 @@ export class MeadowBuildTaskProvider implements vscode.TaskProvider {
 		args.unshift("build");
 
 
-		const meadowDebugTargetsPath = path.join(this.extensionContext.extensionPath, 'dist', 'src', 'Meadow.Debug.targets')
+		const meadowDebugTargetsPath = path.join(this.extensionContext.extensionPath, 'src', 'Meadow.Debug.targets')
 		args.push(`-p:CustomAfterMicrosoftCSharpTargets="${meadowDebugTargetsPath}"`)
 		args.push(`-p:VSCodeMeadowDebugInfoFile=${debugConfig['msbuildPropertyFile']}`)
 
