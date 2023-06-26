@@ -13,9 +13,6 @@
 	},
 	"license": "LICENSE",
 	"private": true,
-	"extensionDependencies": [
-		"ms-dotnettools.csharp"
-	],
 	"scripts": {
 		"prepublish": "",
 		"vscode:prepublish": "",
@@ -151,9 +148,7 @@
 				"initialConfigurations": [
 					{
 						"name": "%meadow.launch.config.name%",
-						"type": "meadow",
-						"request": "launch",
-						"preLaunchTask": "meadow: Build"
+						"type": "meadow"
 					}
 				],
 				"configurationAttributes": {

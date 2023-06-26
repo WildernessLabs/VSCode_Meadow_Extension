@@ -47,6 +47,10 @@ export class MeadowConfigurationProvider implements vscode.DebugConfigurationPro
 		if (!config.type)
 			config.type = 'meadow';
 
+		if (!config['preLaunchTask']) {
+			config['preLaunchTask'] = 'meadow: Build';
+		}
+
 		var project = startupInfo.Project;
 
 		if (!project)
