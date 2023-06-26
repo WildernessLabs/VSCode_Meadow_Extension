@@ -72,11 +72,11 @@ jobs:
         $newcontent | Set-Content vs-code/package.json
 
     - name: Restore VSCode Extension dependencies
-      run: dotnet restore main/src/VSCodeMeadow.sln -p:Configuration=Debug -v:diag
+      run: dotnet restore main/src/VSCodeMeadow.sln -p:Configuration=Debug -v:diag -bl:restore.binlog
   
     - name: Build VSCode Extension
       id: VSCode-Extension
-      run: dotnet build main/src/VSCodeMeadow.sln -p:Configuration=Debug -v:diag
+      run: dotnet build main/src/VSCodeMeadow.sln -p:Configuration=Debug -v:diag -bl:build.binlog
 
     - name: Build WebPack
       run: |
@@ -102,6 +102,12 @@ jobs:
       with:
         name: VSCodeMeadow.vsix.${{ ENV.IDE_TOOLS_RELEASE_VERSION }}
         path: 'main/*.vsix'
+
+    - name: Upload Binlog Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: BinLogs
+        path: '**/*.binlog'
 
     - if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' }}
       name: Publish VSCode Extension
