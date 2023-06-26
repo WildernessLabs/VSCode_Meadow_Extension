@@ -106,15 +106,12 @@ export class MeadowProjectManager {
 			this.selectStartupProject(false);
 		}
 
-		this.setupMenus();
-
-		this.updateProjectStatus();
-		this.updateDeviceStatus();
+		this.setupMenus(this.HasSupportedProjects);
 	}
 
 	isMenuSetup: boolean = false;
 
-	setupMenus()
+	setupMenus(hasSupportedProjects: boolean)
 	{
 		if (!this.isMenuSetup)
 		{
@@ -130,6 +127,15 @@ export class MeadowProjectManager {
 
 		this.updateProjectStatus();
 		this.updateDeviceStatus();
+
+		
+		if (!hasSupportedProjects) {
+			this.deviceStatusBarItem.hide();
+			this.projectStatusBarItem.hide();
+		} else {
+			this.deviceStatusBarItem.show();
+			this.projectStatusBarItem.show();
+		}
 
 		this.isMenuSetup = true;
 	}
@@ -235,11 +241,6 @@ export class MeadowProjectManager {
 
 		this.projectStatusBarItem.text = "$(project) " + projStr;
 		this.projectStatusBarItem.tooltip = selProj === undefined ? "Select a Meadow Project" : selProj.Path;
-		
-		if (this.StartupProjects && this.StartupProjects.length > 0)
-			this.projectStatusBarItem.show();
-		else
-			this.projectStatusBarItem.hide();
 	}
 
 
@@ -298,11 +299,6 @@ export class MeadowProjectManager {
 		else{
 			this.deviceStatusBarItem.tooltip = "Select Device - Ctrl+Alt+Shift+R";
 		}
-
-		if (this.StartupProjects && this.StartupProjects.length > 0)
-			this.deviceStatusBarItem.show();
-		else
-			this.deviceStatusBarItem.hide();
 	}
 
 	public static getIsSupportedProject(projectInfo: MSBuildProjectInfo): boolean
