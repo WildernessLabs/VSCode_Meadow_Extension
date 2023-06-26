@@ -14,3 +14,4 @@
 !ThirdPartyNotices.txt
 !images/*
 !meadow.png
+!**/Meadow.Debug.targets
