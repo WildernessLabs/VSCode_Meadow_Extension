@@ -72,7 +72,9 @@ jobs:
         $newcontent | Set-Content vs-code/package.json
 
     - name: Restore VSCode Extension dependencies
-      run: dotnet restore main/src/VSCodeMeadow.sln -p:Configuration=Debug -v:diag -bl:restore.binlog
+      run: |
+        rm -rf main/externals/**/NuGet.config
+        dotnet restore main/src/VSCodeMeadow.sln -p:Configuration=Debug -v:diag -bl:restore.binlog
   
     - name: Build VSCode Extension
       id: VSCode-Extension
