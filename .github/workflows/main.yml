@@ -13,7 +13,7 @@ on:
 
 jobs:
   build-vscode:
-    runs-on: windows-latest
+    runs-on: macos-latest
     name: Build VSCode Extension
     
     steps:
