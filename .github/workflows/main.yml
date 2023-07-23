@@ -1,4 +1,6 @@
 name: VSCode Extension
+env:
+  IDE_TOOLS_RELEASE_VERSION: 1.1.2
 
 on:
   push:
@@ -64,6 +66,13 @@ jobs:
     - name: Add MSBuild to Path
       uses: microsoft/setup-msbuild@v1.1
 
+    - if: ${{ github.event_name == 'workflow_dispatch' }}
+      name: Update VSCode Version Numbers
+      run: |
+        $content = Get-Content vs-code/package.json | Out-String
+        $newcontent = $content -replace '"version": "1.*",', '"version": "${{ENV.IDE_TOOLS_RELEASE_VERSION}}",'
+        $newcontent | Set-Content vs-code/package.json
+
     - name: Restore VSCode Extension dependencies
       run: dotnet restore main/src/csharp/VSCodeMeadow.csproj /p:Configuration=Debug
 
@@ -93,7 +102,7 @@ jobs:
     - name: Upload VSIX Artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: VSCodeMeadow.vsix
+        name: VSCodeMeadow.vsix.${{ ENV.IDE_TOOLS_RELEASE_VERSION }}
         path: 'main/*.vsix'
 
     - if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' }}
