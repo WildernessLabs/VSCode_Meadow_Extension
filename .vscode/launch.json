@@ -4,7 +4,7 @@
 		{
 			"name": "Debug Extension",
 			"type": "extensionHost",
-			"preLaunchTask": "npm: webpack",
+			"preLaunchTask": "npm: webpack-development",
 			"request": "launch",
 			"runtimeExecutable": "${execPath}",
 			"args": [
@@ -12,7 +12,10 @@
 			],
 			"outFiles": [
 				"${workspaceRoot}/dist/**/*.js"
-			]
+			],
+			"env": {
+				"NODE_ENV": "development"
+			}
 		},
 		{
 			"name": "Debug Server",
@@ -26,12 +29,15 @@
 			// For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
 			"console": "internalConsole",
 			"stopAtEntry": false,
-			"internalConsoleOptions": "openOnSessionStart"
+			"internalConsoleOptions": "openOnSessionStart",
+			"env": {
+				"NODE_ENV": "development"
+			}
 		},
 		{
 			"name": "Release Extension",
 			"type": "extensionHost",
-			"preLaunchTask": "npm: webpack",
+			"preLaunchTask": "npm: webpack-production",
 			"request": "launch",
 			"runtimeExecutable": "${execPath}",
 			"args": [
@@ -56,7 +62,10 @@
 			// For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
 			"console": "internalConsole",
 			"stopAtEntry": false,
-			"internalConsoleOptions": "openOnSessionStart"
+			"internalConsoleOptions": "openOnSessionStart",
+			"env": {
+				"NODE_ENV": "production"
+			}
 		},
 	],
 	"compounds": [

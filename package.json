@@ -16,8 +16,8 @@
 	"scripts": {
 		"prepublish": "",
 		"vscode:prepublish": "",
-		"webpack": "webpack --mode development",
-		"webpack-dev": "webpack --mode development --watch"
+		"webpack-development": "webpack --config webpack.config.development.js",
+		"webpack-production": "webpack --config webpack.config.production.js"
 	},
 	"engines": {
 		"vscode": "^1.81.1",
