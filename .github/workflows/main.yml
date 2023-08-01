@@ -78,7 +78,8 @@ jobs:
         cd main
         npm install -g webpack
         npm install -D ts-loader
-        npm run webpack
+        npm install -g webpack-merge
+        npm run webpack --config webpack.config.production.js
 
     - if: ${{ github.ref != 'refs/heads/main' }}
       name: Build Pre-Release VSIX on non main branch
