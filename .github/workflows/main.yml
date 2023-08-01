@@ -80,7 +80,7 @@ jobs:
         npm install -D ts-loader
         npm install -g webpack-merge
         # This is the config found in package.json/scripts
-        npm run webpack webpack-production 
+        npm run webpack-production 
 
     - if: ${{ github.ref != 'refs/heads/main' }}
       name: Build Pre-Release VSIX on non main branch
