@@ -37,7 +37,7 @@ jobs:
       with:
         repository: WildernessLabs/Meadow.CLI
         path: Meadow.CLI
-        ref: dominique-RevertDeveloperLevel2
+        ref: develop
 
     # - name: Setup .NET
     #   uses: actions/setup-dotnet@v3
