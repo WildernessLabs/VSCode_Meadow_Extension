@@ -76,11 +76,11 @@ jobs:
         rm main/externals/debugger-libs/NuGet.config
         rm main/externals/debugger-libs/UnitTests/MonoDevelop.Debugger.Tests.NonUserCodeTestLibCore/NuGet.config
         rm main/externals/debugger-libs/UnitTests/MonoDevelop.Debugger.Tests.TestAppCore/NuGet.config
-        dotnet restore main/src/VSCodeMeadow.sln -p:Configuration=Debug -v:diag -bl:restore.binlog
+        dotnet restore main/src/csharp/VSCodeMeadow.csproj -p:Configuration=Debug -v:diag -bl:restore.binlog
 
     - name: Build VSCode Extension
       id: VSCode-Extension
-      run: dotnet build main/src/VSCodeMeadow.sln -p:Configuration=Debug -v:diag -bl:build.binlog
+      run: dotnet build main/src/csharp/VSCodeMeadow.csproj -p:Configuration=Debug -v:diag -bl:build.binlog
 
     - name: Build WebPack
       run: |
