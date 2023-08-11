@@ -80,7 +80,7 @@ jobs:
         #        rm main/externals/debugger-libs/UnitTests/MonoDevelop.Debugger.Tests.TestAppCore/NuGet.config
     - name: Restore VSCode Extension dependencies
       run: |
-        dotnet restore main/src/csharp/VSCodeMeadow.csproj -p:Configuration=Debug -v:diag -bl:restore.binlog
+        dotnet restore main/src/csharp/VSCodeMeadow.csproj -p:Configuration=Debug -v:diag -bl:restore.binlog --source https://api.nuget.org/v3/index.json
 
     - name: Build VSCode Extension
       id: VSCode-Extension
