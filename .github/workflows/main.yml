@@ -18,14 +18,14 @@ jobs:
     
     steps:
     - name: Checkout current repo
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         path: main
         submodules: true
 
     - if: ${{ github.ref == 'refs/heads/main' }}
       name: Checkout Meadow.CLI.Core side-by-side
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         repository: WildernessLabs/Meadow.CLI
         path: Meadow.CLI
@@ -33,7 +33,7 @@ jobs:
 
     - if: ${{ github.ref != 'refs/heads/main' }}
       name: Checkout Meadow.CLI.Core side-by-side
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         repository: WildernessLabs/Meadow.CLI
         path: Meadow.CLI
@@ -49,10 +49,10 @@ jobs:
     - name: Setup Nuget
       uses: Nuget/setup-nuget@v1.0.5
 
-    - name: Setup Node.js 14
-      uses: actions/setup-node@v2
+    - name: Setup Node.js 16
+      uses: actions/setup-node@v3
       with:
-        node-version: '14'
+        node-version: 16
 
     - name: Install NPM
       run: |
