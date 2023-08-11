@@ -43,7 +43,6 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: | 
-          6.0.x
           7.0.x
   
     - name: Setup Nuget
@@ -54,19 +53,16 @@ jobs:
       with:
         node-version: 16
 
-    - name: Install NPM
-      run: |
-        cd main
-        npm i -g npm@latest
-        npm update
+    #- name: Install NPM intalling NODE should install this already
+    #  run: |
+    #    cd main
+    #    npm i -g npm@latest
+    #    npm update
 
     - name: Install vsce
       run: |
         npm i -g @vscode/vsce
         npm i -g @vscode/debugprotocol
-
-    #- name: Add MSBuild to Path
-    #  uses: microsoft/setup-msbuild@v1.1
 
     - if: ${{ github.event_name == 'workflow_dispatch' }}
       name: Update VSCode Version Numbers
