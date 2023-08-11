@@ -13,7 +13,7 @@ on:
 
 jobs:
   build-vscode:
-    runs-on: windows-latest
+    runs-on: macos-latest
     name: Build VSCode Extension
     
     steps:
@@ -65,8 +65,8 @@ jobs:
         npm i -g @vscode/vsce
         npm i -g @vscode/debugprotocol
 
-    - name: Add MSBuild to Path
-      uses: microsoft/setup-msbuild@v1.1
+    #- name: Add MSBuild to Path
+    #  uses: microsoft/setup-msbuild@v1.1
 
     - if: ${{ github.event_name == 'workflow_dispatch' }}
       name: Update VSCode Version Numbers
@@ -80,7 +80,7 @@ jobs:
         #        rm main/externals/debugger-libs/UnitTests/MonoDevelop.Debugger.Tests.TestAppCore/NuGet.config
     - name: Restore VSCode Extension dependencies
       run: |
-        dotnet restore main/src/csharp/VSCodeMeadow.csproj -p:Configuration=Debug -v:diag -bl:restore.binlog --source https://api.nuget.org/v3/index.json
+        dotnet restore main/src/csharp/VSCodeMeadow.csproj -p:Configuration=Debug -v:diag -bl:restore.binlog
 
     - name: Build VSCode Extension
       id: VSCode-Extension
