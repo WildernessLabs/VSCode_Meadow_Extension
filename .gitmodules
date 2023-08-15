@@ -3,4 +3,4 @@
 	url = https://github.com/mono/debugger-libs.git
 [submodule "externals/NRefactory"]
 	path = externals/NRefactory
-	url = git@github.com:WildernessLabs/VSCode_Meadow_Extension.git
+	url = https://github.com/xamarin/NRefactory
