@@ -1,3 +1,6 @@
 [submodule "externals/debugger-libs"]
 	path = externals/debugger-libs
 	url = https://github.com/mono/debugger-libs.git
+[submodule "externals/NRefactory"]
+	path = externals/NRefactory
+	url = git@github.com:WildernessLabs/VSCode_Meadow_Extension.git
