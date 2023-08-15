@@ -53,12 +53,6 @@ jobs:
       with:
         node-version: 16
 
-    #- name: Install NPM intalling NODE should install this already
-    #  run: |
-    #    cd main
-    #    npm i -g npm@latest
-    #    npm update
-
     - name: Install vsce
       run: |
         npm i -g @vscode/vsce
