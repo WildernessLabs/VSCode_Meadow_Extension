@@ -1,7 +1,7 @@
 {
 	"name": "meadow",
 	"displayName": "VSCode Tools For Meadow",
-	"version": "1.2.0",
+	"version": "1.2.2",
 	"publisher": "WildernessLabs",
 	"description": "Build, Debug and Deploy Meadow applications",
 	"icon": "meadow.png",
@@ -13,9 +13,6 @@
 	},
 	"license": "LICENSE",
 	"private": true,
-	"extensionDependencies": [
-		"ms-dotnettools.csharp"
-	],
 	"scripts": {
 		"prepublish": "",
 		"vscode:prepublish": "",
@@ -23,22 +20,20 @@
 		"webpack-dev": "webpack --mode development --watch"
 	},
 	"engines": {
-		"vscode": "^1.63.0",
+		"vscode": "^1.81.1",
 		"node": "^6.3.0"
 	},
 	"dependencies": {
 		"@types/execa": "^2.0.0",
 		"@types/lodash": "^4.14.168",
 		"@types/serialport": "^8.0.2",
-		"@types/vscode": "^1.53.0",
+		"@types/vscode": "^1.75.1",
 		"@types/xml2js": "^0.4.8",
 		"execa": "^5.0.0",
 		"lodash": "^4.17.21",
 		"rxjs": "^6.6.6",
 		"serialport": "^9.2.8",
-		"vscode-debugprotocol": "^1.45.0",
-		"vscode-nls": "^5.0.0",
-		"vscode-test": "^1.5.1",
+		"vscode-nls": "^5.2.0",
 		"xml2js": "^0.5.0"
 	},
 	"repository": {
@@ -51,11 +46,15 @@
 	"devDependencies": {
 		"@types/mocha": "^8.2.1",
 		"@types/node": "^14.14.31",
+		"@vscode/debugadapter": "^1.58.0",
+		"@vscode/debugadapter-testsupport": "^1.58.0",
+		"@vscode/debugprotocol": "^1.61.0",
+		"@vscode/l10n-dev": "0.0.26",
+		"@vscode/test-electron": "^2.1.5",
+		"@vscode/vsce": "^2.20.1",
 		"mocha": "^10.0.0",
 		"ts-loader": "^9.4.2",
 		"typescript": "^4.2.2",
-		"vsce": "^2.15.0",
-		"vscode-debugadapter-testsupport": "^1.45.0",
 		"vscode-nls-dev": "^4.0.3",
 		"webpack": "^5.76.0",
 		"webpack-cli": "^5.0.0"
@@ -143,14 +142,12 @@
 			{
 				"type": "meadow",
 				"label": "Meadow (Debug)",
-				"program": "./src/csharp/bin/Debug/net6.0/vscode-meadow.dll",
+				"program": "./src/csharp/bin/Debug/net7.0/vscode-meadow.dll",
 				"runtime": "dotnet",
 				"initialConfigurations": [
 					{
 						"name": "%meadow.launch.config.name%",
-						"type": "meadow",
-						"request": "launch",
-						"preLaunchTask": "meadow: Build"
+						"type": "meadow"
 					}
 				],
 				"configurationAttributes": {
@@ -174,7 +171,7 @@
 			{
 				"type": "meadow",
 				"label": "Meadow (Release)",
-				"program": "./src/csharp/bin/Release/net6.0/vscode-meadow.dll",
+				"program": "./src/csharp/bin/Release/net7.0/vscode-meadow.dll",
 				"runtime": "dotnet",
 				"initialConfigurations": [
 					{

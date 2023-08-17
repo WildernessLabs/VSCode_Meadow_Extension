@@ -3,30 +3,7 @@ let fs = require("fs");
 let path = require('path')
 import * as vscode from 'vscode';
 import { MeadowProjectManager as MeadowProjectManager, ProjectType } from './meadow-project-manager';
-import * as child from 'child_process';
-import * as extension from './extension';
-
-interface ExecResult {
-    stdout: string,
-    stderr: string
-}
-
-function execFileAsync(file: string, args?: string[]): Thenable<ExecResult> {
-
-    return new Promise((resolve, reject) => {
-        child.execFile(file, args, (error, stdout, stderr) => {
-            if (error) {
-                reject(error);
-            }
-            resolve({ stdout, stderr });
-        });
-    });
-}
-
-function existsAsync(path: string | Buffer): Promise<boolean> {
-
-    return new Promise((resolve) => fs.exists(path, resolve));
-}
+import { MeadowConfiguration } from './meadow-configuration';
 
 interface MeadowBuildTaskDefinition extends vscode.TaskDefinition {
 
@@ -41,22 +18,15 @@ interface MeadowBuildTaskDefinition extends vscode.TaskDefinition {
 	target:string;
 
 	flags?: string[];
+
+	VSCodeMeadowDebugInfoFile?: string;
 }
 
 export class MeadowBuildTaskProvider implements vscode.TaskProvider {
 	static MeadowBuildScriptType: string = 'meadow';
-	private csproj:string;
-	private configuration:string;
-	
-	// We use a CustomExecution task when state needs to be shared across runs of the task or when 
-	// the task requires use of some VS Code API to run.
-	// If you don't need to share state between runs and if you don't need to execute VS Code API in your task, 
-	// then a simple ShellExecution or ProcessExecution should be enough.
-	// Since our build has this shared state, the CustomExecution is used below.
-	private sharedState: string | undefined;
 
-	constructor(private workspaceRoot: string){
-		console.log(workspaceRoot);
+	constructor(private extensionContext: vscode.ExtensionContext){
+
 	}
 
 	public async provideTasks(): Promise<vscode.Task[]> {
@@ -69,47 +39,7 @@ export class MeadowBuildTaskProvider implements vscode.TaskProvider {
 		return undefined;
 	}
 
-	static msBuildPromise:Promise<string>;
-
-	private static locateMSBuild(): Promise<string> {
-
-		if (!MeadowBuildTaskProvider.msBuildPromise) {
-			MeadowBuildTaskProvider.msBuildPromise = MeadowBuildTaskProvider.locateMSBuildImpl();
-		}
-		return MeadowBuildTaskProvider.msBuildPromise;
-	}
-
-	private static async locateMSBuildImpl(): Promise<string> {
-
-		if (extension.isWindows) {
-			return "msbuild";
-		}
-	
-		const progFiles = process.env["ProgramFiles(x86)"];
-		const vswhere = path.join(progFiles, "Microsoft Visual Studio", "Installer", "vswhere.exe");
-		if (!await existsAsync(vswhere)) {
-			return "msbuild";
-		}
-	
-		var findMSBuild = ["-latest", "-requires", "Microsoft.Component.MSBuild", "-find", "MSBuild\\**\\Bin\\MSBuild.exe"];
-		var { stdout } = await execFileAsync(vswhere, findMSBuild);
-		stdout = stdout.trim();
-		if (stdout.length > 0) {
-			return stdout;
-		}
-	
-		findMSBuild.push("-preRelease");
-		var { stdout } = await execFileAsync(vswhere, findMSBuild);
-		stdout = stdout.trim();
-		if (stdout.length > 0) {
-			return stdout;
-		} else {
-			return "msbuild";
-		}
-	}
-
 	private async getTasks(): Promise<vscode.Task[]> {
-		
 		var startupInfo = MeadowProjectManager.Shared.StartupInfo;
 
 		if (!startupInfo.Project)
@@ -117,9 +47,6 @@ export class MeadowBuildTaskProvider implements vscode.TaskProvider {
 			vscode.window.showInformationMessage("Startup Project not selected!");
 			return undefined;
 		}
-
-		this.csproj = startupInfo.Project.Path;
-		this.configuration = startupInfo.Configuration;
 
 		var flags = [];
 		var command = "dotnet";
@@ -131,12 +58,15 @@ export class MeadowBuildTaskProvider implements vscode.TaskProvider {
 
 	private getTask(command:string ,target: string, flags: string[], definition?: MeadowBuildTaskDefinition): vscode.Task{
 
+		var debugConfig = this.extensionContext.workspaceState.get('currentDebugConfiguration') as MeadowConfiguration
+		// Clear out the set debug info for the next time this provider is called
+		// which may not be for a debug session
+		this.extensionContext.workspaceState.update('currentDebugConfiguration', undefined)
+
 		var startupInfo = MeadowProjectManager.Shared.StartupInfo;
 
-		var configuration = startupInfo.Configuration;
+		var configuration = startupInfo.Configuration ?? 'Debug';
 		var csproj = startupInfo.Project.Path;
-		var isCore = startupInfo.Project.IsCore;
-		var tfm = startupInfo.TargetFramework;
 		var device = startupInfo.Device;
 
 		if (definition === undefined) {
@@ -151,14 +81,18 @@ export class MeadowBuildTaskProvider implements vscode.TaskProvider {
 			};
 		}
 
-		var args = [csproj, `-t:${target}`, `-p:Configuration=${configuration}`];
+		var args = [`-t:${target}`, `-p:Configuration=${configuration}`];
 
 		// dotnet needs the build verb
 		args.unshift("build");
 
-		// 	if (tfm)
-		// 		args.push(`-p:TargetFramework=${tfm}`);
-		
+
+		const meadowDebugTargetsPath = path.join(this.extensionContext.extensionPath, 'src', 'Meadow.Debug.targets')
+		args.push(`-p:CustomAfterMicrosoftCSharpTargets="${meadowDebugTargetsPath}"`)
+		args.push(`-p:VSCodeMeadowDebugInfoFile=${debugConfig['msbuildPropertyFile']}`)
+
+		args.push(csproj);
+
 		args.concat(flags);
 		var task = new vscode.Task(definition, vscode.TaskScope.Workspace, definition.target, 'meadow', new vscode.ProcessExecution(command, args), "$msCompile");
 		return task;

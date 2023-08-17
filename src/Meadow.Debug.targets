@@ -1,0 +1,24 @@
+<Project>
+	<PropertyGroup>
+		<BuildDependsOn>$(BuildDependsOn);VSCodeMeadowDebugInfo</BuildDependsOn>
+	</PropertyGroup>
+
+	<Target Name="VSCodeMeadowDebugInfo" DependsOnTargets="CoreBuild">
+		<ItemGroup>
+			<VSCodeMeadowDebugInfo Condition="'%(ProjectCapability.Identity)' == 'Meadow'" Include="ProjectCapability=%(ProjectCapability.Identity)" />
+			<VSCodeMeadowDebugInfo Condition="'$(TargetPath)' != ''" Include="TargetPath=$([System.IO.Path]::GetFullPath($(TargetPath)))" />
+			<VSCodeMeadowDebugInfo Condition="'$(TargetFileName)' != ''" Include="TargetFileName=$([System.IO.Path]::GetFullPath($(TargetFileName)))" />
+			<VSCodeMeadowDebugInfo Condition="'$(Configuration)' != ''" Include="Configuration=$(Configuration)" />
+			<VSCodeMeadowDebugInfo Condition="'$(OutputPath)' != ''" Include="OutputPath=$([System.IO.Path]::GetFullPath($(OutputPath)))" />
+			<VSCodeMeadowDebugInfo Condition="'$(OutputType)' != ''" Include="OutputType=$(OutputType)" />
+			<VSCodeMeadowDebugInfo Condition="'$(AssemblyName)' != ''" Include="AssemblyName=$(AssemblyName)" />
+			<VSCodeMeadowDebugInfo Condition="'$(TargetFramework)' != ''" Include="TargetFramework=$(TargetFramework)" />
+			<VSCodeMeadowDebugInfo Condition="'$(MSBuildProjectFullPath)' != ''" Include="MSBuildProjectFullPath=$(MSBuildProjectFullPath)" />
+
+		</ItemGroup>
+		<WriteLinesToFile
+			File="$(VSCodeMeadowDebugInfoFile)"
+			Lines="@(VSCodeMeadowDebugInfo)"
+			Overwrite="true" />
+	</Target>
+</Project>

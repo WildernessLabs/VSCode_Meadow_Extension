@@ -1,5 +1,7 @@
+import { randomUUID } from 'crypto'
 import * as SerialPort  from 'serialport';
 import * as Fs from 'fs';
+import * as os from 'os';
 
 interface CommandResponse<T> {
 	id: string;
@@ -46,7 +48,7 @@ export class MeadowUtil
 		const isProduction = process.env.NODE_ENV === "production";
 		const debugOrRelease = isProduction ? "Release" : "Debug";
 
-		this.UtilPath = path.join(extPath, 'src', 'csharp', 'bin', debugOrRelease, 'net6.0', 'vscode-meadow.dll');
+		this.UtilPath = path.join(extPath, 'src', 'csharp', 'bin', debugOrRelease, 'net7.0', 'vscode-meadow.dll');
 	}
 
 	async RunCommand<TResult>(cmd: string, args: string[] = null)
@@ -78,6 +80,8 @@ export class MeadowUtil
 		return r.response;
 	}
 
+	
+
 	// SerialPort doesn't work on M1 Apple Silicon yet :(
 	// public async GetDevices()
 	// {
@@ -88,4 +92,10 @@ export class MeadowUtil
 	// 		serial: p.serialNumber
 	// 	})) as DeviceData[];
 	// }
+}
+
+export function getTempFile(): string {
+	var tempFileName = 'vscode-meadow-' + randomUUID() + '.txt'
+	const tempFile = path.join(os.tmpdir(), tempFileName)
+	return tempFile
 }
