@@ -1,6 +1,6 @@
 name: VSCode Extension
 env:
-  IDE_TOOLS_RELEASE_VERSION: 1.2.0
+  IDE_TOOLS_RELEASE_VERSION: 1.2.2
 
 on:
   push:
@@ -18,14 +18,14 @@ jobs:
     
     steps:
     - name: Checkout current repo
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         path: main
         submodules: true
 
     - if: ${{ github.ref == 'refs/heads/main' }}
       name: Checkout Meadow.CLI.Core side-by-side
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         repository: WildernessLabs/Meadow.CLI
         path: Meadow.CLI
@@ -33,38 +33,30 @@ jobs:
 
     - if: ${{ github.ref != 'refs/heads/main' }}
       name: Checkout Meadow.CLI.Core side-by-side
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         repository: WildernessLabs/Meadow.CLI
         path: Meadow.CLI
+        ref: develop
 
-    - name: Setup .NET Core 6.0.x and 7.0.x
-      uses: actions/setup-dotnet@v1
+    - name: Setup .NET 7.0.x
+      uses: actions/setup-dotnet@v3
       with:
         dotnet-version: | 
-          6.0.x
           7.0.x
-
+  
     - name: Setup Nuget
       uses: Nuget/setup-nuget@v1.0.5
 
-    - name: Setup Node.js 14
-      uses: actions/setup-node@v2
+    - name: Setup Node.js 16
+      uses: actions/setup-node@v3
       with:
-        node-version: '14'
-
-    - name: Install NPM
-      run: |
-        cd main
-        npm install
-        npm update
+        node-version: 16
 
     - name: Install vsce
       run: |
         npm i -g @vscode/vsce
-
-    - name: Add MSBuild to Path
-      uses: microsoft/setup-msbuild@v1.1
+        npm i -g @vscode/debugprotocol
 
     - if: ${{ github.event_name == 'workflow_dispatch' }}
       name: Update VSCode Version Numbers
@@ -74,11 +66,12 @@ jobs:
         $newcontent | Set-Content main/package.json
 
     - name: Restore VSCode Extension dependencies
-      run: dotnet restore main/src/csharp/VSCodeMeadow.csproj /p:Configuration=Debug
+      run: |
+        dotnet restore main/src/csharp/VSCodeMeadow.csproj -p:Configuration=Debug -v:diag -bl:restore.binlog
 
     - name: Build VSCode Extension
       id: VSCode-Extension
-      run: dotnet build main/src/csharp/VSCodeMeadow.csproj /p:Configuration=Debug
+      run: dotnet build main/src/csharp/VSCodeMeadow.csproj -p:Configuration=Debug -v:diag -bl:build.binlog
 
     - name: Build WebPack
       run: |
@@ -104,6 +97,13 @@ jobs:
       with:
         name: VSCodeMeadow.vsix.${{ ENV.IDE_TOOLS_RELEASE_VERSION }}
         path: 'main/*.vsix'
+
+    - name: Upload Binlog Artifacts
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: BinLogs
+        path: '**/*.binlog'
 
     - if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' }}
       name: Publish VSCode Extension

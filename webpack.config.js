@@ -41,6 +41,10 @@ const config = {
             }]
         }]
     },
+    infrastructureLogging: {
+        level: 'log', // enables logging required for problem matchers
+    },
+    plugins: [],
 }
 
 module.exports = config;

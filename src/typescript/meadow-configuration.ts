@@ -1,17 +1,20 @@
 import * as vscode from 'vscode';
 import { WorkspaceFolder, DebugConfiguration } from 'vscode';
 import { MeadowProjectManager, ProjectType } from './meadow-project-manager';
+import { getTempFile } from './meadow-util';
 
 export class MeadowConfiguration implements DebugConfiguration {
 	[key: string]: any;
 	type: string;
 	name: string;
 	request: string;
+
+	VSCodeMeadowDebugInfoFile: string;
 }
 
 export class MeadowConfigurationProvider implements vscode.DebugConfigurationProvider {
 
-	constructor() {
+	constructor(private extensionContext: vscode.ExtensionContext) {
 	}
 
 
@@ -44,6 +47,10 @@ export class MeadowConfigurationProvider implements vscode.DebugConfigurationPro
 		if (!config.type)
 			config.type = 'meadow';
 
+		if (!config['preLaunchTask']) {
+			config['preLaunchTask'] = 'meadow: Build';
+		}
+
 		var project = startupInfo.Project;
 
 		if (!project)
@@ -61,19 +68,14 @@ export class MeadowConfigurationProvider implements vscode.DebugConfigurationPro
 
 		if (project) {
 
+			if (!config['msbuildPropertyFile'])
+				config['msbuildPropertyFile'] = getTempFile();
+				
 			if (!config['projectPath'])
 				config['projectPath'] = project.Path;
 
-			if (!config['projectOutputPath'])
-				config['projectOutputPath'] = project.OutputPath;
-
 			if (!config['projectConfiguration'])
 				config['projectConfiguration'] = startupInfo.Configuration;
-
-			var projectIsCore = startupInfo.Project.IsCore;
-
-			config['projectIsCore'] = projectIsCore;
-			config['projectTargetFramework'] = startupInfo.TargetFramework;
 
 			// Only set the debug port for debug config
 			if (startupInfo.Configuration.toLowerCase() === 'debug')
@@ -97,6 +99,8 @@ export class MeadowConfigurationProvider implements vscode.DebugConfigurationPro
 			}
 		}
 
+		this.extensionContext.workspaceState.update('currentDebugConfiguration', config)
+
 		return config;
 	}
 
@@ -105,3 +109,5 @@ export class MeadowConfigurationProvider implements vscode.DebugConfigurationPro
 		return debugConfiguration;
 	}
 }
+
+

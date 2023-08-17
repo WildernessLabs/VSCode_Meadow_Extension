@@ -5,18 +5,17 @@
 'use strict';
 
 import * as vscode from 'vscode';
-import * as nls from 'vscode-nls';
-import { DebugProtocol } from 'vscode-debugprotocol';
 import { MeadowProjectManager } from "./meadow-project-manager";
 import { MeadowConfigurationProvider } from "./meadow-configuration";
 import { OutputChannel } from 'vscode';
 import { MeadowBuildTaskProvider } from './meadow-build-task';
+import { DebugProtocol } from '@vscode/debugprotocol';
+import * as nls from 'vscode-nls';
 
 const localize = nls.config({ locale: process.env.VSCODE_NLS_CONFIG })();
 
 const configuration = vscode.workspace.getConfiguration('meadow');
 
-let omnisharp: any = null;
 let meadowOutputChannel: OutputChannel = null;
 let meadowProgressBar: any = null;
 
@@ -40,16 +39,12 @@ export function activate(context: vscode.ExtensionContext) {
 
 	this.MeadowProjectManager = new MeadowProjectManager(context);
 
-	this.meadowBuildTaskProvider = vscode.tasks.registerTaskProvider(MeadowBuildTaskProvider.MeadowBuildScriptType, new MeadowBuildTaskProvider(vscode.workspace.rootPath));
+	this.meadowBuildTaskProvider = vscode.tasks.registerTaskProvider(MeadowBuildTaskProvider.MeadowBuildScriptType, new MeadowBuildTaskProvider(context));
 	
-	omnisharp = vscode.extensions.getExtension("ms-dotnettools.csharp").exports;
-
-	omnisharp.eventStream.subscribe((e: any) => console.log(JSON.stringify(e)));
-
 	context.subscriptions.push(vscode.commands.registerCommand('extension.meadow.configureExceptions', () => configureExceptions()));
 	context.subscriptions.push(vscode.commands.registerCommand('extension.meadow.startSession', config => startSession(config)));
 
-	const provider = new MeadowConfigurationProvider();
+	const provider = new MeadowConfigurationProvider(context);
 	context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('meadow', provider, vscode.DebugConfigurationProviderTriggerKind.Initial | vscode.DebugConfigurationProviderTriggerKind.Dynamic));
 
 	context.subscriptions.push(vscode.debug.onDidStartDebugSession(async (s) => {

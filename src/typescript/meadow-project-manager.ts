@@ -1,7 +1,4 @@
-import { isDotNetCoreProject, MSBuildProject, TargetFramework } from "./omnisharp/protocol";
 import * as vscode from 'vscode';
-import { BaseEvent, WorkspaceInformationUpdated } from './omnisharp/loggingEvents';
-import { EventType } from './omnisharp/EventType';
 import { MsBuildProjectAnalyzer } from './msbuild-project-analyzer';
 import { DeviceData, MeadowUtil } from "./meadow-util";
 import * as extension from './extension';
@@ -14,55 +11,29 @@ export enum ProjectType
 	Unknown,
 }
 
-export class MSBuildProjectInfo implements MSBuildProject {
-	public static async fromProject(project: MSBuildProject): Promise<MSBuildProjectInfo> {
+export class MSBuildProjectInfo {
+	public static async fromProject(project: vscode.Uri): Promise<MSBuildProjectInfo> {
 		var r = new MSBuildProjectInfo();
 
-		r.ProjectGuid = project.ProjectGuid;
-		r.Path = project.Path;
-		r.AssemblyName = project.AssemblyName;
-		r.TargetPath = project.TargetPath;
-		r.TargetFramework = project.TargetFramework;
-		r.SourceFiles = project.SourceFiles;
-		r.TargetFrameworks = project.TargetFrameworks;
-		r.OutputPath = project.OutputPath;
-		r.IsExe = project.IsExe;
-		r.IsUnityProject = project.IsUnityProject;
-		r.IsBlazorWebAssemblyHosted = project.IsBlazorWebAssemblyHosted;
-		r.IsBlazorWebAssemblyStandalone = project.IsBlazorWebAssemblyStandalone;
-		r.IsWebProject = project.IsWebProject;
-
-		var projXml = fs.readFileSync(r.Path);
+		var projXml = fs.readFileSync(project.fsPath);
 		var msbpa = new MsBuildProjectAnalyzer(projXml);
 		await msbpa.analyze();
 
+		r.Path = project.fsPath;
 		r.Configurations = msbpa.getConfigurationNames();
-		r.Platforms = msbpa.getPlatformNames();
-		r.Name = msbpa.getProjectName();
+		r.Name = project.toString().split('/').pop().split('.')[0];
 		r.PackageReferences = msbpa.getPackageReferences();
 		r.Sdk = msbpa.getSdk();
-		r.IsCore = isDotNetCoreProject(project);
+		r.IsCore = r.Sdk !== undefined && r.Sdk !== null;
 		return r;
 	}
 
 	Name: string;
-	ProjectGuid: string;
 	Path: string;
-	AssemblyName: string;
-	TargetPath: string;
-	TargetFramework: string;
-	SourceFiles: string[];
-	TargetFrameworks: TargetFramework[];
-	OutputPath: string;
 	IsExe: boolean;
-	IsUnityProject: boolean;
 	Sdk: string;
 	Configurations: string[];
-	Platforms: string[];
 	PackageReferences: string[];
-	IsBlazorWebAssemblyStandalone: boolean;
-	IsWebProject: boolean;
-	IsBlazorWebAssemblyHosted: boolean;
 	IsCore: Boolean;
 }
 
@@ -83,59 +54,64 @@ export class MeadowProjectManager {
 
 	HasSupportedProjects: boolean;
 
-	omnisharp: any;
-
 	context: vscode.ExtensionContext;
 
 	constructor(ctx: vscode.ExtensionContext) {
 		MeadowProjectManager.Shared = this;
 		
 		this.context = ctx;
+		this.StartupProjects = new Array<MSBuildProjectInfo>();
 
-		this.omnisharp = vscode.extensions.getExtension("ms-dotnettools.csharp").exports;
+		vscode.workspace.findFiles('**/*.csproj').then(allProjFiles => this.parseProjects(allProjFiles));
 
-		this.omnisharp.eventStream.subscribe(async (e: BaseEvent) => {
-			if (e.type === EventType.WorkspaceInformationUpdated) {
+		var watcher = vscode.workspace.createFileSystemWatcher('**/*.csproj', false, false, false);
 
-				this.StartupProjects = new Array<MSBuildProjectInfo>();
+		watcher.onDidChange(changedFileUri => this.parseProject(changedFileUri));
+		watcher.onDidCreate(createdFileUri => this.parseProject(createdFileUri));
+		watcher.onDidDelete(deletedFileUri => this.parseProject(deletedFileUri));
+	}
 
-				for (var p of (<WorkspaceInformationUpdated>e).info.MsBuild.Projects) {
+	async parseProject(projectUri: vscode.Uri): Promise<void> {
+		const projects:vscode.Uri[] = [ projectUri ];
+
+		await this.parseProjects(projects);
+	}
+
+	async parseProjects(projectUris: vscode.Uri[]): Promise<void> {
+		this.StartupProjects = new Array<MSBuildProjectInfo>();
+
+		for (var p of projectUris) {
 					
-					var msbProjInfo = await MSBuildProjectInfo.fromProject(p);
+			var msbProjInfo = await MSBuildProjectInfo.fromProject(p);
 
-					if (MeadowProjectManager.getIsSupportedProject(msbProjInfo)) {
-						this.StartupProjects.push(await MSBuildProjectInfo.fromProject(p));
-					}
-				}
-
-				// Determine if meadow projects found at all
-				this.HasSupportedProjects = (this.StartupProjects?.length ?? 0) > 0;
-
-				if (!this.StartupInfo)
-					this.StartupInfo = new MeadowStartupInfo();
-
-				if (!this.StartupInfo.Project || !this.StartupProjects.find(p => p.Path === this.StartupInfo.Project.Path))
-				{
-					this.StartupInfo.Project = undefined;
-					this.StartupInfo.Configuration = undefined;
-					this.StartupInfo.TargetFramework = undefined;
-					this.StartupInfo.Device = undefined;
-					this.StartupInfo.Devices = [];
-
-					this.selectStartupProject(false);
-				}
-
-				this.setupMenus();
-
-				this.updateProjectStatus();
-				this.updateDeviceStatus();
+			if (MeadowProjectManager.getIsSupportedProject(msbProjInfo)) {
+				this.StartupProjects.push(msbProjInfo);
 			}
-		});
+		}
+
+		// Determine if meadow projects found at all
+		this.HasSupportedProjects = (this.StartupProjects?.length ?? 0) > 0;
+
+		if (!this.StartupInfo)
+			this.StartupInfo = new MeadowStartupInfo();
+
+		if (!this.StartupInfo.Project || !this.StartupProjects.find(p => p.Path === this.StartupInfo.Project.Path))
+		{
+			this.StartupInfo.Project = undefined;
+			this.StartupInfo.Configuration = undefined;
+			this.StartupInfo.TargetFramework = undefined;
+			this.StartupInfo.Device = undefined;
+			this.StartupInfo.Devices = [];
+
+			this.selectStartupProject(false);
+		}
+
+		this.setupMenus(this.HasSupportedProjects);
 	}
 
 	isMenuSetup: boolean = false;
 
-	setupMenus()
+	setupMenus(hasSupportedProjects: boolean)
 	{
 		if (!this.isMenuSetup)
 		{
@@ -151,6 +127,15 @@ export class MeadowProjectManager {
 
 		this.updateProjectStatus();
 		this.updateDeviceStatus();
+
+		
+		if (!hasSupportedProjects) {
+			this.deviceStatusBarItem.hide();
+			this.projectStatusBarItem.hide();
+		} else {
+			this.deviceStatusBarItem.show();
+			this.projectStatusBarItem.show();
+		}
 
 		this.isMenuSetup = true;
 	}
@@ -179,7 +164,7 @@ export class MeadowProjectManager {
 		{
 			var projects = availableProjects
 			.map(x => ({
-				label: x.AssemblyName,
+				label: x.Name,
 				project: x,
 			}));
 
@@ -195,46 +180,9 @@ export class MeadowProjectManager {
 		if (!selectedProject)
 			return;
 
-		var selectedTargetFramework = undefined;
-
-		if (selectedProject.TargetFrameworks && selectedProject.TargetFrameworks.length > 0)
-		{
-			// If just 1, use it without asking
-			if (selectedProject.TargetFrameworks.length == 1)
-			{
-				selectedTargetFramework = this.fixTfm(selectedProject.TargetFrameworks[0].ShortName);
-			}
-			else
-			{
-				// If more than 1 and we are interactive, prompt the user to pick
-				if (interactive)
-				{
-					var tfms = selectedProject.TargetFrameworks
-						// Only return supported tfms
-						.filter(x => MeadowProjectManager.getIsSupportedProject(selectedProject))
-						.map(x => x.ShortName);
-
-					var t = await vscode.window.showQuickPick(tfms, { placeHolder: "Startup Project's Target Framework" });
-
-					if (t)
-						selectedTargetFramework = t;
-				}
-				else {
-					// Pick the first one if not interactive
-					selectedTargetFramework = selectedProject.TargetFrameworks[0].ShortName;
-				}
-			}
-		}
-		else if (selectedProject.TargetFramework)
-		{
-			selectedTargetFramework = this.fixTfm(selectedProject.TargetFramework);
-		}
 		
-		if (!selectedTargetFramework)
-			return;
 
 		MeadowProjectManager.Shared.StartupInfo.Project = selectedProject;
-		MeadowProjectManager.Shared.StartupInfo.TargetFramework = selectedTargetFramework;
 
 		var defaultConfig = "Debug";
 
@@ -277,17 +225,6 @@ export class MeadowProjectManager {
 			MeadowProjectManager.Shared.StartupInfo.Configuration = selectedConfiguration;
 	}
 
-
-	fixTfm(targetFramework: string) : string {
-
-		// /^net[0-9]{2}(\-[a-z0-9\.]+)?$/gis
-		var r = /^net[0-9]{2}(\-[a-z0-9\.]+)?$/gis.test(targetFramework);
-		if (r)
-			return 'net' + targetFramework[3] + '.' + targetFramework[4] + targetFramework.substr(5);
-		return targetFramework;
-	}
-
-
 	public async updateProjectStatus() {
 	
 		var selProj = MeadowProjectManager.Shared.StartupInfo?.Project;
@@ -296,7 +233,7 @@ export class MeadowProjectManager {
 		var projStr = "Meadow Project";
 		if (selProj)
 		{
-			projStr = selProj.Name ?? selProj.AssemblyName ?? "Meadow Project";
+			projStr = selProj.Name ?? selProj.Name ?? "Meadow Project";
 
 			if (selConfig)
 				projStr += " | " + selConfig;
@@ -304,11 +241,6 @@ export class MeadowProjectManager {
 
 		this.projectStatusBarItem.text = "$(project) " + projStr;
 		this.projectStatusBarItem.tooltip = selProj === undefined ? "Select a Meadow Project" : selProj.Path;
-		
-		if (this.StartupProjects && this.StartupProjects.length > 0)
-			this.projectStatusBarItem.show();
-		else
-			this.projectStatusBarItem.hide();
 	}
 
 
@@ -367,11 +299,6 @@ export class MeadowProjectManager {
 		else{
 			this.deviceStatusBarItem.tooltip = "Select Device - Ctrl+Alt+Shift+R";
 		}
-
-		if (this.StartupProjects && this.StartupProjects.length > 0)
-			this.deviceStatusBarItem.show();
-		else
-			this.deviceStatusBarItem.hide();
 	}
 
 	public static getIsSupportedProject(projectInfo: MSBuildProjectInfo): boolean

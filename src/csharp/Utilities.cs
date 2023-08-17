@@ -38,6 +38,9 @@ namespace VSCodeDebug
 
 		public static string FixPathSeparators(string path)
 		{
+			if (string.IsNullOrEmpty(path))
+				return null;
+
 			if (Environment.OSVersion.Platform == PlatformID.Win32NT)
 				return path.Replace("/", "\\");
 

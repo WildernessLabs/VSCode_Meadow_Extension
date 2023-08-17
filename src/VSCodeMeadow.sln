@@ -1,0 +1,65 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.33808.371
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "debugger", "debugger", "{DD5D7FCB-5097-433E-8399-BB037883FB2F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Meadow", "Meadow", "{639FE3D4-9D7F-4823-9911-48FE49C6998F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Meadow.Hcom.6.0.0", "..\..\Meadow.CLI\Meadow.Hcom\Meadow.Hcom.6.0.0.csproj", "{5F0219BE-F626-4C90-89B0-202850AE43C5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Meadow.CLI.Core.6.0.0", "..\..\Meadow.CLI\Meadow.CLI.Core\Meadow.CLI.Core.6.0.0.csproj", "{21E7E61E-D9CE-48E2-B1DA-52B5FC12015A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSCodeMeadow", "csharp\VSCodeMeadow.csproj", "{D46A8779-DAE7-4B90-ACBA-08893A504193}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mono.Debugging", "..\externals\debugger-libs\Mono.Debugging\Mono.Debugging.csproj", "{CD6FED13-1984-4491-97AB-1A4361E1F582}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mono.Debugger.Soft", "..\externals\debugger-libs\Mono.Debugger.Soft\Mono.Debugger.Soft.csproj", "{8D8752AF-06C6-40CE-AA55-B454DD6808E1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mono.Debugging.Soft", "..\externals\debugger-libs\Mono.Debugging.Soft\Mono.Debugging.Soft.csproj", "{7592E68B-CE43-4433-8B5A-F7890BAA2ABC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5F0219BE-F626-4C90-89B0-202850AE43C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F0219BE-F626-4C90-89B0-202850AE43C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F0219BE-F626-4C90-89B0-202850AE43C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F0219BE-F626-4C90-89B0-202850AE43C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21E7E61E-D9CE-48E2-B1DA-52B5FC12015A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21E7E61E-D9CE-48E2-B1DA-52B5FC12015A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21E7E61E-D9CE-48E2-B1DA-52B5FC12015A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21E7E61E-D9CE-48E2-B1DA-52B5FC12015A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D46A8779-DAE7-4B90-ACBA-08893A504193}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D46A8779-DAE7-4B90-ACBA-08893A504193}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D46A8779-DAE7-4B90-ACBA-08893A504193}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D46A8779-DAE7-4B90-ACBA-08893A504193}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD6FED13-1984-4491-97AB-1A4361E1F582}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD6FED13-1984-4491-97AB-1A4361E1F582}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD6FED13-1984-4491-97AB-1A4361E1F582}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD6FED13-1984-4491-97AB-1A4361E1F582}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D8752AF-06C6-40CE-AA55-B454DD6808E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D8752AF-06C6-40CE-AA55-B454DD6808E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D8752AF-06C6-40CE-AA55-B454DD6808E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D8752AF-06C6-40CE-AA55-B454DD6808E1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7592E68B-CE43-4433-8B5A-F7890BAA2ABC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7592E68B-CE43-4433-8B5A-F7890BAA2ABC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7592E68B-CE43-4433-8B5A-F7890BAA2ABC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7592E68B-CE43-4433-8B5A-F7890BAA2ABC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5F0219BE-F626-4C90-89B0-202850AE43C5} = {639FE3D4-9D7F-4823-9911-48FE49C6998F}
+		{21E7E61E-D9CE-48E2-B1DA-52B5FC12015A} = {639FE3D4-9D7F-4823-9911-48FE49C6998F}
+		{CD6FED13-1984-4491-97AB-1A4361E1F582} = {DD5D7FCB-5097-433E-8399-BB037883FB2F}
+		{8D8752AF-06C6-40CE-AA55-B454DD6808E1} = {DD5D7FCB-5097-433E-8399-BB037883FB2F}
+		{7592E68B-CE43-4433-8B5A-F7890BAA2ABC} = {DD5D7FCB-5097-433E-8399-BB037883FB2F}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C0062C7F-7F87-41DC-9A63-BE15C14E7A43}
+	EndGlobalSection
+EndGlobal
