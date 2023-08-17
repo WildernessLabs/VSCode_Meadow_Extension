@@ -132,22 +132,30 @@ export class MeadowProjectManager {
 
 			this.extensionContext.subscriptions.push(vscode.commands.registerCommand("meadow.refreshDeviceList", MeadowProjectManager.refreshDeviceList, this));
 
+			this.extensionContext.subscriptions.push(vscode.commands.registerCommand("meadow.switchBuildConfiguration", this.switchBuildConfiguration, this));
+			this.buildConfigurationStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+			this.buildConfigurationStatusBarItem.command = "meadow.switchBuildConfiguration";
+
 			this.isMenuSetup = true;
 		}
 
 		this.updateProjectStatus();
 		MeadowProjectManager.refreshDeviceList();
+		this.updateConfigurationStatus();
 		
 		if (!hasSupportedProjects) {
 			this.projectStatusBarItem.hide();
+			this.buildConfigurationStatusBarItem.hide();
 		} else {
 			this.projectStatusBarItem.show();
+			this.buildConfigurationStatusBarItem.show();
 		}
 
 		this.isMenuSetup = true;
 	}
 
 	projectStatusBarItem: vscode.StatusBarItem;
+	buildConfigurationStatusBarItem: vscode.StatusBarItem;
 
 	public StartupProjects = new Array<MSBuildProjectInfo>();
 
@@ -287,6 +295,11 @@ export class MeadowProjectManager {
 			MeadowProjectManager.Shared.StartupInfo.Device = MeadowProjectManager.Shared.meadowDevices[0];
 		}
 	}
+	public async updateConfigurationStatus() {
+		const currentConfig = await this.extensionContext.workspaceState.get('csharpBuildConfiguration', 'Debug');
+
+		this.buildConfigurationStatusBarItem.text = currentConfig;
+	}
 
 	public static getIsSupportedProject(projectInfo: MSBuildProjectInfo): boolean
 	{
@@ -339,7 +352,18 @@ export class MeadowProjectManager {
 		}
 	}
 
-	public static async resetLaunchConfigurations(){
+	public static async resetLaunchConfigurations() {
 		this.launchConfiguration.update('configurations', this.savedConfigurations, false);
+	}
+
+	public async switchBuildConfiguration()
+	{
+        const currentConfig = await this.extensionContext.workspaceState.get('csharpBuildConfiguration', 'Debug');
+
+        // Toggle the build configuration and update the setting
+		const newConfig = currentConfig === 'Debug' ? 'Release' : 'Debug';
+		await this.extensionContext.workspaceState.update('csharpBuildConfiguration', newConfig);
+
+		this.updateConfigurationStatus();
 	}
 }

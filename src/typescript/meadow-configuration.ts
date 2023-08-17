@@ -70,11 +70,12 @@ export class MeadowConfigurationProvider implements vscode.DebugConfigurationPro
 			if (!config['projectPath'])
 				config['projectPath'] = project.Path;
 
+			const currentBuildConfiguration = await this.extensionContext.workspaceState.get('csharpBuildConfiguration', 'Debug')
 			if (!config['projectConfiguration'])
-				config['projectConfiguration'] = startupInfo.Configuration;
+				config['projectConfiguration'] = currentBuildConfiguration;
 
 			// Only set the debug port for debug config
-			if (startupInfo.Configuration.toLowerCase() === 'debug')
+			if (currentBuildConfiguration.toLowerCase() === 'debug')
 				config['debugPort'] = startupInfo.DebugPort;
 
 			var device = startupInfo.Device;
@@ -112,5 +113,3 @@ export class MeadowConfigurationProvider implements vscode.DebugConfigurationPro
 		return debugConfiguration;
 	}
 }
-
-

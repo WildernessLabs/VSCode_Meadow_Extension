@@ -112,7 +112,13 @@
 						"System.StackOverflowException": "never",
 						"System.TypeInitializationException": "never"
 					}
-				}
+				},
+				"csharpBuildConfiguration": {
+					"type": "string",
+					"default": "Debug",
+					"enum": ["Debug", "Release"],
+					"description": "The build configuration for C# projects."
+                }
 			}
 		},
 		"taskDefinitions": [
@@ -131,6 +137,10 @@
 			{
 				"command": "meadow.refreshDeviceList",
 				"title": "Meadow: Select device"
+			},
+			{
+				"command": "meadow.switchBuildConfiguration",
+				"title": "Switch Build Configuration"
 			}
 		],
 		"breakpoints": [

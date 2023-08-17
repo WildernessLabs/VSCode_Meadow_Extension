@@ -52,20 +52,21 @@ export class MeadowBuildTaskProvider implements vscode.TaskProvider {
 		var command = "dotnet";
 
 		return [
-			this.getTask(command, "Build", flags)
+			this.getTask(command, "Build", flags),
 		]
 	}
 
-	private getTask(command:string ,target: string, flags: string[], definition?: MeadowBuildTaskDefinition): vscode.Task{
+	private getTask(command:string, target: string, flags: string[], definition?: MeadowBuildTaskDefinition): vscode.Task{
 
 		var debugConfig = this.extensionContext.workspaceState.get('currentDebugConfiguration') as MeadowConfiguration
 		// Clear out the set debug info for the next time this provider is called
 		// which may not be for a debug session
 		this.extensionContext.workspaceState.update('currentDebugConfiguration', undefined)
 
+		const configuration = this.extensionContext.workspaceState.get('csharpBuildConfiguration', 'Debug');
+
 		var startupInfo = MeadowProjectManager.Shared.StartupInfo;
 
-		var configuration = startupInfo.Configuration ?? 'Debug';
 		var csproj = startupInfo.Project.Path;
 		var device = startupInfo.Device;
 
@@ -85,7 +86,6 @@ export class MeadowBuildTaskProvider implements vscode.TaskProvider {
 
 		// dotnet needs the build verb
 		args.unshift("build");
-
 
 		const meadowDebugTargetsPath = path.join(this.extensionContext.extensionPath, 'src', 'Meadow.Debug.targets')
 		args.push(`-p:CustomAfterMicrosoftCSharpTargets="${meadowDebugTargetsPath}"`)
