@@ -132,16 +132,16 @@ export class MeadowProjectManager {
 
 			this.extensionContext.subscriptions.push(vscode.commands.registerCommand("meadow.refreshDeviceList", MeadowProjectManager.refreshDeviceList, this));
 
-			this.extensionContext.subscriptions.push(vscode.commands.registerCommand("meadow.switchBuildConfiguration", this.switchBuildConfiguration, this));
+			this.extensionContext.subscriptions.push(vscode.commands.registerCommand("meadow.toggleBuildConfiguration", this.toggleBuildConfiguration, this));
 			this.buildConfigurationStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
-			this.buildConfigurationStatusBarItem.command = "meadow.switchBuildConfiguration";
+			this.buildConfigurationStatusBarItem.command = "meadow.toggleBuildConfiguration";
+			this.buildConfigurationStatusBarItem.text = "Toggle Build Configuration";
 
 			this.isMenuSetup = true;
 		}
 
 		this.updateProjectStatus();
 		MeadowProjectManager.refreshDeviceList();
-		this.updateConfigurationStatus();
 		
 		if (!hasSupportedProjects) {
 			this.projectStatusBarItem.hide();
@@ -239,19 +239,9 @@ export class MeadowProjectManager {
 	public async updateProjectStatus() {
 	
 		var selProj = MeadowProjectManager.Shared.StartupInfo?.Project;
-		var selConfig = MeadowProjectManager.Shared.StartupInfo?.Configuration;
 
-		var projStr = "Meadow Project";
-		if (selProj)
-		{
-			projStr = selProj.Name ?? selProj.Name ?? "Meadow Project";
-
-			if (selConfig)
-				projStr += " | " + selConfig;
-		}
-
-		this.projectStatusBarItem.text = "$(project) " + projStr;
 		this.projectStatusBarItem.tooltip = selProj === undefined ? "Select a Meadow Project" : selProj.Path;
+		this.updateConfigurationStatus(selProj);
 	}
 
 	public async showDevicePicker(showPicker: boolean = true): Promise<void> {
@@ -295,10 +285,22 @@ export class MeadowProjectManager {
 			MeadowProjectManager.Shared.StartupInfo.Device = MeadowProjectManager.Shared.meadowDevices[0];
 		}
 	}
-	public async updateConfigurationStatus() {
+
+	public async updateConfigurationStatus(selProj: MSBuildProjectInfo) {
 		const currentConfig = await this.extensionContext.workspaceState.get('csharpBuildConfiguration', 'Debug');
 
-		this.buildConfigurationStatusBarItem.text = currentConfig;
+		//var selConfig = MeadowProjectManager.Shared.StartupInfo?.Configuration;
+
+		var projStr = "Meadow Project";
+		if (selProj)
+		{
+			projStr = selProj.Name ?? selProj.Name ?? "Meadow Project";
+
+			if (currentConfig)
+				projStr += " | " + currentConfig;
+		}
+
+		this.projectStatusBarItem.text = "$(project) " + projStr;
 	}
 
 	public static getIsSupportedProject(projectInfo: MSBuildProjectInfo): boolean
@@ -356,7 +358,7 @@ export class MeadowProjectManager {
 		this.launchConfiguration.update('configurations', this.savedConfigurations, false);
 	}
 
-	public async switchBuildConfiguration()
+	public async toggleBuildConfiguration()
 	{
         const currentConfig = await this.extensionContext.workspaceState.get('csharpBuildConfiguration', 'Debug');
 
@@ -364,6 +366,6 @@ export class MeadowProjectManager {
 		const newConfig = currentConfig === 'Debug' ? 'Release' : 'Debug';
 		await this.extensionContext.workspaceState.update('csharpBuildConfiguration', newConfig);
 
-		this.updateConfigurationStatus();
+		this.updateConfigurationStatus(MeadowProjectManager.Shared.StartupInfo?.Project);
 	}
 }
