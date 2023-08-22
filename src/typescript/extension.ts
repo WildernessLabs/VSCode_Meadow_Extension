@@ -59,6 +59,7 @@ export function activate(context: vscode.ExtensionContext) {
 			currentDebugSession = s;
 		}
 	}));
+
 	context.subscriptions.push(vscode.debug.onDidTerminateDebugSession((s) => {
 		if (s === currentDebugSession) {
 			currentDebugSession = null;
@@ -68,11 +69,10 @@ export function activate(context: vscode.ExtensionContext) {
 			// this.disableAllServiceExtensions();
 		}
 	}));
-
-	//meadowOutputChannel.show();
 }
 
 export function deactivate() {
+	MeadowProjectManager.resetLaunchConfigurations();
 }
 
 //----- configureExceptions ---------------------------------------------------------------------------------------------------
