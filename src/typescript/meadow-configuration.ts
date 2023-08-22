@@ -41,9 +41,6 @@ export class MeadowConfigurationProvider implements vscode.DebugConfigurationPro
 		if (!config.request)
 			config.request = 'launch';
 
-		if (!config.name)
-			config.name = 'Deploy';
-
 		if (!config.type)
 			config.type = 'meadow';
 
@@ -67,7 +64,6 @@ export class MeadowConfigurationProvider implements vscode.DebugConfigurationPro
 		startupInfo = MeadowProjectManager.Shared.StartupInfo;
 
 		if (project) {
-
 			if (!config['msbuildPropertyFile'])
 				config['msbuildPropertyFile'] = getTempFile();
 				
@@ -95,7 +91,14 @@ export class MeadowConfigurationProvider implements vscode.DebugConfigurationPro
 			}
 
 			if (device && device.serial) {
-				config['serial'] = device.name;
+				config['serial'] = device.serial;
+			}
+
+			if (!config.name) {
+				if (device.name)
+					config.name = device.name;
+				else
+					config.name = 'Deploy';
 			}
 		}
 

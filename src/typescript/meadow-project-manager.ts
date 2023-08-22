@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
 import { MsBuildProjectAnalyzer } from './msbuild-project-analyzer';
 import { DeviceData, MeadowUtil } from "./meadow-util";
 import * as extension from './extension';
@@ -12,6 +13,15 @@ export enum ProjectType
 }
 
 export class MSBuildProjectInfo {
+	Configurations: string[];
+	IsCore: Boolean;
+	IsExe: boolean;
+	LaunchJsonPath: string;
+	Name: string;
+	PackageReferences: string[];
+	Path: string;
+	Sdk: string;
+
 	public static async fromProject(project: vscode.Uri): Promise<MSBuildProjectInfo> {
 		var r = new MSBuildProjectInfo();
 
@@ -20,21 +30,20 @@ export class MSBuildProjectInfo {
 		await msbpa.analyze();
 
 		r.Path = project.fsPath;
+		var projectDir = path.dirname(project.fsPath);
+		r.LaunchJsonPath = path.join(projectDir, '.vscode', 'launch.json');
 		r.Configurations = msbpa.getConfigurationNames();
-		r.Name = project.toString().split('/').pop().split('.')[0];
+		r.Name = this.getFilenameFromFullPath(project.fsPath).split('.')[0];
 		r.PackageReferences = msbpa.getPackageReferences();
 		r.Sdk = msbpa.getSdk();
 		r.IsCore = r.Sdk !== undefined && r.Sdk !== null;
 		return r;
 	}
 
-	Name: string;
-	Path: string;
-	IsExe: boolean;
-	Sdk: string;
-	Configurations: string[];
-	PackageReferences: string[];
-	IsCore: Boolean;
+	public static getFilenameFromFullPath(fullpath: string) {
+		const filename = path.basename(fullpath);
+		return filename;
+	}
 }
 
 export class MeadowStartupInfo {
@@ -50,16 +59,18 @@ export class MeadowProjectManager {
 	
 	static Shared: MeadowProjectManager;
 
+	meadowDevices: DeviceData[];
+
 	StartupInfo: MeadowStartupInfo = new MeadowStartupInfo();
 
 	HasSupportedProjects: boolean;
 
-	context: vscode.ExtensionContext;
+	extensionContext: vscode.ExtensionContext;
 
 	constructor(ctx: vscode.ExtensionContext) {
 		MeadowProjectManager.Shared = this;
 		
-		this.context = ctx;
+		this.extensionContext = ctx;
 		this.StartupProjects = new Array<MSBuildProjectInfo>();
 
 		vscode.workspace.findFiles('**/*.csproj').then(allProjFiles => this.parseProjects(allProjFiles));
@@ -115,25 +126,21 @@ export class MeadowProjectManager {
 	{
 		if (!this.isMenuSetup)
 		{
-			this.context.subscriptions.push(vscode.commands.registerCommand("meadow.selectProject", () => this.selectStartupProject(true), this));
-			this.context.subscriptions.push(vscode.commands.registerCommand("meadow.selectDevice", this.showDevicePicker, this));
+			this.extensionContext.subscriptions.push(vscode.commands.registerCommand("meadow.selectProject", () => this.selectStartupProject(true), this));
 			this.projectStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
 			this.projectStatusBarItem.command = "meadow.selectProject";
-			this.deviceStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
-			this.deviceStatusBarItem.command = "meadow.selectDevice";
+
+			this.extensionContext.subscriptions.push(vscode.commands.registerCommand("meadow.refreshDeviceList", MeadowProjectManager.refreshDeviceList, this));
 
 			this.isMenuSetup = true;
 		}
 
 		this.updateProjectStatus();
-		this.updateDeviceStatus();
-
+		MeadowProjectManager.refreshDeviceList();
 		
 		if (!hasSupportedProjects) {
-			this.deviceStatusBarItem.hide();
 			this.projectStatusBarItem.hide();
 		} else {
-			this.deviceStatusBarItem.show();
 			this.projectStatusBarItem.show();
 		}
 
@@ -141,10 +148,8 @@ export class MeadowProjectManager {
 	}
 
 	projectStatusBarItem: vscode.StatusBarItem;
-	deviceStatusBarItem: vscode.StatusBarItem;
 
 	public StartupProjects = new Array<MSBuildProjectInfo>();
-
 
 	public async selectStartupProject(interactive: boolean = false): Promise<any> {
 
@@ -179,8 +184,6 @@ export class MeadowProjectManager {
 		
 		if (!selectedProject)
 			return;
-
-		
 
 		MeadowProjectManager.Shared.StartupInfo.Project = selectedProject;
 
@@ -243,8 +246,7 @@ export class MeadowProjectManager {
 		this.projectStatusBarItem.tooltip = selProj === undefined ? "Select a Meadow Project" : selProj.Path;
 	}
 
-
-	public async showDevicePicker(): Promise<void> {
+	public async showDevicePicker(showPicker: boolean = true): Promise<void> {
 
 		if (MeadowProjectManager.Shared?.StartupInfo?.Project === undefined) {
 			await vscode.window.showInformationMessage("Select a Meadow Project first.");
@@ -253,8 +255,7 @@ export class MeadowProjectManager {
 
 		var util = new MeadowUtil();
 
-
-		var meadowDevices : DeviceData[] = [];
+		MeadowProjectManager.Shared.meadowDevices = [];
 
 		await vscode.window.withProgress({
 			location: vscode.ProgressLocation.Notification,
@@ -263,41 +264,27 @@ export class MeadowProjectManager {
 		}, async (progress) => {
 			
 			progress.report({  increment: 0 });
-			meadowDevices = await util.GetDevices();
+			MeadowProjectManager.Shared.meadowDevices = await util.GetDevices();
 			progress.report({ increment: 100 });
 		});
 
-		var pickerDevices = meadowDevices
-			.map(x => ({
-				//description: x.type.toString(),
-				label: x.name,
-				device: x,
-			}));
+		if (MeadowProjectManager.Shared.meadowDevices.length > 1) {
+			if (showPicker) {
+				var pickerDevices = MeadowProjectManager.Shared.meadowDevices
+					.map(x => ({
+						//description: x.type.toString(),
+						label: x.name,
+						device: x,
+					}));
 
-		const p = await vscode.window.showQuickPick(pickerDevices, { placeHolder: "Select a Device" });
-		if (p) {
-			MeadowProjectManager.Shared.StartupInfo.Device = p.device;
+				const p = await vscode.window.showQuickPick(pickerDevices, { placeHolder: "Select a Device" });
+				if (p) {
+					MeadowProjectManager.Shared.StartupInfo.Device = p.device;
+				}
+			}
 		}
-		
-
-		this.updateDeviceStatus();
-	}
-
-	public async updateDeviceStatus() {
-		
-		var selDevice = MeadowProjectManager.Shared?.StartupInfo?.Device;
-
-		var deviceStr = "Meadow Device";
-		
-		if (selDevice && selDevice?.name)
-			deviceStr = selDevice.name;
-		
-		this.deviceStatusBarItem.text = "$(device-mobile) " + deviceStr;
-		if (extension.isMacOS) {
-			this.deviceStatusBarItem.tooltip = "Select Device - Cmd+Alt+Shift+R";
-		}
-		else{
-			this.deviceStatusBarItem.tooltip = "Select Device - Ctrl+Alt+Shift+R";
+		else {
+			MeadowProjectManager.Shared.StartupInfo.Device = MeadowProjectManager.Shared.meadowDevices[0];
 		}
 	}
 
@@ -314,5 +301,45 @@ export class MeadowProjectManager {
 			return true;
 
 		return false;
+	}
+
+	static launchConfiguration: vscode.WorkspaceConfiguration;
+	static savedConfigurations: vscode.WorkspaceConfiguration[];
+
+	public static async refreshDeviceList(): Promise<void> {
+
+		await MeadowProjectManager.Shared.showDevicePicker(false);
+
+		this.launchConfiguration = vscode.workspace.getConfiguration('launch');
+		var configurations = this.launchConfiguration.get('configurations', []);
+		if (this.savedConfigurations === undefined) {
+			if (configurations != undefined) {
+				this.savedConfigurations = configurations;
+			}
+		}
+
+		configurations = [];
+		MeadowProjectManager.Shared.meadowDevices.forEach(item => {
+			// check if device is already part of the list before adding it
+			if (!configurations.some(c => c["name"] === item.name)) {
+				// Add newly found device to list.
+				configurations.push({
+					"name": item.name,
+					"type": "meadow",
+					"request": "launch",
+					"preLaunchTask": "meadow: Build",
+				});
+			}
+		});
+
+		if (configurations.length > 0) {
+			this.launchConfiguration.update('configurations', configurations, false).then(() =>
+				vscode.window.showInformationMessage('Device List Updated!')
+			);
+		}
+	}
+
+	public static async resetLaunchConfigurations(){
+		this.launchConfiguration.update('configurations', this.savedConfigurations, false);
 	}
 }
