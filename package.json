@@ -218,6 +218,14 @@
 				"linux": "ctrl+alt+shift+r",
 				"win": "ctrl+alt+shift+r",
 				"key": "ctrl+alt+shift+r"
+			},
+			{
+				"command": "meadow.toggleBuildConfiguration",
+				"when": "editorTextFocus",
+				"mac": "cmd+alt+shift+t",
+				"linux": "ctrl+alt+shift+t",
+				"win": "ctrl+alt+shift+t",
+				"key": "ctrl+alt+shift+t"
 			}
 		]
 	}
