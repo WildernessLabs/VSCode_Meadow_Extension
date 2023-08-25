@@ -112,7 +112,13 @@
 						"System.StackOverflowException": "never",
 						"System.TypeInitializationException": "never"
 					}
-				}
+				},
+				"csharpBuildConfiguration": {
+					"type": "string",
+					"default": "Debug",
+					"enum": ["Debug", "Release"],
+					"description": "The build configuration for C# projects."
+                }
 			}
 		},
 		"taskDefinitions": [
@@ -131,6 +137,10 @@
 			{
 				"command": "meadow.refreshDeviceList",
 				"title": "Meadow: Select device"
+			},
+			{
+				"command": "meadow.toggleBuildConfiguration",
+				"title": "Toggle Build Configuration"
 			}
 		],
 		"breakpoints": [
@@ -208,6 +218,14 @@
 				"linux": "ctrl+alt+shift+r",
 				"win": "ctrl+alt+shift+r",
 				"key": "ctrl+alt+shift+r"
+			},
+			{
+				"command": "meadow.toggleBuildConfiguration",
+				"when": "editorTextFocus",
+				"mac": "cmd+alt+shift+t",
+				"linux": "ctrl+alt+shift+t",
+				"win": "ctrl+alt+shift+t",
+				"key": "ctrl+alt+shift+t"
 			}
 		]
 	}
