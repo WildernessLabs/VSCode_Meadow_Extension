@@ -65,8 +65,14 @@ export class MeadowBuildTaskProvider implements vscode.TaskProvider {
 
 		const configuration = this.extensionContext.workspaceState.get('csharpBuildConfiguration', 'Debug');
 
+		var debugConfig = this.extensionContext.workspaceState.get('currentDebugConfiguration') as MeadowConfiguration
+		// Clear out the set debug info for the next time this provider is called
+		// which may not be for a debug session
+		this.extensionContext.workspaceState.update('currentDebugConfiguration', undefined)
+
 		var startupInfo = MeadowProjectManager.Shared.StartupInfo;
 
+		var configuration = startupInfo.Configuration ?? 'Debug';
 		var csproj = startupInfo.Project.Path;
 		var device = startupInfo.Device;
 

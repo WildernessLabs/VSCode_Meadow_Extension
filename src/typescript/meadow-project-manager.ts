@@ -69,7 +69,7 @@ export class MeadowProjectManager {
 
 	constructor(ctx: vscode.ExtensionContext) {
 		MeadowProjectManager.Shared = this;
-		
+    
 		this.extensionContext = ctx;
 		this.StartupProjects = new Array<MSBuildProjectInfo>();
 
@@ -149,6 +149,15 @@ export class MeadowProjectManager {
 		} else {
 			this.projectStatusBarItem.show();
 			this.buildConfigurationStatusBarItem.show();
+		}
+
+		
+		if (!hasSupportedProjects) {
+			this.deviceStatusBarItem.hide();
+			this.projectStatusBarItem.hide();
+		} else {
+			this.deviceStatusBarItem.show();
+			this.projectStatusBarItem.show();
 		}
 
 		this.isMenuSetup = true;
@@ -299,7 +308,7 @@ export class MeadowProjectManager {
 			if (currentConfig)
 				projStr += " | " + currentConfig;
 		}
-
+    
 		this.projectStatusBarItem.text = "$(project) " + projStr;
 	}
 
