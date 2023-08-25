@@ -6,9 +6,7 @@
 
 This is the extension for VSCode that enables Meadow apps to be build, debugged and deployed to a Meadow device.
 
-<p style="text-align:center">
-<img width="75%" alt="Screen Shot 2021-09-26 at 2 40 16 PM" src="https://user-images.githubusercontent.com/271950/134820282-83c9842a-023a-47ae-976e-7b6c58e851c0.png">
-</p>
+<img alt="meadow vscode extension" src="https://user-images.githubusercontent.com/271950/134820282-83c9842a-023a-47ae-976e-7b6c58e851c0.png">
 
 ## Contents
 * [Supported Operating Systems](#supported-operating-systems)
