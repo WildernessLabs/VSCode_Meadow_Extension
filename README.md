@@ -116,7 +116,7 @@ You can also use the following short-cut on:
 ### Prerequisites
 - Install NPM
 
-Then run the following comm`ands on the command line, once NPM is installed
+Then run the following commands on the command line, once NPM is installed
 - `npm i -g @vscode/vsce`
 - `npm i -g @vscode/debugprotocol`
 - `npm install -g webpack`
