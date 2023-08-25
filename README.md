@@ -85,15 +85,19 @@ You can also use the following short-cut on:
 ## Building the Extension and Contributing
 
 ### Prerequisites
+- Install NPM
 
-- [Node.js](https://nodejs.org/en/download/) (and npm)
-- [TypeScript](https://www.typescriptlang.org/download) (`npm install typescript --save-dev`)
+Then run the following comm`ands on the command line, once NPM is installed
+- `npm i -g @vscode/vsce`
+- `npm i -g @vscode/debugprotocol`
+- `npm install -g webpack`
+- `npm install -D ts-loader`
+- `npm i typescript --save-dev`
 - .NET ([Mono on macOS](https://www.mono-project.com/download/stable/#download-mac), [.NET 6.x on Windows/Linux](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
-- [.NET Core 3.1.x+](https://dotnet.microsoft.com/en-us/download/dotnet/3.1)
 
 ### Initial setup
 
-With all the listed preqrequisites installed, run `npm i` to ensure all of the packages are installed for the project.
+With all the listed preqrequisites installed, run `npm i` to ensure all of the packages are installed and up to date for the project.
 
 ### Checkout
 
