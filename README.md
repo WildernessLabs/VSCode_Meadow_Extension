@@ -1,9 +1,37 @@
-<img src="Design/banner.jpg" style="margin-bottom:10px" />
-
-<img width="1392" alt="Screen Shot 2021-09-26 at 2 40 16 PM" src="https://user-images.githubusercontent.com/271950/134820282-83c9842a-023a-47ae-976e-7b6c58e851c0.png">
-
-## Build Status
 [![Build](https://github.com/WildernessLabs/VSCode_Meadow_Extension/actions/workflows/main.yml/badge.svg)](https://github.com/WildernessLabs/VSCode_Meadow_Extension/actions)
+
+<img src="Design/wildernesslabs-meadow-vscode-extension.jpg" style="margin-bottom:10px" />
+
+# VSCode_Meadow_Extension
+
+This is the extension for VSCode that enables Meadow apps to be build, debugged and deployed to a Meadow device.
+
+<p style="text-align:center">
+<img width="75%" alt="Screen Shot 2021-09-26 at 2 40 16 PM" src="https://user-images.githubusercontent.com/271950/134820282-83c9842a-023a-47ae-976e-7b6c58e851c0.png">
+</p>
+
+## Contents
+* [Supported Operating Systems](#supported-operating-systems)
+* [Using the Extension](#using-the-extension)
+  * [Installation](#installation)
+    * [Marketplace Installation](#marketplace-installation)
+    * [Manual Installation of Alpha/Beta CI builds](#manual-installation-of-alphabeta-ci-builds)
+  * [Create a new Meadow Project](#create-a-new-meadow-project)
+  * [Building and Deploying your Meadow App in VSCode](#building-and-deploying-your-meadow-app-in-vscode)
+  * [.NET Version](#net-version)
+  * [Refresh the attached device list](#refresh-the-attached-device-list)
+  * [Toggle the Build Configuration](#toggle-the-build-configuration)
+* [Building the Extension and Contributing](#building-the-extension-and-contributing)
+  * [Prerequisites](#prerequisites)
+  * [Initial setup](#initial-setup)
+  * [Checkout](#checkout)
+  * [Building the Extension](#building-the-extension)
+* [Debugging just the TypeScript Extension](#debugging-just-the-typeScript-extension)
+  * [Packaging VSIX](#packaging-vsix)
+* [License](#license)
+* [Support](#support)
+
+
 
 ## Supported Operating Systems
 We tested this extension on the following operating systems:
@@ -22,7 +50,8 @@ We tested this extension on the following operating systems:
 4. The extension should now be installed.
 
 It should look similar to this:
-![VS Code showing the extension in the Visual Studio Marketplace.](/Design/vscode-extension-marketplace.png)
+
+<img width="50%" alt="VSCode Extension Marketplace" src="Design/vscode-extension-marketplace.png">
 
 #### Manual Installation of Alpha/Beta CI builds
 1. Download the alpah/beta extension (.vsix file) from out [latest GitHub CI](https://github.com/WildernessLabs/VSCode_Meadow_Extension/actions).
@@ -76,7 +105,7 @@ or search for the select device command by pressing `Ctrl+Shift+P` and typing "M
 ### Toggle the Build Configuration
 You can toggle the project's build configuration, using the `Toggle Build Configuraton` button on the bottom status bar, to toggle between Debug and Release builds: 
 
-![VSCode status bar toggle build configutation button.](/Design/vscode-toggle-build-configuration.png)
+<img width="50%" alt="VSCode Extension Marketplace" src="Design/vscode-toggle-build-configuration.png">
 
 You can also use the following short-cut on:
 - macOS use: `Cmd+Alt+Shift+T`
@@ -93,7 +122,7 @@ Then run the following comm`ands on the command line, once NPM is installed
 - `npm install -g webpack`
 - `npm install -D ts-loader`
 - `npm i typescript --save-dev`
-- .NET ([Mono on macOS](https://www.mono-project.com/download/stable/#download-mac), [.NET 6.x on Windows/Linux](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
+- .NET ([Mono on macOS](https://www.mono-project.com/download/stable/#download-mac), [.NET 6.x on Windows/Linux](https://dotnet.microsoft.com/en-us/download/dotnet/6.0))
 
 ### Initial setup
 
@@ -111,7 +140,7 @@ The extension has 2 parts. There is a client, which is written in _TypeScript_ a
 - Open the extension folder VSCode.
 - Got to _Run and Debug_ (macOS: `Cmd+Shift+D`. Others: `Ctrl+Shift+D`)
 
-![VSCode Run and Debug Configurations](/Design/vscode-run-and-debug.png)
+<img width="50%" alt="VSCode Extension Marketplace" src="Design/vscode-run-and-debug.png">
 
 You can choose the `Debug Extension + Server` option in the debug menu in VSCode to debug both parts at the same time.
 
@@ -120,7 +149,6 @@ This will launch the server process in debug listening mode.
 You will be able to set breakpoints in the host instance of VSCode and debug the TypeScript extension.
 
 This does not allow you to debug the arbitrary commands sent to the vscode-meadow.exe process from the extension for things like getting a list of devices.  This will only allow you to debug the code path of a VSCode instance starting a Deploy/Debug session.
-
 
 ## Debugging just the TypeScript Extension
 
@@ -138,7 +166,23 @@ To produce a VSIX for the VSCode extension:
     vsce package --pre-release
     ```
 
-
 ## License
+Copyright 2023, Wilderness Labs Inc.
 
-Released under the [Apache 2 license](LICENSE.txt).
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+## Support
+
+Having trouble building/running these projects? 
+* File an [issue](https://github.com/WildernessLabs/Meadow.Desktop.Samples/issues) with a repro case to investigate, and/or
+* Join our [public Slack](http://slackinvite.wildernesslabs.co/), where we have an awesome community helping, sharing and building amazing things using Meadow.
