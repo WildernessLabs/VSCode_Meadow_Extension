@@ -44,9 +44,9 @@ We tested this extension on the following operating systems:
 ### Installation
 
 #### Marketplace Installation
-1. In VSCode goto the _Extensions_ tab (macOS: Cmd+Shift+X. Others: Ctrl+Shift+X)
+1. In VSCode go to the _Extensions_ tab (macOS: Cmd+Shift+X. Others: Ctrl+Shift+X)
 2. In the search bar type `VSCode Tools for Meadow`. It should be the 1st extension in the list.
-3. On the bottom right of the listed item should be an `Install` button. Click it.
+3. Click it the `Install` button on the bottom right of the listed item.
 4. The extension should now be installed.
 
 It should look similar to this:
@@ -54,14 +54,14 @@ It should look similar to this:
 <img width="50%" alt="VSCode Extension Marketplace" src="Design/vscode-extension-marketplace.png">
 
 #### Manual Installation of Alpha/Beta CI builds
-1. Download the alpah/beta extension (.vsix file) from out [latest GitHub CI](https://github.com/WildernessLabs/VSCode_Meadow_Extension/actions).
-2. In VSCode goto the _Extensions_ tab (macOS: `Cmd+Shift+X`. Others: `Ctrl+Shift+X`)
+1. Download the alpha/beta extension (.vsix file) from our [latest GitHub CI](https://github.com/WildernessLabs/VSCode_Meadow_Extension/actions).
+2. In VSCode go to the _Extensions_ tab (macOS: `Cmd+Shift+X`. Others: `Ctrl+Shift+X`)
 3. click the `...` menu and choose _Install from VSIX..._.
 3. Pick the file you downloaded to install.
 
 ### Create a new Meadow Project
 
-In the terminal:
+In a terminal:
 
 1. Run `dotnet new install WildernessLabs.Meadow.Template`
 2. Create and/or navigate into a directory with the name of your new app (ie: `MeadowApp1`).
@@ -80,7 +80,7 @@ In the terminal:
 3. Any attached devices should appear in the _Run and Debug_ list
 4. Choose _Run -> Start Debugging_ (short-cut: `F5`) (Your code will automagically be built first).
 5. If you have move than 1 Meadow device attached, you will be prompted to pick a serial port/device to deploy to. If you have only have 1 Meadow device attached it will use that automagically.
-6. Watch the output in the _Termainal_  and _Debug Console_ tabs, as your app is deployed!
+6. Watch the output in the _Terminal_ and _Debug Console_ tabs, as your app is deployed!
 7. You will be able to set breakpoints and debug your Meadow App.
 
 ### .NET Version
@@ -96,13 +96,15 @@ You may need to add a `global.json` file to your project's directory to tell it 
 ```
 
 ### Refresh the attached device list
-You can refresh the list of attached device list by using the following short-cut on:
+
+You can refresh the list of attached devices by using the following short-cut on:
 - macOS use: `Cmd+Alt+Shift+R`
 - Other platforms use: `Ctrl+Alt+Shift+R`
 
 or search for the select device command by pressing `Ctrl+Shift+P` and typing "Meadow" when prompted
 
 ### Toggle the Build Configuration
+
 You can toggle the project's build configuration, using the `Toggle Build Configuraton` button on the bottom status bar, to toggle between Debug and Release builds: 
 
 <img width="50%" alt="VSCode Extension Marketplace" src="Design/vscode-toggle-build-configuration.png">
@@ -114,6 +116,7 @@ You can also use the following short-cut on:
 ## Building the Extension and Contributing
 
 ### Prerequisites
+
 - Install NPM
 
 Then run the following commands on the command line, once NPM is installed
@@ -126,7 +129,7 @@ Then run the following commands on the command line, once NPM is installed
 
 ### Initial setup
 
-With all the listed preqrequisites installed, run `npm i` to ensure all of the packages are installed and up to date for the project.
+With all the listed pre-requisites installed, run `npm i` to ensure all of the packages are installed and up to date for the project.
 
 ### Checkout
 
@@ -148,7 +151,7 @@ This will launch the server process in debug listening mode.
 
 You will be able to set breakpoints in the host instance of VSCode and debug the TypeScript extension.
 
-This does not allow you to debug the arbitrary commands sent to the vscode-meadow.exe process from the extension for things like getting a list of devices.  This will only allow you to debug the code path of a VSCode instance starting a Deploy/Debug session.
+This does not allow you to debug the arbitrary commands sent to the vscode-meadow.exe process from the extension for things like getting a list of devices. This will only allow you to debug the code path of a VSCode instance starting a Deploy/Debug session.
 
 ## Debugging just the TypeScript Extension
 
