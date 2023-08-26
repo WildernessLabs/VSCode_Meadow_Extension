@@ -14,7 +14,7 @@ import * as nls from 'vscode-nls';
 
 const localize = nls.config({ locale: process.env.VSCODE_NLS_CONFIG })();
 
-const configuration = vscode.workspace.getConfiguration('meadow');
+const meadowConfiguration = vscode.workspace.getConfiguration('meadow');
 
 let meadowOutputChannel: OutputChannel = null;
 let meadowProgressBar: any = null;
@@ -59,6 +59,7 @@ export function activate(context: vscode.ExtensionContext) {
 			currentDebugSession = s;
 		}
 	}));
+
 	context.subscriptions.push(vscode.debug.onDidTerminateDebugSession((s) => {
 		if (s === currentDebugSession) {
 			currentDebugSession = null;
@@ -68,11 +69,10 @@ export function activate(context: vscode.ExtensionContext) {
 			// this.disableAllServiceExtensions();
 		}
 	}));
-
-	//meadowOutputChannel.show();
 }
 
 export function deactivate() {
+	MeadowProjectManager.resetLaunchConfigurations();
 }
 
 //----- configureExceptions ---------------------------------------------------------------------------------------------------
@@ -133,8 +133,8 @@ function translate(mode: DebugProtocol.ExceptionBreakMode): string {
 function getModel(): ExceptionConfigurations {
 
 	let model = DEFAULT_EXCEPTIONS;
-	if (configuration) {
-		const exceptionOptions = configuration.get('exceptionOptions');
+	if (meadowConfiguration) {
+		const exceptionOptions = meadowConfiguration.get('exceptionOptions');
 		if (exceptionOptions) {
 			model = <ExceptionConfigurations>exceptionOptions;
 		}
@@ -172,8 +172,8 @@ function configureExceptions(): void {
 			vscode.window.showQuickPick(OPTIONS, options).then(item => {
 				if (item) {
 					model[exceptionItem.label] = item.breakMode;
-					if (configuration) {
-						configuration.update('exceptionOptions', model);
+					if (meadowConfiguration) {
+						meadowConfiguration.update('exceptionOptions', model);
 					}
 					setExceptionBreakpoints(model);
 				}

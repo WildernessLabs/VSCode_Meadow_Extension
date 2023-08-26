@@ -41,9 +41,6 @@ export class MeadowConfigurationProvider implements vscode.DebugConfigurationPro
 		if (!config.request)
 			config.request = 'launch';
 
-		if (!config.name)
-			config.name = 'Deploy';
-
 		if (!config.type)
 			config.type = 'meadow';
 
@@ -67,18 +64,18 @@ export class MeadowConfigurationProvider implements vscode.DebugConfigurationPro
 		startupInfo = MeadowProjectManager.Shared.StartupInfo;
 
 		if (project) {
-
 			if (!config['msbuildPropertyFile'])
 				config['msbuildPropertyFile'] = getTempFile();
 				
 			if (!config['projectPath'])
 				config['projectPath'] = project.Path;
 
+			const currentBuildConfiguration = await this.extensionContext.workspaceState.get('csharpBuildConfiguration', 'Debug')
 			if (!config['projectConfiguration'])
-				config['projectConfiguration'] = startupInfo.Configuration;
+				config['projectConfiguration'] = currentBuildConfiguration;
 
 			// Only set the debug port for debug config
-			if (startupInfo.Configuration.toLowerCase() === 'debug')
+			if (currentBuildConfiguration.toLowerCase() === 'debug')
 				config['debugPort'] = startupInfo.DebugPort;
 
 			var device = startupInfo.Device;
@@ -95,7 +92,14 @@ export class MeadowConfigurationProvider implements vscode.DebugConfigurationPro
 			}
 
 			if (device && device.serial) {
-				config['serial'] = device.name;
+				config['serial'] = device.serial;
+			}
+
+			if (!config.name) {
+				if (device.name)
+					config.name = device.name;
+				else
+					config.name = 'Deploy';
 			}
 		}
 
@@ -109,5 +113,3 @@ export class MeadowConfigurationProvider implements vscode.DebugConfigurationPro
 		return debugConfiguration;
 	}
 }
-
-

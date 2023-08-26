@@ -1,7 +1,7 @@
 {
 	"name": "meadow",
 	"displayName": "VSCode Tools For Meadow",
-	"version": "1.2.2",
+	"version": "1.3.0",
 	"publisher": "WildernessLabs",
 	"description": "Build, Debug and Deploy Meadow applications",
 	"icon": "meadow.png",
@@ -112,7 +112,13 @@
 						"System.StackOverflowException": "never",
 						"System.TypeInitializationException": "never"
 					}
-				}
+				},
+				"csharpBuildConfiguration": {
+					"type": "string",
+					"default": "Debug",
+					"enum": ["Debug", "Release"],
+					"description": "The build configuration for C# projects."
+                }
 			}
 		},
 		"taskDefinitions": [
@@ -129,8 +135,12 @@
 				"category": "Debug"
 			},
 			{
-				"command": "meadow.selectDevice",
+				"command": "meadow.refreshDeviceList",
 				"title": "Meadow: Select device"
+			},
+			{
+				"command": "meadow.toggleBuildConfiguration",
+				"title": "Toggle Build Configuration"
 			}
 		],
 		"breakpoints": [
@@ -202,12 +212,20 @@
 		],
 		"keybindings": [
 			{
-				"command": "meadow.selectDevice",
+				"command": "meadow.refreshDeviceList",
 				"when": "editorTextFocus",
 				"mac": "cmd+alt+shift+r",
 				"linux": "ctrl+alt+shift+r",
 				"win": "ctrl+alt+shift+r",
 				"key": "ctrl+alt+shift+r"
+			},
+			{
+				"command": "meadow.toggleBuildConfiguration",
+				"when": "editorTextFocus",
+				"mac": "cmd+alt+shift+t",
+				"linux": "ctrl+alt+shift+t",
+				"win": "ctrl+alt+shift+t",
+				"key": "ctrl+alt+shift+t"
 			}
 		]
 	}
