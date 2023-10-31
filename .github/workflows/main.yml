@@ -1,6 +1,6 @@
 name: VSCode Extension
 env:
-  IDE_TOOLS_RELEASE_VERSION: 1.3.4
+  IDE_TOOLS_RELEASE_VERSION: 1.4.0
 
 on:
   push:
