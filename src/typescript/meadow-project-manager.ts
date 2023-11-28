@@ -245,6 +245,9 @@ export class MeadowProjectManager {
 	}
 
 	public async showDevicePicker(showPicker: boolean = true): Promise<void> {
+		if (this.HasSupportedProjects === false) {
+			return;
+		}
 
 		if (MeadowProjectManager.Shared?.StartupInfo?.Project === undefined) {
 			await vscode.window.showInformationMessage("Select a Meadow Project first.");
