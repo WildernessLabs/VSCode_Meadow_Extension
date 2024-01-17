@@ -66,7 +66,7 @@ namespace VsCodeMeadowUtil
                 }
 
                 var isDebugging = debugPort > 1000;
-                await meadow.DeployApp(appPathDll, isDebugging, CancelToken);
+                await meadow.DeployApp(appPathDll, includePdbs: false, CancelToken);
 
                 // Debugger only returns when session is done
                 if (isDebugging)
