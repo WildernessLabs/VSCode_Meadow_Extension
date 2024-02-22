@@ -39,11 +39,13 @@ jobs:
         path: Meadow.CLI
         ref: develop
 
-    - name: Setup .NET 7.0.x
+    - name: Setup .NET 6.0.x, 7.0.x & 8.0.x
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: | 
+          6.0.x
           7.0.x
+          8.0.x
   
     - name: Setup Nuget
       uses: Nuget/setup-nuget@v1.0.5
