@@ -18,14 +18,14 @@ jobs:
     
     steps:
     - name: Checkout current repo
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         path: main
         submodules: true
 
     - if: ${{ github.ref == 'refs/heads/main' }}
       name: Checkout Meadow.CLI.Core side-by-side
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: WildernessLabs/Meadow.CLI
         path: Meadow.CLI
@@ -33,14 +33,14 @@ jobs:
 
     - if: ${{ github.ref != 'refs/heads/main' }}
       name: Checkout Meadow.CLI.Core side-by-side
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: WildernessLabs/Meadow.CLI
         path: Meadow.CLI
         ref: dominique-MigrateVS2022ExtensionTov2
 
     - name: Checkout Meadow.Contracts side-by-side
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         repository: WildernessLabs/Meadow.Contracts
         path: Meadow.Contracts
