@@ -100,14 +100,14 @@ jobs:
         vsce package
 
     - name: Upload VSIX Artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: VSCodeMeadow.vsix.${{ ENV.IDE_TOOLS_RELEASE_VERSION }}
         path: 'main/*.vsix'
 
     - name: Upload Binlog Artifacts
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: BinLogs
         path: '**/*.binlog'
