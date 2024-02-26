@@ -39,6 +39,13 @@ jobs:
         path: Meadow.CLI
         ref: dominique-MigrateVS2022ExtensionTov2
 
+    - name: Checkout Meadow.Contracts side-by-side
+      uses: actions/checkout@v2
+      with:
+        repository: WildernessLabs/Meadow.Contracts
+        path: Meadow.Contracts
+        ref: main
+
     - name: Setup .NET 8.0.x
       uses: actions/setup-dotnet@v3
       with:
