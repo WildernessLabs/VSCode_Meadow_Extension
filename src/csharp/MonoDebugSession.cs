@@ -10,14 +10,11 @@ using System.Linq;
 using System.Net;
 using VsCodeMeadowUtil;
 using Mono.Debugging.Client;
-using System.Threading.Tasks;
-using Meadow.CLI.Core.DeviceManagement;
-using Meadow.CLI.Core.Devices;
-using Meadow.CLI.Core.Internals.MeadowCommunication.ReceiveClasses;
+using Meadow.Hcom;
 
 namespace VSCodeDebug
 {
-	public class MonoDebugSession : DebugSession
+    public class MonoDebugSession : DebugSession
 	{
 		private const string MONO = "mono";
 		private readonly string[] MONO_EXTENSIONS = new String[] {

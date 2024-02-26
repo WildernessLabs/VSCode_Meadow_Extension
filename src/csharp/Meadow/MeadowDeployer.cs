@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Meadow.CLI.Core;
-using Meadow.CLI.Core.DeviceManagement;
-using Meadow.CLI.Core.Devices;
-using Meadow.CLI.Core.Internals.MeadowCommunication.ReceiveClasses;
+using Meadow.CLI;
+using Meadow.Deployment;
+using Meadow.Hcom;
 using Microsoft.Extensions.Logging;
 
 namespace VsCodeMeadowUtil
@@ -25,40 +22,75 @@ namespace VsCodeMeadowUtil
         public string Serial { get; private set; }
         public CancellationToken CancelToken { get; private set; }
 
-        MeadowDeviceHelper meadow = null;
+        IMeadowConnection meadowConnection = null;
 
         public async void Dispose()
         {
             try
             {
-                if (meadow != null)
-                    await meadow.MonoDisable(true, CancelToken);
-            } catch { }
-
-            try { meadow?.Dispose(); }
-            finally { meadow = null; }
+                await meadowConnection?.RuntimeDisable(CancelToken);
+            }
+            catch
+            {
+            }
+            finally
+            {
+                meadowConnection = null;
+            }
         }
+
         public async Task<DebuggingServer> Deploy(string folder, int debugPort = -1)
         {
-            if (meadow == null)
+            Console.WriteLine("In Deploy");
+            if (meadowConnection == null)
             {
-                var m = await MeadowDeviceManager.GetMeadowForSerialPort(Serial, logger: Logger);
-                if (m == null)
-                    throw new InvalidOperationException("Meadow device not found");
+                Console.WriteLine("Creating SettingsManager");
+                var sm = new SettingsManager();
 
-                meadow = new MeadowDeviceHelper(m, Logger);
+                Console.WriteLine("Gettting Route");
+                var route = sm.GetSetting(SettingsManager.PublicSettings.Route);
+
+                Console.WriteLine($"Current Route:{route}");
+                if (route == null)
+                {
+                    throw new Exception($"No 'route' configuration set.{Environment.NewLine}Use the `meadow config route` command. For example:{Environment.NewLine}  > meadow config route COM5");
+                }
+
+                var retryCount = 0;
+
+                Console.WriteLine($"get_serial_connection");
+            get_serial_connection:
+                try
+                {
+                    meadowConnection = new SerialConnection(route);
+                }
+                catch
+                {
+                    retryCount++;
+                    if (retryCount > 10)
+                    {
+                        throw new Exception($"Cannot find port {route}");
+                    }
+                    Thread.Sleep(500);
+                    goto get_serial_connection;
+                }
+
+                string path = folder ?? Environment.CurrentDirectory;
+
+                // is the path a file?
+                //FileInfo file;
+
+                var lastFile = string.Empty;
             }
-
-            var appPathDll = Path.Combine(folder, "App.dll");
 
             // TODO not working reliably enough for RC1, will investigate further // if (meadow.DeviceAndAppVersionsMatch(appPathDll))
             {
                 //wrap this is a try/catch so it doesn't crash if the developer is offline
                 try
                 {
-                    string osVersion = await meadow.GetOSVersion(TimeSpan.FromSeconds(30), CancelToken);
+                    string osVersion = (await meadowConnection.GetDeviceInfo(CancelToken)).OsVersion;
 
-                    await new DownloadManager(Logger).DownloadOsBinaries(osVersion);
+                    // TODO await new DownloadManager(Logger).DownloadOsBinaries(osVersion);
                 }
                 catch (Exception e)
                 {
@@ -66,14 +98,28 @@ namespace VsCodeMeadowUtil
                 }
 
                 var isDebugging = debugPort > 1000;
-                await meadow.DeployApp(appPathDll, isDebugging, CancelToken);
+                meadowConnection.FileWriteProgress += DeployFileProgress;
+
+                try
+                {
+                    await AppManager.DeployApplication(null, meadowConnection, folder, isDebugging, false, Logger, CancelToken);
+                }
+                finally
+                {
+                    meadowConnection.FileWriteProgress -= DeployFileProgress;
+                }
 
                 // Debugger only returns when session is done
                 if (isDebugging)
-                    return await meadow.StartDebuggingSession(debugPort, CancelToken);
+                    return await meadowConnection?.StartDebuggingSession(debugPort, Logger, CancelToken);
             }
 
             return null;
+        }
+
+        private void DeployFileProgress(object sender, (string fileName, long completed, long total) e)
+        {
+            Console.WriteLine($"Transferrring: {e.fileName}");
         }
     }
 }

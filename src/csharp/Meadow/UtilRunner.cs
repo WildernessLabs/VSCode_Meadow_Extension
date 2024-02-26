@@ -1,19 +1,13 @@
-﻿using Mono.Options;
+﻿using Meadow.CLI.Commands.DeviceManagement;
+using Mono.Options;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
-using VSCodeDebug;
-using Meadow.CLI.Core.DeviceManagement;
-using Meadow.CLI.Core.Devices;
 
 namespace VsCodeMeadowUtil
 {
-	class UtilRunner
+    class UtilRunner
 	{
 		const string helpCommand = "help";
 
@@ -85,7 +79,7 @@ namespace VsCodeMeadowUtil
 		{
 			var devices = new List<DeviceData>();
 
-			var ports = await MeadowDeviceManager.GetSerialPorts() ?? new List<string>();
+			var ports = await MeadowConnectionManager.GetSerialPorts() ?? new List<string>();
 
 			return ports.Select(p => new DeviceData { Name = p, Serial = p });
 		}

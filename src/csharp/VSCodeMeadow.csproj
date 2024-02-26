@@ -13,10 +13,10 @@
 		<PackageReference Include="Mono.Options" Version="6.12.0.148" />
 	</ItemGroup>
 	<ItemGroup>
-	  <ProjectReference Include="..\..\..\Meadow.CLI\Meadow.CLI.Core\Meadow.CLI.Core.6.0.0.csproj" />
-	  <ProjectReference Include="..\..\..\Meadow.CLI\Meadow.Hcom\Meadow.Hcom.6.0.0.csproj" />
 	  <ProjectReference Include="..\..\externals\debugger-libs\Mono.Debugger.Soft\Mono.Debugger.Soft.csproj" />
 	  <ProjectReference Include="..\..\externals\debugger-libs\Mono.Debugging.Soft\Mono.Debugging.Soft.csproj" />
 	  <ProjectReference Include="..\..\externals\debugger-libs\Mono.Debugging\Mono.Debugging.csproj" />
+	  <ProjectReference Include="..\..\..\Meadow.CLI\Source\v2\Meadow.HCom\Meadow.HCom.csproj" />
+	  <ProjectReference Include="..\..\..\Meadow.CLI\Source\v2\Meadow.CLI.Extension\Meadow.CLI.Extension.csproj" />
 	</ItemGroup>
 </Project>

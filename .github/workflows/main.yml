@@ -1,6 +1,6 @@
 name: VSCode Extension
 env:
-  IDE_TOOLS_RELEASE_VERSION: 1.9.2
+  IDE_TOOLS_RELEASE_VERSION: 2.0.0
 
 on:
   push:
@@ -37,7 +37,7 @@ jobs:
       with:
         repository: WildernessLabs/Meadow.CLI
         path: Meadow.CLI
-        ref: develop
+        ref: dominique-MigrateVS2022ExtensionTov2
 
     - name: Setup .NET 8.0.x
       uses: actions/setup-dotnet@v3
