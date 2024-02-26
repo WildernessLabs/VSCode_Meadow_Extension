@@ -30,23 +30,14 @@ export class MeadowUtil
 {
 	public UtilPath: string;
 
-	isUnix: boolean = true;
-
 	constructor()
 	{
 		var thisExtension = vscode.extensions.getExtension('wildernesslabs.meadow');
 
-		var os = require('os');
-
-		var plat = os.platform();
-
-		if (plat.indexOf('win32') >= 0)
-			this.isUnix = false;
-
 		var extPath = thisExtension.extensionPath;
 
-		const isProduction = process.env.NODE_ENV === "production";
-		const debugOrRelease = isProduction ? "Release" : "Debug";
+		const isDevelopment = process.env.NODE_ENV == "development";
+		const debugOrRelease = isDevelopment ? "Debug" : "Release";
 
 		this.UtilPath = path.join(extPath, 'src', 'csharp', 'bin', debugOrRelease, 'net7.0', 'vscode-meadow.dll');
 	}
@@ -64,10 +55,7 @@ export class MeadowUtil
 
 		var proc: any;
 
-		//if (this.isUnix)
-			proc = await execa('dotnet', [ this.UtilPath ].concat(stdargs));
-		//else
-			//proc = await execa(this.UtilPath, stdargs);
+		proc = await execa('dotnet', [ this.UtilPath ].concat(stdargs));
 
 		var txt = proc['stdout'];
 
