@@ -1,6 +1,6 @@
 name: VSCode Extension
 env:
-  IDE_TOOLS_RELEASE_VERSION: 1.9.0
+  IDE_TOOLS_RELEASE_VERSION: 1.9.2
 
 on:
   push:
@@ -39,11 +39,11 @@ jobs:
         path: Meadow.CLI
         ref: develop
 
-    - name: Setup .NET 7.0.x
+    - name: Setup .NET 8.0.x
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: | 
-          7.0.x
+          8.0.x
   
     - name: Setup Nuget
       uses: Nuget/setup-nuget@v1.0.5
