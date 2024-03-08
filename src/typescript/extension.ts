@@ -25,17 +25,7 @@ export const isMacOS = process.platform == "darwin";
 export const isLinux = process.platform == "linux";
 
 export function activate(context: vscode.ExtensionContext) {
-
 	meadowOutputChannel = vscode.window.createOutputChannel("Meadow");
-
-	meadowProgressBar = vscode.window.withProgress({
-		location: vscode.ProgressLocation.Notification,
-		title:"File Transferring",
-		cancellable: false
-	  }, async (progress) => {
-		progress.report({increment:10});
-		}
-	);
 
 	this.MeadowProjectManager = new MeadowProjectManager(context);
 
@@ -43,6 +33,17 @@ export function activate(context: vscode.ExtensionContext) {
 	
 	context.subscriptions.push(vscode.commands.registerCommand('extension.meadow.configureExceptions', () => configureExceptions()));
 	context.subscriptions.push(vscode.commands.registerCommand('extension.meadow.startSession', config => startSession(config)));
+
+	context.subscriptions.push(vscode.commands.registerCommand('updateProgressBar', (fileName: string, percent: number) => {
+		console.log(`updateProgressBar`);
+		meadowProgressBar = vscode.window.withProgress({
+			location: vscode.ProgressLocation.Notification,
+			title: "File Transferring",
+			cancellable: false
+		}, async (progress) => {
+			progress.report({ increment: percent, message: `Transferring ${fileName}` });
+		});
+	}));
 
 	const provider = new MeadowConfigurationProvider(context);
 	context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('meadow', provider, vscode.DebugConfigurationProviderTriggerKind.Initial | vscode.DebugConfigurationProviderTriggerKind.Dynamic));
