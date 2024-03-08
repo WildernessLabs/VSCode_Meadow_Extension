@@ -77,8 +77,6 @@ namespace VsCodeMeadowUtil
 
 		static async Task<IEnumerable<DeviceData>> AllDevices()
 		{
-			var devices = new List<DeviceData>();
-
 			var ports = await MeadowConnectionManager.GetSerialPorts() ?? new List<string>();
 
 			return ports.Select(p => new DeviceData { Name = p, Serial = p });

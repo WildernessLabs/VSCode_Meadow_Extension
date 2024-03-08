@@ -214,7 +214,7 @@ namespace VSCodeDebug
 			var fullOutputPath =
 				Utilities.FixPathSeparators(launchOptions.GetBuildProperty("OutputPath"));
 
-			Log("Starting to Deploy to Meadow...");
+			Log("Deploying to Meadow...");
 
 			var errorMsg = string.Empty;
 
@@ -223,7 +223,7 @@ namespace VSCodeDebug
 				var logger = new DebugSessionLogger(l => Log(l));
 				
 				// DEPLOY
-				meadowDeployer = new MeadowDeployer(logger, launchOptions.Serial, ctsDeployMeadow.Token);
+				meadowDeployer = new MeadowDeployer(this, logger, launchOptions.Serial, ctsDeployMeadow.Token);
 
 				meadowDebuggingServer = await meadowDeployer.Deploy(fullOutputPath, launchOptions.DebugPort);
 
