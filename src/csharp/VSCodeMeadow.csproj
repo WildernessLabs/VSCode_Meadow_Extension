@@ -16,7 +16,6 @@
 	  <ProjectReference Include="..\..\externals\debugger-libs\Mono.Debugger.Soft\Mono.Debugger.Soft.csproj" />
 	  <ProjectReference Include="..\..\externals\debugger-libs\Mono.Debugging.Soft\Mono.Debugging.Soft.csproj" />
 	  <ProjectReference Include="..\..\externals\debugger-libs\Mono.Debugging\Mono.Debugging.csproj" />
-	  <ProjectReference Include="..\..\..\Meadow.CLI\Source\v2\Meadow.HCom\Meadow.HCom.csproj" />
-	  <ProjectReference Include="..\..\..\Meadow.CLI\Source\v2\Meadow.CLI.Extension\Meadow.CLI.Extension.csproj" />
+	  <ProjectReference Include="..\..\..\Meadow.CLI\Source\v2\Meadow.Tooling.Core\Meadow.Tooling.Core.csproj" />
 	</ItemGroup>
 </Project>
