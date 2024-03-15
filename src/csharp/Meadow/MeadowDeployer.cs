@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Meadow.CLI;
+using Meadow.Cloud.Client;
 using Meadow.Hcom;
 using Meadow.Software;
 using Microsoft.Extensions.Logging;
@@ -101,9 +103,27 @@ namespace VsCodeMeadowUtil
 
             // Debugger only returns when session is done
             if (isDebugging)
-                return await meadowConnection?.StartDebuggingSession(debugPort, Logger, CancelToken);
+            {
+                Logger?.LogInformation("Hooking up Debugger Messages");
+                meadowConnection.DebuggerMessageReceived += MeadowConnection_DebuggerMessages;
+                try
+                {
+                    Logger?.LogInformation("StartDebuggingSession");
+                    return await meadowConnection?.StartDebuggingSession(debugPort, Logger, CancelToken);
+                }
+                finally
+                {
+                    //Logger?.LogInformation("Releasing Debugger Messages");
+                    //meadowConnection.DebuggerMessageReceived -= MeadowConnection_DebuggerMessages;
+                }
+            }
 
             return null;
+        }
+
+        private void MeadowConnection_DebuggerMessages(object sender, byte[] e)
+        {
+            Logger?.LogInformation($"Bytes Received {e}");
         }
 
         private void MeadowConnection_DeploymentProgress(object sender, (string fileName, long completed, long total) e)
