@@ -1,7 +1,7 @@
 {
 	"name": "meadow",
 	"displayName": "VSCode Tools For Meadow",
-	"version": "1.9.0",
+	"version": "1.9.2",
 	"publisher": "WildernessLabs",
 	"description": "Build, Debug and Deploy Meadow applications",
 	"icon": "meadow.png",
@@ -152,7 +152,7 @@
 			{
 				"type": "meadow",
 				"label": "Meadow (Debug)",
-				"program": "./src/csharp/bin/Debug/net7.0/vscode-meadow.dll",
+				"program": "./src/csharp/bin/Debug/net8.0/vscode-meadow.dll",
 				"runtime": "dotnet",
 				"initialConfigurations": [
 					{
@@ -181,7 +181,7 @@
 			{
 				"type": "meadow",
 				"label": "Meadow (Release)",
-				"program": "./src/csharp/bin/Release/net7.0/vscode-meadow.dll",
+				"program": "./src/csharp/bin/Release/net8.0/vscode-meadow.dll",
 				"runtime": "dotnet",
 				"initialConfigurations": [
 					{

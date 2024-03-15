@@ -60,9 +60,9 @@ namespace VsCodeMeadowUtil
 
                     await new DownloadManager(Logger).DownloadOsBinaries(osVersion);
                 }
-                catch
+                catch (Exception e)
                 {
-                    Logger.LogInformation("OS download failed, make sure you have an active internet connection");
+                    Logger.LogInformation($"OS download failed, make sure you have an active internet connection.{Environment.NewLine}{e.Message}");
                 }
 
                 var isDebugging = debugPort > 1000;
