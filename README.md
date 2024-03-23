@@ -8,6 +8,12 @@ This is the extension for VSCode that enables Meadow apps to be build, debugged 
 
 <img alt="meadow vscode extension" src="https://user-images.githubusercontent.com/271950/134820282-83c9842a-023a-47ae-976e-7b6c58e851c0.png">
 
+## Release Notes
+
+### 1.9.4
+
+- Fix for VSCode on Windows so that debugging works again.
+
 ## Contents
 * [Supported Operating Systems](#supported-operating-systems)
 * [Using the Extension](#using-the-extension)
