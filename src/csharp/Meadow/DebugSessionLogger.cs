@@ -25,8 +25,7 @@ namespace VsCodeMeadowUtil
 
 		public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
 		{
-			if (logLevel == LogLevel.Information || logLevel == LogLevel.Error || logLevel == LogLevel.Warning)
-				Callback?.Invoke(formatter(state, exception)?.Trim());
+			Callback?.Invoke(formatter(state, exception)?.Trim());
 		}
 	}
 }
