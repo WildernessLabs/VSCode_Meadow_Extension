@@ -901,7 +901,7 @@ namespace VSCodeDebug
 			lock (_lock) {
 				if (_session != null) {
 
-					_debuggeeExecuting = true;
+					_debuggeeExecuting = false;
 
 					if (!_session.HasExited)
 						_session.Exit();

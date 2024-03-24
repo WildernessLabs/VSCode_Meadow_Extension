@@ -91,10 +91,13 @@ namespace VsCodeMeadowUtil
 
             var isDebugging = debugPort > 1000;
             meadowConnection.FileWriteProgress += MeadowConnection_DeploymentProgress;
+            meadowConnection.DeviceMessageReceived += MeadowConnection_DeviceMessages;
 
             try
             {
                 await AppManager.DeployApplication(null, meadowConnection, folder, isDebugging, false, Logger, CancelToken);
+
+                await meadowConnection?.WaitForMeadowAttach();
             }
             finally
             {
@@ -104,21 +107,37 @@ namespace VsCodeMeadowUtil
             // Debugger only returns when session is done
             if (isDebugging)
             {
-                Logger?.LogInformation("Hooking up Debugger Messages");
                 meadowConnection.DebuggerMessageReceived += MeadowConnection_DebuggerMessages;
                 try
                 {
-                    Logger?.LogInformation("StartDebuggingSession");
                     return await meadowConnection?.StartDebuggingSession(debugPort, Logger, CancelToken);
                 }
                 finally
                 {
-                    //Logger?.LogInformation("Releasing Debugger Messages");
                     //meadowConnection.DebuggerMessageReceived -= MeadowConnection_DebuggerMessages;
                 }
             }
-
             return null;
+        }
+
+        private void MeadowConnection_DeviceMessages(object sender, (string message, string source) e)
+        {
+            switch (e.source)
+            {
+                case "info":
+                    Logger?.LogInformation($"  {e.message}");
+                    break;
+
+                case "error":
+                    Logger?.LogError($"Error: {e.message}");
+                    break;
+
+                case "warning":
+                    Logger?.LogWarning($"Warning: {e.message}");
+                    break;
+                default:
+                    break;
+            }
         }
 
         private void MeadowConnection_DebuggerMessages(object sender, byte[] e)
@@ -129,7 +148,15 @@ namespace VsCodeMeadowUtil
         private void MeadowConnection_DeploymentProgress(object sender, (string fileName, long completed, long total) e)
         {
             var p = (uint)((e.completed / (double)e.total) * 100d);
-            Logger?.LogInformation($"Transferring {e.fileName}");
+
+            if (p <= 1)
+            {
+                Logger?.LogInformation($"Sending {e.fileName}");
+            }
+            else if (p % 10 == 0)
+            {
+                Logger?.LogInformation($"{p}% of {e.fileName} Sent");
+            }
             // TODO Uncomment once Server to Client messaging is working - DebugSession.SendEvent(new UpdateProgressBarEvent(e.fileName, p));
         }
     }
