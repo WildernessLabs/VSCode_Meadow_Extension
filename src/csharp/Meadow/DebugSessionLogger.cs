@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
 namespace VsCodeMeadowUtil
@@ -20,12 +21,31 @@ namespace VsCodeMeadowUtil
 			if (System.Diagnostics.Debugger.IsAttached)
 				return true;
 
-			return logLevel == LogLevel.Information;
+			return logLevel >= LogLevel.Information;
 		}
 
 		public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
 		{
-			Callback?.Invoke(formatter(state, exception)?.Trim());
+			if (IsEnabled(logLevel))
+			{
+				Callback?.Invoke(formatter(state, exception));
+			}
+		}
+
+		internal async Task ReportDeviceMessage(string source, string message)
+		{
+
+		}
+		internal async Task ReportFileProgress(string fileName, uint percentage)
+		{
+			if (percentage <= 1)
+			{
+				this.LogInformation($"Sending {fileName}");
+			}
+			else if (percentage % 10 == 0)
+			{
+				this.LogInformation($"{percentage}% of {fileName} Sent");
+			}
 		}
 	}
 }
