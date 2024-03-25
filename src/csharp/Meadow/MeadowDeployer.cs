@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Meadow.CLI;
 using Meadow.Cloud.Client;
 using Meadow.Hcom;
+using Meadow.Package;
 using Meadow.Software;
 using Microsoft.Extensions.Logging;
 using VSCodeDebug;
@@ -95,7 +96,8 @@ namespace VsCodeMeadowUtil
 
             try
             {
-                await AppManager.DeployApplication(null, meadowConnection, folder, isDebugging, false, Logger, CancelToken);
+                var packageManager = new PackageManager(fileManager);
+                await AppManager.DeployApplication(packageManager, meadowConnection, folder, isDebugging, false, Logger, CancelToken);
 
                 await meadowConnection?.WaitForMeadowAttach();
             }
@@ -107,57 +109,29 @@ namespace VsCodeMeadowUtil
             // Debugger only returns when session is done
             if (isDebugging)
             {
-                meadowConnection.DebuggerMessageReceived += MeadowConnection_DebuggerMessages;
-                try
-                {
-                    return await meadowConnection?.StartDebuggingSession(debugPort, Logger, CancelToken);
-                }
-                finally
-                {
-                    //meadowConnection.DebuggerMessageReceived -= MeadowConnection_DebuggerMessages;
-                }
+                return await meadowConnection?.StartDebuggingSession(debugPort, Logger, CancelToken);
             }
             return null;
         }
 
-        private void MeadowConnection_DeviceMessages(object sender, (string message, string source) e)
+        private async void MeadowConnection_DeviceMessages(object sender, (string message, string source) e)
         {
-            switch (e.source)
+            if (Logger is DebugSessionLogger logger)
             {
-                case "info":
-                    Logger?.LogInformation($"  {e.message}");
-                    break;
-
-                case "error":
-                    Logger?.LogError($"Error: {e.message}");
-                    break;
-
-                case "warning":
-                    Logger?.LogWarning($"Warning: {e.message}");
-                    break;
-                default:
-                    break;
+                await logger.ReportDeviceMessage(e.source, e.message);
             }
         }
 
-        private void MeadowConnection_DebuggerMessages(object sender, byte[] e)
-        {
-            Logger?.LogInformation($"Bytes Received {e}");
-        }
-
-        private void MeadowConnection_DeploymentProgress(object sender, (string fileName, long completed, long total) e)
+        private async void MeadowConnection_DeploymentProgress(object sender, (string fileName, long completed, long total) e)
         {
             var p = (uint)((e.completed / (double)e.total) * 100d);
 
-            if (p <= 1)
+            if (Logger is DebugSessionLogger logger)
             {
-                Logger?.LogInformation($"Sending {e.fileName}");
+                await logger.ReportFileProgress(e.fileName, p);
             }
-            else if (p % 10 == 0)
-            {
-                Logger?.LogInformation($"{p}% of {e.fileName} Sent");
-            }
-            // TODO Uncomment once Server to Client messaging is working - DebugSession.SendEvent(new UpdateProgressBarEvent(e.fileName, p));
+
+            // TODO DebugSession.SendEvent(new UpdateProgressBarEvent(e.fileName, p));
         }
     }
 }
