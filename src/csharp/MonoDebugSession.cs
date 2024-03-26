@@ -10,14 +10,11 @@ using System.Linq;
 using System.Net;
 using VsCodeMeadowUtil;
 using Mono.Debugging.Client;
-using System.Threading.Tasks;
-using Meadow.CLI.Core.DeviceManagement;
-using Meadow.CLI.Core.Devices;
-using Meadow.CLI.Core.Internals.MeadowCommunication.ReceiveClasses;
+using Meadow.Hcom;
 
 namespace VSCodeDebug
 {
-	public class MonoDebugSession : DebugSession
+    public class MonoDebugSession : DebugSession
 	{
 		private const string MONO = "mono";
 		private readonly string[] MONO_EXTENSIONS = new String[] {
@@ -217,7 +214,7 @@ namespace VSCodeDebug
 			var fullOutputPath =
 				Utilities.FixPathSeparators(launchOptions.GetBuildProperty("OutputPath"));
 
-			Log("Starting to Deploy to Meadow...");
+			Log("Deploying to Meadow...");
 
 			var errorMsg = string.Empty;
 
@@ -226,7 +223,7 @@ namespace VSCodeDebug
 				var logger = new DebugSessionLogger(l => Log(l));
 				
 				// DEPLOY
-				meadowDeployer = new MeadowDeployer(logger, launchOptions.Serial, ctsDeployMeadow.Token);
+				meadowDeployer = new MeadowDeployer(this, logger, launchOptions.Serial, ctsDeployMeadow.Token);
 
 				meadowDebuggingServer = await meadowDeployer.Deploy(fullOutputPath, launchOptions.DebugPort);
 
@@ -904,7 +901,7 @@ namespace VSCodeDebug
 			lock (_lock) {
 				if (_session != null) {
 
-					_debuggeeExecuting = true;
+					_debuggeeExecuting = false;
 
 					if (!_session.HasExited)
 						_session.Exit();

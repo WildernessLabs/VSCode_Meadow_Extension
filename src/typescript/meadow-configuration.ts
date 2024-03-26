@@ -87,7 +87,7 @@ export class MeadowConfigurationProvider implements vscode.DebugConfigurationPro
 			}
 
 			if (!device) {
-				vscode.window.showErrorMessage("Device not selected!");
+				vscode.window.showErrorMessage("Device not selected or attached!");
 				return undefined;
 			}
 
