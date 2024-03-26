@@ -40,7 +40,7 @@ namespace VsCodeMeadowUtil
 		{
 			if (percentage <= 1)
 			{
-				this.LogInformation($"Sending {fileName}");
+				this.LogInformation($"Transferring: {fileName}");
 			}
 			else if (percentage % 10 == 0)
 			{
