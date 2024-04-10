@@ -32,27 +32,38 @@ namespace VsCodeMeadowUtil
             try
             {
                 if (meadow != null)
+                {
                     await meadow.MonoDisable(true, CancelToken);
-            } catch { }
 
-            try { meadow?.Dispose(); }
-            finally { meadow = null; }
+                    meadow.Dispose();
+                }
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                meadow = null;
+            }
         }
         public async Task<DebuggingServer> Deploy(string folder, int debugPort = -1)
         {
-            if (meadow == null)
+            var isDebugging = debugPort > 1000;
+
+            try
             {
-                var m = await MeadowDeviceManager.GetMeadowForSerialPort(Serial, logger: Logger);
-                if (m == null)
-                    throw new InvalidOperationException("Meadow device not found");
+                if (meadow == null)
+                {
+                    var m = await MeadowDeviceManager.GetMeadowForSerialPort(Serial, logger: Logger);
+                    if (m == null)
+                        throw new InvalidOperationException("Meadow device not found");
 
-                meadow = new MeadowDeviceHelper(m, Logger);
-            }
+                    meadow = new MeadowDeviceHelper(m, Logger);
+                }
 
-            var appPathDll = Path.Combine(folder, "App.dll");
+                var appPathDll = Path.Combine(folder, "App.dll");
 
-            // TODO not working reliably enough for RC1, will investigate further // if (meadow.DeviceAndAppVersionsMatch(appPathDll))
-            {
                 //wrap this is a try/catch so it doesn't crash if the developer is offline
                 try
                 {
@@ -65,13 +76,20 @@ namespace VsCodeMeadowUtil
                     Logger.LogInformation($"OS download failed, make sure you have an active internet connection.{Environment.NewLine}{e.Message}");
                 }
 
-                var isDebugging = debugPort > 1000;
                 await meadow.DeployApp(appPathDll, isDebugging, CancelToken);
-
-                // Debugger only returns when session is done
-                if (isDebugging)
-                    return await meadow.StartDebuggingSession(debugPort, CancelToken);
             }
+            finally
+            {
+                var running = await meadow.GetMonoRunState(CancelToken);
+                if (!running)
+                {
+                    await meadow?.MonoEnable(true, CancelToken);
+                }
+            }
+
+            // Debugger only returns when session is done
+            if (isDebugging)
+                return await meadow.StartDebuggingSession(debugPort, CancelToken);
 
             return null;
         }
