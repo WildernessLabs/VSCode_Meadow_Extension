@@ -10,6 +10,10 @@ This is the extension for VSCode that enables Meadow apps to be build, debugged 
 
 ## Release Notes
 
+### 1.9.6
+
+- Add extra check to re-enable the runtime, if it isn't enabled after deployment.
+
 ### 1.9.4
 
 - Fix for VSCode on Windows so that debugging works again.
