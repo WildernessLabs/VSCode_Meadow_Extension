@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -97,7 +98,10 @@ namespace VsCodeMeadowUtil
             try
             {
                 var packageManager = new PackageManager(fileManager);
-                await AppManager.DeployApplication(packageManager, meadowConnection, folder, isDebugging, false, Logger, CancelToken);
+
+                await packageManager.TrimApplication(new FileInfo(Path.Combine(folder, "App.dll")), osVersion, isDebugging, cancellationToken: CancelToken);
+
+                await AppManager.DeployApplication(packageManager, meadowConnection, osVersion, folder, isDebugging, false, Logger, CancelToken);
 
                 await meadowConnection?.WaitForMeadowAttach();
             }
