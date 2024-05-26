@@ -73,6 +73,8 @@ namespace VsCodeMeadowUtil
                 await meadowConnection?.WaitForMeadowAttach();
             }
 
+            await meadowConnection.RuntimeDisable();
+
             var deviceInfo = await meadowConnection?.GetDeviceInfo(CancelToken);
             string osVersion = deviceInfo?.OsVersion;
 
@@ -103,7 +105,7 @@ namespace VsCodeMeadowUtil
 
                 await AppManager.DeployApplication(packageManager, meadowConnection, osVersion, folder, isDebugging, false, Logger, CancelToken);
 
-                await meadowConnection?.WaitForMeadowAttach();
+                await meadowConnection.RuntimeEnable();
             }
             finally
             {
