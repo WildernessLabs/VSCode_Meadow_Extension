@@ -214,8 +214,6 @@ namespace VSCodeDebug
 			var fullOutputPath =
 				Utilities.FixPathSeparators(launchOptions.GetBuildProperty("OutputPath"));
 
-			Log("Deploying to Meadow...");
-
 			var errorMsg = string.Empty;
 
 			try {
@@ -247,7 +245,6 @@ namespace VSCodeDebug
 			Disconnect(response, null);
 
 			Terminate("Deploy failed.");
-
 		}
 
 		void Log(string message)
