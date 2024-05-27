@@ -101,8 +101,10 @@ namespace VsCodeMeadowUtil
             {
                 var packageManager = new PackageManager(fileManager);
 
+                Logger.LogInformation("Trimming...");
                 await packageManager.TrimApplication(new FileInfo(Path.Combine(folder, "App.dll")), osVersion, isDebugging, cancellationToken: CancelToken);
 
+                Logger.LogInformation("Deploying...");
                 await AppManager.DeployApplication(packageManager, meadowConnection, osVersion, folder, isDebugging, false, Logger, CancelToken);
 
                 await meadowConnection.RuntimeEnable();
@@ -115,6 +117,7 @@ namespace VsCodeMeadowUtil
             // Debugger only returns when session is done
             if (isDebugging)
             {
+                Logger.LogInformation("Debugging...");
                 return await meadowConnection?.StartDebuggingSession(debugPort, Logger, CancelToken);
             }
             return null;
