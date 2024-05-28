@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Meadow;
 using Meadow.CLI;
 using Meadow.Cloud.Client;
 using Meadow.Hcom;
@@ -49,32 +50,23 @@ namespace VsCodeMeadowUtil
 
         public async Task<DebuggingServer> Deploy(string folder, int debugPort = -1)
         {
-            if (meadowConnection == null)
+            if (meadowConnection != null)
             {
-                var retryCount = 0;
-
-            get_serial_connection:
-                try
-                {
-                    meadowConnection = new SerialConnection(Serial, Logger);
-                }
-                catch
-                {
-                    retryCount++;
-                    if (retryCount > 10)
-                    {
-                        throw new Exception($"Cannot find port {Serial}");
-                    }
-                    System.Threading.Thread.Sleep(500);
-                    goto get_serial_connection;
-                }
-
-                string path = folder ?? Environment.CurrentDirectory;
-
-                await meadowConnection?.WaitForMeadowAttach();
+                meadowConnection.FileWriteProgress -= MeadowConnection_DeploymentProgress;
+                meadowConnection.DeviceMessageReceived -= MeadowConnection_DeviceMessageReceived;
             }
 
-            await meadowConnection.RuntimeDisable();
+            meadowConnection = MeadowConnection.GetCurrentConnection(Serial, Logger);
+
+            meadowConnection.FileWriteProgress += MeadowConnection_DeploymentProgress;
+            meadowConnection.DeviceMessageReceived += MeadowConnection_DeviceMessageReceived;
+
+            await meadowConnection.WaitForMeadowAttach();
+
+            if (await meadowConnection.IsRuntimeEnabled() == true)
+            {
+                await meadowConnection.RuntimeDisable();
+            }
 
             var deviceInfo = await meadowConnection?.GetDeviceInfo(CancelToken);
             string osVersion = deviceInfo?.OsVersion;
@@ -95,8 +87,6 @@ namespace VsCodeMeadowUtil
             }
 
             var isDebugging = debugPort > 1000;
-            meadowConnection.FileWriteProgress += MeadowConnection_DeploymentProgress;
-            meadowConnection.DeviceMessageReceived += MeadowConnection_DeviceMessages;
 
             try
             {
@@ -106,7 +96,7 @@ namespace VsCodeMeadowUtil
                 await packageManager.TrimApplication(new FileInfo(Path.Combine(folder, "App.dll")), osVersion, isDebugging, cancellationToken: CancelToken);
 
                 Logger.LogInformation("Deploying...");
-                await AppManager.DeployApplication(packageManager, meadowConnection, osVersion, folder, isDebugging, false, Logger, CancelToken);
+                await Task.Run(async () => await AppManager.DeployApplication(packageManager, meadowConnection, osVersion, folder, isDebugging, false, Logger, CancelToken));
 
                 await meadowConnection.RuntimeEnable();
             }
@@ -124,7 +114,7 @@ namespace VsCodeMeadowUtil
             return null;
         }
 
-        private async void MeadowConnection_DeviceMessages(object sender, (string message, string source) e)
+        private async void MeadowConnection_DeviceMessageReceived(object sender, (string message, string source) e)
         {
             if (Logger is DebugSessionLogger logger)
             {
