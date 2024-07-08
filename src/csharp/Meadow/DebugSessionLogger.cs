@@ -6,6 +6,9 @@ namespace VsCodeMeadowUtil
 {
 	public class DebugSessionLogger : ILogger
 	{
+		string previousFileName = string.Empty;
+		uint previousPercentage = 0;
+
 		public DebugSessionLogger(Action<string> callback)
 		{
 			Callback = callback;
@@ -36,15 +39,18 @@ namespace VsCodeMeadowUtil
 		{
 
 		}
+
 		internal async Task ReportFileProgress(string fileName, uint percentage)
 		{
-			if (percentage <= 1)
+			if (percentage % 10 == 0)
 			{
-				this.LogInformation($"Transferring: {fileName}");
-			}
-			else if (percentage % 10 == 0)
-			{
-				this.LogInformation($"{percentage}% of {fileName} Sent");
+				if (!previousFileName.Equals(fileName)
+				|| !previousPercentage.Equals(percentage))
+				{
+					this.LogInformation($"{percentage}% of {fileName} Sent");
+					previousFileName = fileName;
+					previousPercentage = percentage;
+				}
 			}
 		}
 	}
