@@ -97,12 +97,15 @@ namespace VsCodeMeadowUtil
 
                 Logger.LogInformation("Deploying...");
                 await Task.Run(async () => await AppManager.DeployApplication(packageManager, meadowConnection, osVersion, folder, isDebugging, false, Logger, CancelToken));
-
-                await meadowConnection.RuntimeEnable();
             }
             finally
             {
                 meadowConnection.FileWriteProgress -= MeadowConnection_DeploymentProgress;
+
+                var running = await meadowConnection.IsRuntimeEnabled();
+                if (!running){
+                    await meadowConnection.RuntimeEnable(CancelToken);
+                }
             }
 
             // Debugger only returns when session is done
