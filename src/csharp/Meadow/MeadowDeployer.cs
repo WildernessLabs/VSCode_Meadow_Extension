@@ -117,21 +117,21 @@ namespace VsCodeMeadowUtil
             return null;
         }
 
-        private async void MeadowConnection_DeviceMessageReceived(object sender, (string message, string source) e)
+        private void MeadowConnection_DeviceMessageReceived(object sender, (string message, string source) e)
         {
             if (Logger is DebugSessionLogger logger)
             {
-                await logger.ReportDeviceMessage(e.source, e.message);
+                logger.ReportDeviceMessage(e.source, e.message);
             }
         }
 
-        private async void MeadowConnection_DeploymentProgress(object sender, (string fileName, long completed, long total) e)
+        private void MeadowConnection_DeploymentProgress(object sender, (string fileName, long completed, long total) e)
         {
             var p = (uint)((e.completed / (double)e.total) * 100d);
 
             if (Logger is DebugSessionLogger logger)
             {
-                await logger.ReportFileProgress(e.fileName, p);
+                logger.ReportFileProgress(e.fileName, p);
             }
 
             // TODO DebugSession.SendEvent(new UpdateProgressBarEvent(e.fileName, p));

@@ -35,12 +35,12 @@ namespace VsCodeMeadowUtil
 			}
 		}
 
-		internal async Task ReportDeviceMessage(string source, string message)
+		internal void ReportDeviceMessage(string source, string message)
 		{
-
+			this.LogInformation($"{source}: {message}");
 		}
 
-		internal async Task ReportFileProgress(string fileName, uint percentage)
+		internal void ReportFileProgress(string fileName, uint percentage)
 		{
 			if (percentage > 0 
 			&& percentage % 10 == 0)

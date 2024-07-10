@@ -247,21 +247,27 @@ namespace VSCodeDebug
 			Terminate("Deploy failed.");
 		}
 
+		string previousLogMessage = string.Empty;
+
 		void Log(string message)
 		{
-			Console.WriteLine(message);
+			if (previousLogMessage != message)
+			{
+				Console.WriteLine(message);
 
-            if(message.Contains("StdOut") || message.Contains("StdInfo"))
-            {
-                // This appears in the "Meadow" tab
-                SendEvent(new MeadowOutputEvent(message.Substring(15) + Environment.NewLine));
-            }
-            else 
-            {
-                // This appears in the "Console" tab
-                SendEvent(new ConsoleOutputEvent(message + Environment.NewLine));
-            }
-			
+				if (message.Contains("StdOut") || message.StartsWith("info"))
+				{
+					// This appears in the "Meadow" tab
+					SendEvent(new MeadowOutputEvent(message.Substring(5) + Environment.NewLine));
+				}
+				else
+				{
+					// This appears in the "Console" tab
+					SendEvent(new ConsoleOutputEvent(message + Environment.NewLine));
+				}
+
+				previousLogMessage = message;
+			}
 		}
 
 		private void Connect (LaunchData options, IPAddress address, int port)
