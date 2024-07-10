@@ -130,25 +130,48 @@ namespace VSCodeDebug
 				logFile = null;
 			}
 		}
-		private static async Task RunServer(int port) {
-			var serverSocket = new TcpListener(IPAddress.Parse("127.0.0.1"), port);
+
+		private static async Task RunServer(int port)
+		{
+			using var serverSocket = new TcpListener(IPAddress.Loopback, port);
 			serverSocket.Start();
 
-			while (true) {
-				var clientSocket = await serverSocket.AcceptSocketAsync();
-				if (clientSocket != null) {
-					Program.Log(">> accepted connection from client");
+			while (true)
+			{
+				try
+				{
+					var clientSocket = await serverSocket.AcceptSocketAsync();
+					if (clientSocket != null)
+					{
+						Program.Log(">> Accepted connection from client");
 
-					using (var networkStream = new NetworkStream(clientSocket)) {
-						try {
-							await RunSession(networkStream, networkStream);
-						} catch (Exception e) {
-							Console.Error.WriteLine("Exception: " + e);
+						try
+						{
+							using (var networkStream = new NetworkStream(clientSocket))
+							{
+								await RunSession(networkStream, networkStream);
+							}
+						}
+						catch (Exception e)
+						{
+							Console.Error.WriteLine("Exception during session:", e);
+							// Any other logging here?
+						}
+						finally
+						{
+							if (clientSocket.Connected)
+							{
+								clientSocket.Shutdown(SocketShutdown.Both);
+							}
+							clientSocket.Close();
+							Program.Log(">> Client connection closed");
 						}
 					}
-
-					clientSocket.Close();
-					Program.Log(">> client connection closed");
+				}
+				catch (Exception e)
+				{
+					Console.Error.WriteLine("Exception in server loop:", e);
+					// Could handle server loop exceptions as needed (e.g., retry, log, terminate gracefully)
 				}
 			}
 		}
