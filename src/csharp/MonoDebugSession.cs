@@ -255,10 +255,14 @@ namespace VSCodeDebug
 			{
 				Console.WriteLine(message);
 
-				if (message.Contains("StdOut") || message.StartsWith("info"))
+				if (message.StartsWith("stdout") || message.StartsWith("info"))
 				{
 					// This appears in the "Meadow" tab
-					SendEvent(new MeadowOutputEvent(message.Substring(5) + Environment.NewLine));
+					var spliter = message.Split(':');
+					if (spliter.Length > 1)
+					{
+						SendEvent(new MeadowOutputEvent(spliter[1] + Environment.NewLine));
+					}
 				}
 				else
 				{
