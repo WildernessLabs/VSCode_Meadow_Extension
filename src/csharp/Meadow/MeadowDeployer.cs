@@ -96,7 +96,7 @@ namespace VsCodeMeadowUtil
                 await packageManager.TrimApplication(new FileInfo(Path.Combine(folder, "App.dll")), osVersion, isDebugging, cancellationToken: CancelToken);
 
                 Logger.LogInformation("Deploying...");
-                await Task.Run(async () => await AppManager.DeployApplication(packageManager, meadowConnection, osVersion, folder, isDebugging, false, Logger, CancelToken));
+                await AppManager.DeployApplication(packageManager, meadowConnection, osVersion, folder, isDebugging, false, Logger, CancelToken);
             }
             finally
             {
