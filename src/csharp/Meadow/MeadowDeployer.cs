@@ -62,10 +62,7 @@ namespace VsCodeMeadowUtil
 
             await meadowConnection.WaitForMeadowAttach();
 
-            if (await meadowConnection.IsRuntimeEnabled())
-            {
-                await meadowConnection.RuntimeDisable();
-            }
+            await meadowConnection.RuntimeDisable();
 
             var deviceInfo = await meadowConnection?.GetDeviceInfo(CancelToken);
             string osVersion = deviceInfo?.OsVersion;
@@ -96,15 +93,12 @@ namespace VsCodeMeadowUtil
 
                 Logger.LogInformation("Deploying...");
                 await AppManager.DeployApplication(packageManager, meadowConnection, osVersion, folder, isDebugging, false, Logger, CancelToken);
+
+                await meadowConnection.RuntimeEnable();
             }
             finally
             {
                 meadowConnection.FileWriteProgress -= MeadowConnection_DeploymentProgress;
-
-                if (!await meadowConnection.IsRuntimeEnabled())
-                {
-                    await meadowConnection.RuntimeEnable();
-                }
             }
 
             // Debugger only returns when session is done
