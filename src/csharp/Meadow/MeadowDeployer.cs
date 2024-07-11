@@ -62,7 +62,7 @@ namespace VsCodeMeadowUtil
 
             await meadowConnection.WaitForMeadowAttach();
 
-            if (await meadowConnection.IsRuntimeEnabled() == true)
+            if (await meadowConnection.IsRuntimeEnabled())
             {
                 await meadowConnection.RuntimeDisable();
             }
@@ -95,13 +95,16 @@ namespace VsCodeMeadowUtil
                 await packageManager.TrimApplication(new FileInfo(Path.Combine(folder, "App.dll")), osVersion, isDebugging, cancellationToken: CancelToken);
 
                 Logger.LogInformation("Deploying...");
-                await Task.Run(async () => await AppManager.DeployApplication(packageManager, meadowConnection, osVersion, folder, isDebugging, false, Logger, CancelToken));
-
-                await meadowConnection.RuntimeEnable();
+                await AppManager.DeployApplication(packageManager, meadowConnection, osVersion, folder, isDebugging, false, Logger, CancelToken);
             }
             finally
             {
                 meadowConnection.FileWriteProgress -= MeadowConnection_DeploymentProgress;
+
+                if (!await meadowConnection.IsRuntimeEnabled())
+                {
+                    await meadowConnection.RuntimeEnable();
+                }
             }
 
             // Debugger only returns when session is done
