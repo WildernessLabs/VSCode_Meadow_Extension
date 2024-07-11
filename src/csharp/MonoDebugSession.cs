@@ -48,6 +48,10 @@ namespace VSCodeDebug
 		private bool _terminated = false;
 		private bool _stderrEOF = true;
 		private bool _stdoutEOF = true;
+		CancellationTokenSource ctsDeployMeadow;
+		MeadowDeployer meadowDeployer;
+		DebuggingServer meadowDebuggingServer;
+		string previousLogMessage = string.Empty;
 
 		public MonoDebugSession() : base()
 		{
@@ -182,10 +186,6 @@ namespace VSCodeDebug
 			SendEvent(new InitializedEvent());
 		}
 
-		CancellationTokenSource ctsDeployMeadow;
-		MeadowDeployer meadowDeployer;
-		DebuggingServer meadowDebuggingServer;
-
 		public override async void Launch(Response response, dynamic args)
 		{
 			_attachMode = false;
@@ -249,19 +249,33 @@ namespace VSCodeDebug
 
 		void Log(string message)
 		{
-			Console.WriteLine(message);
+			if (previousLogMessage != message)
+			{
+				Console.WriteLine(message);
 
-            if(message.Contains("StdOut") || message.Contains("StdInfo"))
-            {
-                // This appears in the "Meadow" tab
-                SendEvent(new MeadowOutputEvent(message.Substring(15) + Environment.NewLine));
-            }
-            else 
-            {
-                // This appears in the "Console" tab
-                SendEvent(new ConsoleOutputEvent(message + Environment.NewLine));
-            }
-			
+				if (message.StartsWith("stdout") || message.StartsWith("info"))
+				{
+					// This appears in blue as it is from "Meadow"
+					var spliter = message.Split(':');
+					if (spliter.Length > 1)
+					{
+						string output = string.Empty;
+
+						for (int i = 1; i < spliter.Length; i++)
+						{
+							output += spliter[i];
+						}
+						SendEvent(new MeadowOutputEvent(output + Environment.NewLine));
+					}
+				}
+				else
+				{
+					// This appears in yellow as it's is comming from VS
+					SendEvent(new ConsoleOutputEvent(message + Environment.NewLine));
+				}
+
+				previousLogMessage = message;
+			}
 		}
 
 		private void Connect (LaunchData options, IPAddress address, int port)

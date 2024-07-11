@@ -37,7 +37,7 @@ namespace VsCodeMeadowUtil
 
 		internal async Task ReportDeviceMessage(string source, string message)
 		{
-
+			this.LogInformation($"{source}: {message}");
 		}
 
 		internal async Task ReportFileProgress(string fileName, uint percentage)
