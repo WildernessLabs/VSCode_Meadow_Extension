@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Meadow;
 using Meadow.CLI;
+using Meadow.CLI.Commands.DeviceManagement;
 using Meadow.Cloud.Client;
 using Meadow.Hcom;
 using Meadow.Package;
@@ -55,7 +56,7 @@ namespace VsCodeMeadowUtil
                 meadowConnection.DeviceMessageReceived -= MeadowConnection_DeviceMessageReceived;
             }
 
-            meadowConnection = await MeadowConnection.GetSelectedConnection(PortName, Logger);
+            meadowConnection = await MeadowConnectionManager.GetConnectionForRoute(PortName);
 
             meadowConnection.FileWriteProgress += MeadowConnection_DeploymentProgress;
             meadowConnection.DeviceMessageReceived += MeadowConnection_DeviceMessageReceived;
