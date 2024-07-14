@@ -12,7 +12,7 @@ namespace Meadow
         private static readonly object connectionLock = new();
         private static IMeadowConnection meadowConnection = null;
 
-        internal static async Task<IMeadowConnection> GetCurrentConnection(string port, ILogger logger)
+        internal static async Task<IMeadowConnection> GetSelectedConnection(string port, ILogger logger)
         {
             lock (connectionLock)
             {

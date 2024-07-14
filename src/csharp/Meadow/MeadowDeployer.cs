@@ -16,16 +16,16 @@ namespace VsCodeMeadowUtil
 {
     public class MeadowDeployer : IDisposable
     {
-        public MeadowDeployer(MonoDebugSession monoDebugSession, ILogger logger, string serial, CancellationToken cancellationToken)
+        public MeadowDeployer(MonoDebugSession monoDebugSession, ILogger logger, string portName, CancellationToken cancellationToken)
         {
             Logger = logger;
-            Serial = serial;
+            PortName = portName;
             CancelToken = cancellationToken;
             DebugSession = monoDebugSession;
         }
 
         public ILogger Logger { get; private set; }
-        public string Serial { get; private set; }
+        public string PortName { get; private set; }
         public CancellationToken CancelToken { get; private set; }
 
         public MonoDebugSession DebugSession { get; private set; }
@@ -55,7 +55,7 @@ namespace VsCodeMeadowUtil
                 meadowConnection.DeviceMessageReceived -= MeadowConnection_DeviceMessageReceived;
             }
 
-            meadowConnection = await MeadowConnection.GetCurrentConnection(Serial, Logger);
+            meadowConnection = await MeadowConnection.GetSelectedConnection(PortName, Logger);
 
             meadowConnection.FileWriteProgress += MeadowConnection_DeploymentProgress;
             meadowConnection.DeviceMessageReceived += MeadowConnection_DeviceMessageReceived;
