@@ -55,7 +55,7 @@ namespace VsCodeMeadowUtil
                 meadowConnection.DeviceMessageReceived -= MeadowConnection_DeviceMessageReceived;
             }
 
-            meadowConnection = MeadowConnection.GetCurrentConnection(Serial, Logger);
+            meadowConnection = await MeadowConnection.GetCurrentConnection(Serial, Logger);
 
             meadowConnection.FileWriteProgress += MeadowConnection_DeploymentProgress;
             meadowConnection.DeviceMessageReceived += MeadowConnection_DeviceMessageReceived;
