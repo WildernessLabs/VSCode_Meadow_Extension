@@ -48,7 +48,7 @@ namespace VsCodeMeadowUtil
 				if (!previousFileName.Equals(fileName)
 				|| !previousPercentage.Equals(percentage))
 				{
-					this.LogInformation($"{percentage}% of {fileName} Sent");
+					this.LogInformation($"{percentage}% of '{fileName}' Sent");
 					previousFileName = fileName;
 					previousPercentage = percentage;
 				}
