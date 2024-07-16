@@ -43,7 +43,7 @@ namespace VsCodeMeadowUtil
 		internal async Task ReportFileProgress(string fileName, uint percentage)
 		{
 			if (percentage > 0 
-			&& percentage % 10 == 0)
+			&& percentage > 99)
 			{
 				if (!previousFileName.Equals(fileName)
 				|| !previousPercentage.Equals(percentage))
