@@ -31,7 +31,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	this.meadowBuildTaskProvider = vscode.tasks.registerTaskProvider(MeadowBuildTaskProvider.MeadowBuildScriptType, new MeadowBuildTaskProvider(context));
 	
-	context.subscriptions.push(vscode.commands.registerCommand('extension.meadow.configureExceptions', () => configureExceptions()));
+	//context.subscriptions.push(vscode.commands.registerCommand('extension.meadow.configureExceptions', () => configureExceptions()));
 	context.subscriptions.push(vscode.commands.registerCommand('extension.meadow.startSession', config => startSession(config)));
 
 	context.subscriptions.push(vscode.commands.registerCommand('updateProgressBar', (fileName: string, percent: number) => {
@@ -143,7 +143,7 @@ function getModel(): ExceptionConfigurations {
 	return model;
 }
 
-function configureExceptions(): void {
+/*function configureExceptions(): void {
 
 	const options: vscode.QuickPickOptions = {
 		placeHolder: localize('select.exception', "First Select Exception"),
@@ -181,7 +181,7 @@ function configureExceptions(): void {
 			});
 		}
 	});
-}
+}*/
 
 function setExceptionBreakpoints(model: ExceptionConfigurations): Thenable<DebugProtocol.SetExceptionBreakpointsResponse> {
 
