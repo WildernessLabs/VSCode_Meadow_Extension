@@ -63,7 +63,10 @@ namespace VsCodeMeadowUtil
 
             await meadowConnection.WaitForMeadowAttach();
 
-            await meadowConnection.RuntimeDisable();
+            if (await meadowConnection.IsRuntimeEnabled() == true)
+            {
+                await meadowConnection.RuntimeDisable();
+            }
 
             var deviceInfo = await meadowConnection?.GetDeviceInfo(CancelToken);
             string osVersion = deviceInfo?.OsVersion;
@@ -89,10 +92,10 @@ namespace VsCodeMeadowUtil
             {
                 var packageManager = new PackageManager(fileManager);
 
-                Logger.LogInformation("Trimming...");
+                Logger.LogInformation("Trimming application binaries...");
                 await packageManager.TrimApplication(new FileInfo(Path.Combine(folder, "App.dll")), osVersion, isDebugging, cancellationToken: CancelToken);
 
-                Logger.LogInformation("Deploying...");
+                Logger.LogInformation("Deploying application...");
                 await AppManager.DeployApplication(packageManager, meadowConnection, osVersion, folder, isDebugging, false, Logger, CancelToken);
 
                 await meadowConnection.RuntimeEnable();
@@ -105,7 +108,7 @@ namespace VsCodeMeadowUtil
             // Debugger only returns when session is done
             if (isDebugging)
             {
-                Logger.LogInformation("Debugging...");
+                Logger.LogInformation("Debugging application...");
                 return await meadowConnection?.StartDebuggingSession(debugPort, Logger, CancelToken);
             }
             return null;
