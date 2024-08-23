@@ -50,60 +50,63 @@ namespace VsCodeMeadowUtil
 
         public async Task<DebuggingServer> Deploy(string folder, int debugPort = -1)
         {
-            if (meadowConnection != null)
-            {
-                meadowConnection.FileWriteProgress -= MeadowConnection_DeploymentProgress;
-                meadowConnection.DeviceMessageReceived -= MeadowConnection_DeviceMessageReceived;
-            }
-
-            meadowConnection = await MeadowConnectionManager.GetConnectionForRoute(PortName);
-
-            meadowConnection.FileWriteProgress += MeadowConnection_DeploymentProgress;
-            meadowConnection.DeviceMessageReceived += MeadowConnection_DeviceMessageReceived;
-
-            await meadowConnection.WaitForMeadowAttach();
-
-            if (await meadowConnection.IsRuntimeEnabled() == true)
-            {
-                await meadowConnection.RuntimeDisable();
-            }
-
-            var deviceInfo = await meadowConnection?.GetDeviceInfo(CancelToken);
-            string osVersion = deviceInfo?.OsVersion;
-
-            var fileManager = new FileManager(null);
-            await fileManager.Refresh();
-
-            var collection = fileManager.Firmware["Meadow F7"];
-
-            //wrap this is a try/catch so it doesn't crash if the developer is offline
-            try
-            {
-                // TODO Download OS once we have a valie MeadowCloudClient
-            }
-            catch (Exception e)
-            {
-                Logger?.LogInformation($"OS download failed, make sure you have an active internet connection.{Environment.NewLine}{e.Message}");
-            }
-
             var isDebugging = debugPort > 1000;
 
-            try
+            await Task.Run(async () =>
             {
-                var packageManager = new PackageManager(fileManager);
+                if (meadowConnection != null)
+                {
+                    meadowConnection.FileWriteProgress -= MeadowConnection_DeploymentProgress;
+                    meadowConnection.DeviceMessageReceived -= MeadowConnection_DeviceMessageReceived;
+                }
 
-                Logger.LogInformation("Trimming application binaries...");
-                await packageManager.TrimApplication(new FileInfo(Path.Combine(folder, "App.dll")), osVersion, isDebugging, cancellationToken: CancelToken);
+                meadowConnection = await MeadowConnectionManager.GetConnectionForRoute(PortName);
 
-                Logger.LogInformation("Deploying application...");
-                await AppManager.DeployApplication(packageManager, meadowConnection, osVersion, folder, isDebugging, false, Logger, CancelToken);
+                meadowConnection.FileWriteProgress += MeadowConnection_DeploymentProgress;
+                meadowConnection.DeviceMessageReceived += MeadowConnection_DeviceMessageReceived;
 
-                await meadowConnection.RuntimeEnable();
-            }
-            finally
-            {
-                meadowConnection.FileWriteProgress -= MeadowConnection_DeploymentProgress;
-            }
+                await meadowConnection.WaitForMeadowAttach();
+
+                if (await meadowConnection.IsRuntimeEnabled() == true)
+                {
+                    await meadowConnection.RuntimeDisable();
+                }
+
+                var deviceInfo = await meadowConnection?.GetDeviceInfo(CancelToken);
+                string osVersion = deviceInfo?.OsVersion;
+
+                var fileManager = new FileManager(null);
+                await fileManager.Refresh();
+
+                var collection = fileManager.Firmware["Meadow F7"];
+
+                //wrap this is a try/catch so it doesn't crash if the developer is offline
+                try
+                {
+                    // TODO Download OS once we have a valie MeadowCloudClient
+                }
+                catch (Exception e)
+                {
+                    Logger?.LogInformation($"OS download failed, make sure you have an active internet connection.{Environment.NewLine}{e.Message}");
+                }
+
+                try
+                {
+                    var packageManager = new PackageManager(fileManager);
+
+                    Logger.LogInformation("Trimming application binaries...");
+                    await packageManager.TrimApplication(new FileInfo(Path.Combine(folder, "App.dll")), osVersion, isDebugging, cancellationToken: CancelToken);
+
+                    Logger.LogInformation("Deploying application...");
+                    await AppManager.DeployApplication(packageManager, meadowConnection, osVersion, folder, isDebugging, false, Logger, CancelToken);
+
+                    await meadowConnection.RuntimeEnable();
+                }
+                finally
+                {
+                    meadowConnection.FileWriteProgress -= MeadowConnection_DeploymentProgress;
+                }
+            });
 
             // Debugger only returns when session is done
             if (isDebugging)
