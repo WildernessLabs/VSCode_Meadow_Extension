@@ -61,7 +61,7 @@ export class MeadowConfigurationProvider implements vscode.DebugConfigurationPro
 			return undefined;
 		}
 
-		startupInfo = MeadowProjectManager.Shared.StartupInfo;
+		// TODO startupInfo = MeadowProjectManager.Shared.StartupInfo;
 
 		if (project) {
 			if (!config['msbuildPropertyFile'])
@@ -78,7 +78,7 @@ export class MeadowConfigurationProvider implements vscode.DebugConfigurationPro
 			if (currentBuildConfiguration.toLowerCase() === 'debug')
 				config['debugPort'] = startupInfo.DebugPort;
 
-			var device = startupInfo.Device;
+			var device = config['deviceInfo'];
 
 			if (!device)
 			{ 
