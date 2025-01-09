@@ -48,19 +48,15 @@ namespace VsCodeMeadowUtil
             }
         }
 
-        public async Task<DebuggingServer> Deploy(string folder, int debugPort = -1)
+        public async Task<IMeadowConnection> Deploy(string folder, bool isDebugging)
         {
-            var isDebugging = debugPort > 1000;
-
-            await Task.Run(async () =>
-            {
                 if (meadowConnection != null)
                 {
                     meadowConnection.FileWriteProgress -= MeadowConnection_DeploymentProgress;
                     meadowConnection.DeviceMessageReceived -= MeadowConnection_DeviceMessageReceived;
                 }
 
-                meadowConnection = await MeadowConnectionManager.GetConnectionForRoute(PortName);
+                meadowConnection = new MeadowConnectionManager(new SettingsManager()).GetConnectionForRoute(PortName);
 
                 meadowConnection.FileWriteProgress += MeadowConnection_DeploymentProgress;
                 meadowConnection.DeviceMessageReceived += MeadowConnection_DeviceMessageReceived;
@@ -106,15 +102,7 @@ namespace VsCodeMeadowUtil
                 {
                     meadowConnection.FileWriteProgress -= MeadowConnection_DeploymentProgress;
                 }
-            });
-
-            // Debugger only returns when session is done
-            if (isDebugging)
-            {
-                Logger.LogInformation("Debugging application...");
-                return await meadowConnection?.StartDebuggingSession(debugPort, Logger, CancelToken);
-            }
-            return null;
+                return meadowConnection;
         }
 
         private async void MeadowConnection_DeviceMessageReceived(object sender, (string message, string source) e)

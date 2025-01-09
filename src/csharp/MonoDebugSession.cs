@@ -219,18 +219,23 @@ namespace VSCodeDebug
 			try {
 				
 				var logger = new DebugSessionLogger(l => Log(l));
+
+				var isDebugging = launchOptions.DebugPort > 1024;
 				
 				// DEPLOY
 				meadowDeployer = new MeadowDeployer(this, logger, launchOptions.Serial, ctsDeployMeadow.Token);
 
-				meadowDebuggingServer = await meadowDeployer.Deploy(fullOutputPath, launchOptions.DebugPort);
+				var meadowConnection = await meadowDeployer.Deploy(fullOutputPath, isDebugging);
 
-				if (meadowDebuggingServer != null)
+				if (isDebugging)
 				{
+					var meadowDebuggingServerTask = meadowConnection.StartDebuggingSession(launchOptions.DebugPort, logger, ctsDeployMeadow.Token);
+
 					_attachMode = true;
 					Log($"Connecting to debugger: {address}:{launchOptions.DebugPort}");
 
 					Connect(IPAddress.Loopback, launchOptions.DebugPort);
+					await meadowDebuggingServerTask;
 				}
 
 				SendResponse(response);
