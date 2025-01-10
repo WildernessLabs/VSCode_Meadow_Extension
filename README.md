@@ -129,6 +129,7 @@ You can also use the following short-cut on:
 
 ### Prerequisites
 
+- Install Python 
 - Install NPM
 
 Then run the following commands on the command line, once NPM is installed
