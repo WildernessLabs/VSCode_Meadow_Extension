@@ -1,6 +1,6 @@
 name: VSCode Extension
 env:
-  IDE_TOOLS_RELEASE_VERSION: 1.9.7
+  IDE_TOOLS_RELEASE_VERSION: 2.0.0
 
 on:
   push:
@@ -18,14 +18,14 @@ jobs:
     
     steps:
     - name: Checkout current repo
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         path: main
         submodules: true
 
     - if: ${{ github.ref == 'refs/heads/main' }}
       name: Checkout Meadow.CLI.Core side-by-side
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: WildernessLabs/Meadow.CLI
         path: Meadow.CLI
@@ -33,25 +33,32 @@ jobs:
 
     - if: ${{ github.ref != 'refs/heads/main' }}
       name: Checkout Meadow.CLI.Core side-by-side
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: WildernessLabs/Meadow.CLI
         path: Meadow.CLI
         ref: develop
 
+    - name: Checkout Meadow.Contracts side-by-side
+      uses: actions/checkout@v4
+      with:
+        repository: WildernessLabs/Meadow.Contracts
+        path: Meadow.Contracts
+        ref: main
+
     - name: Setup .NET 8.0.x
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: | 
           8.0.x
   
     - name: Setup Nuget
-      uses: Nuget/setup-nuget@v1.0.5
+      uses: Nuget/setup-nuget@v2
 
-    - name: Setup Node.js 16
-      uses: actions/setup-node@v3
+    - name: Setup Node.js 20
+      uses: actions/setup-node@v4
       with:
-        node-version: 16
+        node-version: 20
 
     - name: Install vsce
       run: |
@@ -93,14 +100,14 @@ jobs:
         vsce package
 
     - name: Upload VSIX Artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: VSCodeMeadow.vsix.${{ ENV.IDE_TOOLS_RELEASE_VERSION }}
         path: 'main/*.vsix'
 
     - name: Upload Binlog Artifacts
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: BinLogs
         path: '**/*.binlog'

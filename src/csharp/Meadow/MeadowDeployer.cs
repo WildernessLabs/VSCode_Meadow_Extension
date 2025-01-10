@@ -1,97 +1,131 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Meadow.CLI.Core;
-using Meadow.CLI.Core.DeviceManagement;
-using Meadow.CLI.Core.Devices;
-using Meadow.CLI.Core.Internals.MeadowCommunication.ReceiveClasses;
+using Meadow;
+using Meadow.CLI;
+using Meadow.CLI.Commands.DeviceManagement;
+using Meadow.Cloud.Client;
+using Meadow.Hcom;
+using Meadow.Package;
+using Meadow.Software;
 using Microsoft.Extensions.Logging;
+using VSCodeDebug;
 
 namespace VsCodeMeadowUtil
 {
     public class MeadowDeployer : IDisposable
     {
-        public MeadowDeployer(ILogger logger, string serial, CancellationToken cancellationToken)
+        public MeadowDeployer(MonoDebugSession monoDebugSession, ILogger logger, string portName, CancellationToken cancellationToken)
         {
             Logger = logger;
-            Serial = serial;
+            PortName = portName;
             CancelToken = cancellationToken;
+            DebugSession = monoDebugSession;
         }
 
         public ILogger Logger { get; private set; }
-        public string Serial { get; private set; }
+        public string PortName { get; private set; }
         public CancellationToken CancelToken { get; private set; }
 
-        MeadowDeviceHelper meadow = null;
+        public MonoDebugSession DebugSession { get; private set; }
+
+        IMeadowConnection meadowConnection = null;
 
         public async void Dispose()
         {
             try
             {
-                if (meadow != null)
-                {
-                    await meadow.MonoDisable(true, CancelToken);
-
-                    meadow.Dispose();
-                }
+                await meadowConnection?.RuntimeDisable(CancelToken);
             }
             catch
             {
-
             }
             finally
             {
-                meadow = null;
+                meadowConnection = null;
             }
         }
-        public async Task<DebuggingServer> Deploy(string folder, int debugPort = -1)
+
+        public async Task<IMeadowConnection> Deploy(string folder, bool isDebugging)
         {
-            var isDebugging = debugPort > 1000;
-
-            try
-            {
-                if (meadow == null)
+                if (meadowConnection != null)
                 {
-                    var m = await MeadowDeviceManager.GetMeadowForSerialPort(Serial, logger: Logger);
-                    if (m == null)
-                        throw new InvalidOperationException("Meadow device not found");
-
-                    meadow = new MeadowDeviceHelper(m, Logger);
+                    meadowConnection.FileWriteProgress -= MeadowConnection_DeploymentProgress;
+                    meadowConnection.DeviceMessageReceived -= MeadowConnection_DeviceMessageReceived;
                 }
 
-                var appPathDll = Path.Combine(folder, "App.dll");
+                meadowConnection = new MeadowConnectionManager(new SettingsManager()).GetConnectionForRoute(PortName);
+
+                meadowConnection.FileWriteProgress += MeadowConnection_DeploymentProgress;
+                meadowConnection.DeviceMessageReceived += MeadowConnection_DeviceMessageReceived;
+
+                await meadowConnection.WaitForMeadowAttach();
+
+                if (await meadowConnection.IsRuntimeEnabled() == true)
+                {
+                    await meadowConnection.RuntimeDisable();
+                }
+
+                var deviceInfo = await meadowConnection?.GetDeviceInfo(CancelToken);
+                string osVersion = deviceInfo?.OsVersion;
+
+                var fileManager = new FileManager(null);
+                await fileManager.Refresh();
+
+                var collection = fileManager.Firmware["Meadow F7"];
 
                 //wrap this is a try/catch so it doesn't crash if the developer is offline
                 try
                 {
-                    string osVersion = await meadow.GetOSVersion(TimeSpan.FromSeconds(30), CancelToken);
-
-                    await new DownloadManager(Logger).DownloadOsBinaries(osVersion);
+                    // TODO Download OS once we have a valie MeadowCloudClient
                 }
                 catch (Exception e)
                 {
-                    Logger.LogInformation($"OS download failed, make sure you have an active internet connection.{Environment.NewLine}{e.Message}");
+                    Logger?.LogInformation($"OS download failed, make sure you have an active internet connection.{Environment.NewLine}{e.Message}");
                 }
 
-                await meadow.DeployApp(appPathDll, isDebugging, CancelToken);
-            }
-            finally
-            {
-                var running = await meadow.GetMonoRunState(CancelToken);
-                if (!running)
+                try
                 {
-                    await meadow?.MonoEnable(true, CancelToken);
+                    var packageManager = new PackageManager(fileManager);
+
+                    Logger.LogInformation("Trimming application binaries...");
+                    await packageManager.TrimApplication(new FileInfo(Path.Combine(folder, "App.dll")), osVersion, isDebugging, cancellationToken: CancelToken);
+
+                    Logger.LogInformation("Deploying application...");
+                    await AppManager.DeployApplication(packageManager, meadowConnection, osVersion, folder, isDebugging, false, Logger, CancelToken);
+
+                    //FIXME: without this delay, the debugger will fail to connect
+                    await Task.Delay(1500);
+
+                    await meadowConnection.RuntimeEnable();
                 }
+                finally
+                {
+                    meadowConnection.FileWriteProgress -= MeadowConnection_DeploymentProgress;
+                }
+                return meadowConnection;
+        }
+
+        private async void MeadowConnection_DeviceMessageReceived(object sender, (string message, string source) e)
+        {
+            if (Logger is DebugSessionLogger logger)
+            {
+                await logger.ReportDeviceMessage(e.source, e.message);
             }
+        }
 
-            // Debugger only returns when session is done
-            if (isDebugging)
-                return await meadow.StartDebuggingSession(debugPort, CancelToken);
+        private async void MeadowConnection_DeploymentProgress(object sender, (string fileName, long completed, long total) e)
+        {
+            var p = (uint)((e.completed / (double)e.total) * 100d);
 
-            return null;
+            if (Logger is DebugSessionLogger logger)
+            {
+                await logger.ReportFileProgress(e.fileName, p);
+            }
+ 
+            // TODO DebugSession.SendEvent(new UpdateProgressBarEvent(e.fileName, p));
         }
     }
 }

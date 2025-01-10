@@ -181,6 +181,16 @@ namespace VSCodeDebug
 		{ }
 	}
 
+	public class UpdateProgressBarEvent : Event
+    {
+        public UpdateProgressBarEvent(string fileName, uint percent) 
+            : base("updateProgressBar", new {
+				filename = fileName,
+				percentage = percent
+			})
+        {
+        }
+    }
 	// ---- Response -------------------------------------------------------------------------
 
 	public class Capabilities : ResponseBody {

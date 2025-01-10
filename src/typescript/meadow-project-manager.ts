@@ -346,6 +346,7 @@ export class MeadowProjectManager {
 					"type": "meadow",
 					"request": "launch",
 					"preLaunchTask": "meadow: Build",
+					"deviceInfo": item
 				});
 			}
 		});
