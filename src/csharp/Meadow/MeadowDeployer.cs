@@ -96,6 +96,9 @@ namespace VsCodeMeadowUtil
                     Logger.LogInformation("Deploying application...");
                     await AppManager.DeployApplication(packageManager, meadowConnection, osVersion, folder, isDebugging, false, Logger, CancelToken);
 
+                    //FIXME: without this delay, the debugger will fail to connect
+                    await Task.Delay(1500);
+
                     await meadowConnection.RuntimeEnable();
                 }
                 finally
