@@ -17,21 +17,25 @@ namespace VsCodeMeadowUtil
 {
     public class MeadowDeployer : IDisposable
     {
-        public MeadowDeployer(MonoDebugSession monoDebugSession, ILogger logger, string portName, CancellationToken cancellationToken)
-        {
-            Logger = logger;
-            PortName = portName;
-            CancelToken = cancellationToken;
-            DebugSession = monoDebugSession;
-        }
-
         public ILogger Logger { get; private set; }
         public string PortName { get; private set; }
         public CancellationToken CancelToken { get; private set; }
 
         public MonoDebugSession DebugSession { get; private set; }
 
+        private readonly SettingsManager settingsManager = new SettingsManager();
+        private readonly MeadowConnectionManager connectionManager = null;
+
         IMeadowConnection meadowConnection = null;
+
+        public MeadowDeployer(MonoDebugSession monoDebugSession, ILogger logger, string portName, CancellationToken cancellationToken)
+        {
+            Logger = logger;
+            PortName = portName;
+            CancelToken = cancellationToken;
+            DebugSession = monoDebugSession;
+            this.connectionManager = new MeadowConnectionManager(settingsManager);
+        }
 
         public async void Dispose()
         {
@@ -54,9 +58,10 @@ namespace VsCodeMeadowUtil
                 {
                     meadowConnection.FileWriteProgress -= MeadowConnection_DeploymentProgress;
                     meadowConnection.DeviceMessageReceived -= MeadowConnection_DeviceMessageReceived;
+                    meadowConnection = null;
                 }
 
-                meadowConnection = new MeadowConnectionManager(new SettingsManager()).GetConnectionForRoute(PortName);
+                meadowConnection = connectionManager.GetConnectionForRoute(PortName);
 
                 meadowConnection.FileWriteProgress += MeadowConnection_DeploymentProgress;
                 meadowConnection.DeviceMessageReceived += MeadowConnection_DeviceMessageReceived;
