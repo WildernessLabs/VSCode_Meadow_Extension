@@ -65,6 +65,11 @@ jobs:
         npm i -g @vscode/vsce
         npm i -g @vscode/debugprotocol
 
+    - name: Install FallBack Sources
+      run: |
+        nuget install Microsoft.SymbolStore -Version 1.0.411401 -FallbackSource "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json"
+      # May not be needed for now, but keeping it around nuget install Microsoft.FileFormats -Version 1.0.411401 -FallbackSource "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json"
+
     - if: ${{ github.event_name == 'workflow_dispatch' }}
       name: Update VSCode Version Numbers
       run: |
