@@ -6,10 +6,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "debugger", "debugger", "{DD
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Meadow", "Meadow", "{639FE3D4-9D7F-4823-9911-48FE49C6998F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Meadow.Hcom.6.0.0", "..\..\Meadow.CLI\Meadow.Hcom\Meadow.Hcom.6.0.0.csproj", "{5F0219BE-F626-4C90-89B0-202850AE43C5}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Meadow.CLI.Core.6.0.0", "..\..\Meadow.CLI\Meadow.CLI.Core\Meadow.CLI.Core.6.0.0.csproj", "{21E7E61E-D9CE-48E2-B1DA-52B5FC12015A}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSCodeMeadow", "csharp\VSCodeMeadow.csproj", "{D46A8779-DAE7-4B90-ACBA-08893A504193}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mono.Debugging", "..\externals\debugger-libs\Mono.Debugging\Mono.Debugging.csproj", "{CD6FED13-1984-4491-97AB-1A4361E1F582}"
@@ -18,20 +14,22 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mono.Debugger.Soft", "..\ex
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mono.Debugging.Soft", "..\externals\debugger-libs\Mono.Debugging.Soft\Mono.Debugging.Soft.csproj", "{7592E68B-CE43-4433-8B5A-F7890BAA2ABC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.HCom", "..\..\Meadow.CLI\Source\v2\Meadow.HCom\Meadow.HCom.csproj", "{7F1115C6-5081-4997-AC0F-789D95B5092C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.Tooling.Core", "..\..\Meadow.CLI\Source\v2\Meadow.Tooling.Core\Meadow.Tooling.Core.csproj", "{AF35343B-B97C-4300-9EB4-DE753CADDC13}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.Linker", "..\..\Meadow.CLI\Source\v2\Meadow.Linker\Meadow.Linker.csproj", "{B11B8D26-FE98-4BD7-875E-D5A0801D3415}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.SoftwareManager", "..\..\Meadow.CLI\Source\v2\Meadow.SoftwareManager\Meadow.SoftwareManager.csproj", "{CC5D6AA6-F58A-4B8B-A514-988BCAEA21EE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.Cloud.Client", "..\..\Meadow.CLI\Source\v2\Meadow.Cloud.Client\Meadow.Cloud.Client.csproj", "{7820644F-8B87-4864-81B4-A8CB5859A71C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{5F0219BE-F626-4C90-89B0-202850AE43C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5F0219BE-F626-4C90-89B0-202850AE43C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5F0219BE-F626-4C90-89B0-202850AE43C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5F0219BE-F626-4C90-89B0-202850AE43C5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{21E7E61E-D9CE-48E2-B1DA-52B5FC12015A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{21E7E61E-D9CE-48E2-B1DA-52B5FC12015A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{21E7E61E-D9CE-48E2-B1DA-52B5FC12015A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{21E7E61E-D9CE-48E2-B1DA-52B5FC12015A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D46A8779-DAE7-4B90-ACBA-08893A504193}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D46A8779-DAE7-4B90-ACBA-08893A504193}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D46A8779-DAE7-4B90-ACBA-08893A504193}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -48,16 +46,39 @@ Global
 		{7592E68B-CE43-4433-8B5A-F7890BAA2ABC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7592E68B-CE43-4433-8B5A-F7890BAA2ABC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7592E68B-CE43-4433-8B5A-F7890BAA2ABC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F1115C6-5081-4997-AC0F-789D95B5092C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F1115C6-5081-4997-AC0F-789D95B5092C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F1115C6-5081-4997-AC0F-789D95B5092C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F1115C6-5081-4997-AC0F-789D95B5092C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF35343B-B97C-4300-9EB4-DE753CADDC13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF35343B-B97C-4300-9EB4-DE753CADDC13}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF35343B-B97C-4300-9EB4-DE753CADDC13}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF35343B-B97C-4300-9EB4-DE753CADDC13}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B11B8D26-FE98-4BD7-875E-D5A0801D3415}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B11B8D26-FE98-4BD7-875E-D5A0801D3415}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B11B8D26-FE98-4BD7-875E-D5A0801D3415}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B11B8D26-FE98-4BD7-875E-D5A0801D3415}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC5D6AA6-F58A-4B8B-A514-988BCAEA21EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC5D6AA6-F58A-4B8B-A514-988BCAEA21EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC5D6AA6-F58A-4B8B-A514-988BCAEA21EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC5D6AA6-F58A-4B8B-A514-988BCAEA21EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7820644F-8B87-4864-81B4-A8CB5859A71C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7820644F-8B87-4864-81B4-A8CB5859A71C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7820644F-8B87-4864-81B4-A8CB5859A71C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7820644F-8B87-4864-81B4-A8CB5859A71C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{5F0219BE-F626-4C90-89B0-202850AE43C5} = {639FE3D4-9D7F-4823-9911-48FE49C6998F}
-		{21E7E61E-D9CE-48E2-B1DA-52B5FC12015A} = {639FE3D4-9D7F-4823-9911-48FE49C6998F}
 		{CD6FED13-1984-4491-97AB-1A4361E1F582} = {DD5D7FCB-5097-433E-8399-BB037883FB2F}
 		{8D8752AF-06C6-40CE-AA55-B454DD6808E1} = {DD5D7FCB-5097-433E-8399-BB037883FB2F}
 		{7592E68B-CE43-4433-8B5A-F7890BAA2ABC} = {DD5D7FCB-5097-433E-8399-BB037883FB2F}
+		{7F1115C6-5081-4997-AC0F-789D95B5092C} = {639FE3D4-9D7F-4823-9911-48FE49C6998F}
+		{AF35343B-B97C-4300-9EB4-DE753CADDC13} = {639FE3D4-9D7F-4823-9911-48FE49C6998F}
+		{B11B8D26-FE98-4BD7-875E-D5A0801D3415} = {639FE3D4-9D7F-4823-9911-48FE49C6998F}
+		{CC5D6AA6-F58A-4B8B-A514-988BCAEA21EE} = {639FE3D4-9D7F-4823-9911-48FE49C6998F}
+		{7820644F-8B87-4864-81B4-A8CB5859A71C} = {639FE3D4-9D7F-4823-9911-48FE49C6998F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C0062C7F-7F87-41DC-9A63-BE15C14E7A43}

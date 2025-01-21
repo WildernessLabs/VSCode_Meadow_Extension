@@ -10,14 +10,11 @@ using System.Linq;
 using System.Net;
 using VsCodeMeadowUtil;
 using Mono.Debugging.Client;
-using System.Threading.Tasks;
-using Meadow.CLI.Core.DeviceManagement;
-using Meadow.CLI.Core.Devices;
-using Meadow.CLI.Core.Internals.MeadowCommunication.ReceiveClasses;
+using Meadow.Hcom;
 
 namespace VSCodeDebug
 {
-	public class MonoDebugSession : DebugSession
+    public class MonoDebugSession : DebugSession
 	{
 		private const string MONO = "mono";
 		private readonly string[] MONO_EXTENSIONS = new String[] {
@@ -51,6 +48,10 @@ namespace VSCodeDebug
 		private bool _terminated = false;
 		private bool _stderrEOF = true;
 		private bool _stdoutEOF = true;
+		CancellationTokenSource ctsDeployMeadow;
+		MeadowDeployer meadowDeployer;
+		DebuggingServer meadowDebuggingServer;
+		string previousLogMessage = string.Empty;
 
 		public MonoDebugSession() : base()
 		{
@@ -185,10 +186,6 @@ namespace VSCodeDebug
 			SendEvent(new InitializedEvent());
 		}
 
-		CancellationTokenSource ctsDeployMeadow;
-		MeadowDeployer meadowDeployer;
-		DebuggingServer meadowDebuggingServer;
-
 		public override async void Launch(Response response, dynamic args)
 		{
 			_attachMode = false;
@@ -217,25 +214,28 @@ namespace VSCodeDebug
 			var fullOutputPath =
 				Utilities.FixPathSeparators(launchOptions.GetBuildProperty("OutputPath"));
 
-			Log("Starting to Deploy to Meadow...");
-
 			var errorMsg = string.Empty;
 
 			try {
 				
 				var logger = new DebugSessionLogger(l => Log(l));
+
+				var isDebugging = launchOptions.DebugPort > 1024;
 				
 				// DEPLOY
-				meadowDeployer = new MeadowDeployer(logger, launchOptions.Serial, ctsDeployMeadow.Token);
+				meadowDeployer = new MeadowDeployer(this, logger, launchOptions.Serial, ctsDeployMeadow.Token);
 
-				meadowDebuggingServer = await meadowDeployer.Deploy(fullOutputPath, launchOptions.DebugPort);
+				var meadowConnection = await meadowDeployer.Deploy(fullOutputPath, isDebugging);
 
-				if (meadowDebuggingServer != null)
+				if (isDebugging)
 				{
+					var meadowDebuggingServerTask = meadowConnection.StartDebuggingSession(launchOptions.DebugPort, logger, ctsDeployMeadow.Token);
+
 					_attachMode = true;
 					Log($"Connecting to debugger: {address}:{launchOptions.DebugPort}");
 
 					Connect(IPAddress.Loopback, launchOptions.DebugPort);
+					await meadowDebuggingServerTask;
 				}
 
 				SendResponse(response);
@@ -250,24 +250,37 @@ namespace VSCodeDebug
 			Disconnect(response, null);
 
 			Terminate("Deploy failed.");
-
 		}
 
 		void Log(string message)
 		{
-			Console.WriteLine(message);
+			if (previousLogMessage != message)
+			{
+				Console.WriteLine(message);
 
-            if(message.Contains("StdOut") || message.Contains("StdInfo"))
-            {
-                // This appears in the "Meadow" tab
-                SendEvent(new MeadowOutputEvent(message.Substring(15) + Environment.NewLine));
-            }
-            else 
-            {
-                // This appears in the "Console" tab
-                SendEvent(new ConsoleOutputEvent(message + Environment.NewLine));
-            }
-			
+				if (message.StartsWith("stdout") || message.StartsWith("info"))
+				{
+					// This appears in blue as it is from "Meadow"
+					var spliter = message.Split(':');
+					if (spliter.Length > 1)
+					{
+						string output = string.Empty;
+
+						for (int i = 1; i < spliter.Length; i++)
+						{
+							output += spliter[i];
+						}
+						SendEvent(new MeadowOutputEvent(output + Environment.NewLine));
+					}
+				}
+				else
+				{
+					// This appears in yellow as it's is comming from VS
+					SendEvent(new ConsoleOutputEvent(message + Environment.NewLine));
+				}
+
+				previousLogMessage = message;
+			}
 		}
 
 		private void Connect (LaunchData options, IPAddress address, int port)
@@ -904,7 +917,7 @@ namespace VSCodeDebug
 			lock (_lock) {
 				if (_session != null) {
 
-					_debuggeeExecuting = true;
+					_debuggeeExecuting = false;
 
 					if (!_session.HasExited)
 						_session.Exit();
