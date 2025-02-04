@@ -10,6 +10,10 @@ This is the extension for VSCode that enables Meadow apps to be build, debugged 
 
 ## Release Notes
 
+### 2.0.0
+
+- Update to get debugging working with Meadow.CLI 2.x
+
 ### 1.9.7
 
 - Change to pick up the fact ProjLab is now part of NoLink in Meadow.CLI
