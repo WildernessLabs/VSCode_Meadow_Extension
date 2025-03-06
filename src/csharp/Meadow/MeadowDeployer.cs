@@ -28,6 +28,8 @@ namespace VsCodeMeadowUtil
 
         IMeadowConnection meadowConnection = null;
 
+        private bool disposed = false;
+
         public MeadowDeployer(MonoDebugSession monoDebugSession, ILogger logger, string portName, CancellationToken cancellationToken)
         {
             Logger = logger;
@@ -37,18 +39,24 @@ namespace VsCodeMeadowUtil
             this.connectionManager = new MeadowConnectionManager(settingsManager);
         }
 
-        public async void Dispose()
+        public void Dispose()
         {
-            try
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
             {
-                await meadowConnection?.RuntimeDisable(CancelToken);
-            }
-            catch
-            {
-            }
-            finally
-            {
-                meadowConnection = null;
+                if (disposing)
+                {
+                    // Dispose managed resources
+                    meadowConnection?.RuntimeDisable(CancelToken).GetAwaiter().GetResult();
+                    meadowConnection = null;
+                }
+                // Dispose unmanaged resources
+                disposed = true;
             }
         }
 
@@ -68,9 +76,9 @@ namespace VsCodeMeadowUtil
 
                 await meadowConnection.WaitForMeadowAttach();
 
-                if (await meadowConnection.IsRuntimeEnabled() == true)
+                if (await meadowConnection.IsRuntimeEnabled(CancelToken) == true)
                 {
-                    await meadowConnection.RuntimeDisable();
+                    await meadowConnection.RuntimeDisable(CancelToken);
                 }
 
                 var deviceInfo = await meadowConnection?.GetDeviceInfo(CancelToken);
