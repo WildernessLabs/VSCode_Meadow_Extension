@@ -32,17 +32,20 @@ namespace VsCodeMeadowUtil
 
 		public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
 		{
-			if (!IsEnabled(logLevel)) {
+			if (!IsEnabled(logLevel))
+			{
 				return;
 			}
 
-			if(formatter == null) {
+			if (formatter == null)
+			{
 				throw new ArgumentNullException(nameof(formatter));
 			}
 
 			try
 			{
 				var message = formatter(state, exception);
+
 				Callback?.Invoke(message);
 			}
 			catch (Exception ex)
@@ -52,20 +55,20 @@ namespace VsCodeMeadowUtil
 			}
 		}
 
-		internal async Task ReportDeviceMessage(string source, string message)
+		internal void ReportDeviceMessage(string source, string message)
 		{
-			await Task.Run(() => this.LogInformation($"{source}: {message}"));
+			this.LogInformation($"{source}: {message}");
 		}
 
-		internal async Task ReportFileProgress(string fileName, uint percentage)
+		internal void ReportFileProgress(string fileName, uint percentage)
 		{
-			if (percentage > 0 
+			if (percentage > 0
 			&& percentage > 99)
 			{
 				if (!previousFileName.Equals(fileName)
 				|| !previousPercentage.Equals(percentage))
 				{
-					await Task.Run(() => this.LogInformation($"{percentage}% of '{fileName}' Sent"));
+					this.LogInformation($"{percentage}% of '{fileName}' Sent");
 					previousFileName = fileName;
 					previousPercentage = percentage;
 				}
