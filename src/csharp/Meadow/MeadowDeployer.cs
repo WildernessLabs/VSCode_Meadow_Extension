@@ -62,82 +62,75 @@ namespace VsCodeMeadowUtil
 
         public async Task<IMeadowConnection> Deploy(string folder, bool isDebugging)
         {
-                if (meadowConnection != null)
-                {
-                    meadowConnection.FileWriteProgress -= MeadowConnection_DeploymentProgress;
-                    meadowConnection.DeviceMessageReceived -= MeadowConnection_DeviceMessageReceived;
-                    meadowConnection = null;
-                }
+            if (meadowConnection != null)
+            {
+                meadowConnection.FileWriteProgress -= MeadowConnection_DeploymentProgress;
+                meadowConnection.DeviceMessageReceived -= MeadowConnection_DeviceMessageReceived;
+                meadowConnection = null;
+            }
 
-                meadowConnection = connectionManager.GetConnectionForRoute(PortName);
+            meadowConnection = connectionManager.GetConnectionForRoute(PortName);
 
-                meadowConnection.FileWriteProgress += MeadowConnection_DeploymentProgress;
-                meadowConnection.DeviceMessageReceived += MeadowConnection_DeviceMessageReceived;
+            meadowConnection.FileWriteProgress += MeadowConnection_DeploymentProgress;
+            meadowConnection.DeviceMessageReceived += MeadowConnection_DeviceMessageReceived;
 
-                await meadowConnection.WaitForMeadowAttach();
+            await meadowConnection.WaitForMeadowAttach(CancelToken);
 
-                if (await meadowConnection.IsRuntimeEnabled(CancelToken) == true)
-                {
-                    await meadowConnection.RuntimeDisable(CancelToken);
-                }
+            if (await meadowConnection.IsRuntimeEnabled(CancelToken) == true)
+            {
+                await meadowConnection.RuntimeDisable(CancelToken);
+            }
 
-                var deviceInfo = await meadowConnection?.GetDeviceInfo(CancelToken);
-                string osVersion = deviceInfo?.OsVersion;
+            var deviceInfo = await meadowConnection?.GetDeviceInfo(CancelToken);
+            string osVersion = deviceInfo?.OsVersion;
 
-                var fileManager = new FileManager(null);
-                await fileManager.Refresh();
+            var fileManager = new FileManager(null);
+            await fileManager.Refresh();
 
-                var collection = fileManager.Firmware["Meadow F7"];
+            try
+            {
+                var packageManager = new PackageManager(fileManager);
 
-                //wrap this is a try/catch so it doesn't crash if the developer is offline
-                try
-                {
-                    // TODO Download OS once we have a valie MeadowCloudClient
-                }
-                catch (Exception e)
-                {
-                    Logger?.LogInformation($"OS download failed, make sure you have an active internet connection.{Environment.NewLine}{e.Message}");
-                }
+                Logger.LogInformation("Trimming application binaries...");
+                await packageManager.TrimApplication(new FileInfo(Path.Combine(folder, "App.dll")), osVersion, isDebugging, cancellationToken: CancelToken);
 
-                try
-                {
-                    var packageManager = new PackageManager(fileManager);
+                Logger.LogInformation("Deploying application...");
+                await AppManager.DeployApplication(packageManager, meadowConnection, osVersion, folder, isDebugging, false, Logger, CancelToken);
 
-                    Logger.LogInformation("Trimming application binaries...");
-                    await packageManager.TrimApplication(new FileInfo(Path.Combine(folder, "App.dll")), osVersion, isDebugging, cancellationToken: CancelToken);
+                //FIXME: without this delay, the debugger will fail to connect
+                await Task.Delay(1500, CancelToken);
 
-                    Logger.LogInformation("Deploying application...");
-                    await AppManager.DeployApplication(packageManager, meadowConnection, osVersion, folder, isDebugging, false, Logger, CancelToken);
-
-                    //FIXME: without this delay, the debugger will fail to connect
-                    await Task.Delay(1500);
-
-                    await meadowConnection.RuntimeEnable();
-                }
-                finally
-                {
-                    meadowConnection.FileWriteProgress -= MeadowConnection_DeploymentProgress;
-                }
-                return meadowConnection;
+                await meadowConnection.RuntimeEnable(CancelToken);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Error deploying application: {ex.Message}{Environment.NewLine}StackTrace: {ex.StackTrace}");
+                throw;
+            }
+            finally
+            {
+                meadowConnection.FileWriteProgress -= MeadowConnection_DeploymentProgress;
+            }
+            return meadowConnection;
         }
 
-        private async void MeadowConnection_DeviceMessageReceived(object sender, (string message, string source) e)
+        private void MeadowConnection_DeviceMessageReceived(object sender, (string message, string source) e)
         {
             if (Logger is DebugSessionLogger logger)
             {
-                await logger.ReportDeviceMessage(e.source, e.message);
+                logger.ReportDeviceMessage(e.source, e.message);
             }
         }
 
-        private async void MeadowConnection_DeploymentProgress(object sender, (string fileName, long completed, long total) e)
+        private void MeadowConnection_DeploymentProgress(object sender, (string fileName, long completed, long total) e)
         {
             var p = (uint)((e.completed / (double)e.total) * 100d);
 
             if (Logger is DebugSessionLogger logger)
             {
-                await logger.ReportFileProgress(e.fileName, p);
+                logger.ReportFileProgress(e.fileName, p);
             }
- 
+
             // TODO DebugSession.SendEvent(new UpdateProgressBarEvent(e.fileName, p));
         }
     }
