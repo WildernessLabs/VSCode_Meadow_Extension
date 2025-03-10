@@ -131,7 +131,8 @@ namespace VsCodeMeadowUtil
                 logger.ReportFileProgress(e.fileName, p);
             }
 
-            // TODO DebugSession.SendEvent(new UpdateProgressBarEvent(e.fileName, p));
+            // Send progress update to VSCode
+            DebugSession.SendEvent(new UpdateProgressBarEvent(e.fileName, p));
         }
     }
 }
