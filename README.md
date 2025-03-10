@@ -117,7 +117,7 @@ You can refresh the list of attached devices by using the following short-cut on
 - macOS use: `Cmd+Alt+Shift+R`
 - Other platforms use: `Ctrl+Alt+Shift+R`
 
-or search for the select device command by pressing `Ctrl+Shift+P` and typing "Meadow" when prompted
+or search for the Refresh Device List command by pressing `Ctrl+Shift+P` and typing "Meadow" when prompted
 
 ### Toggle the Build Configuration
 

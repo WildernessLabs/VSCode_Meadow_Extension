@@ -135,7 +135,7 @@
 			},
 			{
 				"command": "meadow.refreshDeviceList",
-				"title": "Meadow: Select device"
+				"title": "Meadow: Refresh Device List"
 			},
 			{
 				"command": "meadow.toggleBuildConfiguration",
