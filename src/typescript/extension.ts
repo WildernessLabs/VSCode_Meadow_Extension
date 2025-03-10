@@ -86,12 +86,12 @@ export function activate(context: vscode.ExtensionContext) {
 
 // Function to update progress dynamically
 function updateProgress(progress, fileName, percentage) {
-    progress.report({ increment: percentage, message: `Transferring ${fileName}` });
+    progress.report({ increment: percentage, message: "Transferring ${fileName}" });
 
     // Optionally complete the progress bar when 100% is reached
     if (percentage >= 100 && progressResolver) {
         progressResolver();  // Ends the progress bar
-        console.log(`File transfer complete: ${fileName}`);
+        console.log("File transfer complete: ${fileName}");
     }
 }
 
@@ -179,7 +179,7 @@ function getModel(): ExceptionConfigurations {
 	for (var exception in model) {
 		exceptionItems.push({
 			label: exception,
-			description: model[exception] !== 'never' ? `⚡ ${translate(model[exception])}` : ''
+			description: model[exception] !== 'never' ? "⚡ ${translate(model[exception])}" : ''
 		});
 	}
 
