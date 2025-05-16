@@ -61,35 +61,27 @@ namespace VsCodeMeadowUtil
                     meadowConnection = null;
                 }
 
+                Logger?.LogInformation("Connecting to Meadow...");
                 meadowConnection = connectionManager.GetConnectionForRoute(PortName);
 
                 meadowConnection.FileWriteProgress += MeadowConnection_DeploymentProgress;
                 meadowConnection.DeviceMessageReceived += MeadowConnection_DeviceMessageReceived;
 
-                await meadowConnection.WaitForMeadowAttach();
+                Logger?.LogInformation("Checking runtime state...");
+                await meadowConnection.WaitForMeadowAttach(CancelToken);
 
-                if (await meadowConnection.IsRuntimeEnabled() == true)
+                if (await meadowConnection.IsRuntimeEnabled(CancelToken))
                 {
-                    await meadowConnection.RuntimeDisable();
+                    Logger?.LogInformation("Disabling runtime...");
+                    await meadowConnection.RuntimeDisable(CancelToken);
                 }
 
                 var deviceInfo = await meadowConnection?.GetDeviceInfo(CancelToken);
                 string osVersion = deviceInfo?.OsVersion;
+                Logger?.LogInformation($"Found Meadow with OS v{osVersion}");
 
                 var fileManager = new FileManager(null);
                 await fileManager.Refresh();
-
-                var collection = fileManager.Firmware["Meadow F7"];
-
-                //wrap this is a try/catch so it doesn't crash if the developer is offline
-                try
-                {
-                    // TODO Download OS once we have a valie MeadowCloudClient
-                }
-                catch (Exception e)
-                {
-                    Logger?.LogInformation($"OS download failed, make sure you have an active internet connection.{Environment.NewLine}{e.Message}");
-                }
 
                 try
                 {
@@ -102,9 +94,9 @@ namespace VsCodeMeadowUtil
                     await AppManager.DeployApplication(packageManager, meadowConnection, osVersion, folder, isDebugging, false, Logger, CancelToken);
 
                     //FIXME: without this delay, the debugger will fail to connect
-                    await Task.Delay(1500);
+                    await Task.Delay(1500, CancelToken);
 
-                    await meadowConnection.RuntimeEnable();
+                    await meadowConnection.RuntimeEnable(CancelToken);
                 }
                 finally
                 {
