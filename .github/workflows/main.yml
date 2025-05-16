@@ -44,7 +44,7 @@ jobs:
       with:
         repository: WildernessLabs/Meadow.Contracts
         path: Meadow.Contracts
-        ref: main
+        ref: develop
 
     - name: Setup .NET 8.0.x
       uses: actions/setup-dotnet@v4
