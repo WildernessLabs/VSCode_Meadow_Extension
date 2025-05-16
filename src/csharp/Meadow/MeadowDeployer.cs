@@ -69,20 +69,24 @@ namespace VsCodeMeadowUtil
                 meadowConnection = null;
             }
 
+            Logger?.LogInformation("Connecting to Meadow...");
             meadowConnection = connectionManager.GetConnectionForRoute(PortName);
 
             meadowConnection.FileWriteProgress += MeadowConnection_DeploymentProgress;
             meadowConnection.DeviceMessageReceived += MeadowConnection_DeviceMessageReceived;
 
+            Logger?.LogInformation("Checking runtime state...");
             await meadowConnection.WaitForMeadowAttach(CancelToken);
 
-            if (await meadowConnection.IsRuntimeEnabled(CancelToken) == true)
+            if (await meadowConnection.IsRuntimeEnabled(CancelToken))
             {
+                Logger?.LogInformation("Disabling runtime...");
                 await meadowConnection.RuntimeDisable(CancelToken);
             }
 
             var deviceInfo = await meadowConnection?.GetDeviceInfo(CancelToken);
             string osVersion = deviceInfo?.OsVersion;
+            Logger?.LogInformation($"Found Meadow with OS v{osVersion}");
 
             var fileManager = new FileManager(null);
             await fileManager.Refresh();
@@ -91,8 +95,8 @@ namespace VsCodeMeadowUtil
             {
                 var packageManager = new PackageManager(fileManager);
 
-                Logger.LogInformation("Trimming application binaries...");
-                await packageManager.TrimApplication(new FileInfo(Path.Combine(folder, "App.dll")), osVersion, isDebugging, cancellationToken: CancelToken);
+            //FIXME: without this delay, the debugger will fail to connect
+            await Task.Delay(1500, CancelToken);
 
                 Logger.LogInformation("Deploying application...");
                 await AppManager.DeployApplication(packageManager, meadowConnection, osVersion, folder, isDebugging, false, Logger, CancelToken);
@@ -101,11 +105,6 @@ namespace VsCodeMeadowUtil
                 await Task.Delay(1500, CancelToken);
 
                 await meadowConnection.RuntimeEnable(CancelToken);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError($"Error deploying application: {ex.Message}{Environment.NewLine}StackTrace: {ex.StackTrace}");
-                throw;
             }
             finally
             {
