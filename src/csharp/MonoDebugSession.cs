@@ -229,7 +229,7 @@ namespace VSCodeDebug
 
 				if (isDebugging)
 				{
-					var meadowDebuggingServerTask = meadowConnection.StartDebuggingSession(launchOptions.DebugPort, logger, ctsDeployMeadow.Token);
+					var meadowDebuggingServerTask = meadowConnection.StartDebuggingSession(launchOptions.DebugPort, logger, ctsDeployMeadow.Token, "VSCode");
 
 					_attachMode = true;
 					Log($"Connecting to debugger: {address}:{launchOptions.DebugPort}");
