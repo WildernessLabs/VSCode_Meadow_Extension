@@ -234,7 +234,7 @@ namespace VSCodeDebug
 					_attachMode = true;
 					Log($"Connecting to debugger: {address}:{launchOptions.DebugPort}");
 
-					Connect(IPAddress.Loopback, launchOptions.DebugPort);
+					Connect(address, launchOptions.DebugPort);
 					await meadowDebuggingServerTask;
 				}
 
