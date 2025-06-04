@@ -1,6 +1,6 @@
 name: VSCode Extension
 env:
-  IDE_TOOLS_RELEASE_VERSION: 2.0.0
+  IDE_TOOLS_RELEASE_VERSION: 2.2.0
 
 on:
   push:
@@ -44,7 +44,7 @@ jobs:
       with:
         repository: WildernessLabs/Meadow.Contracts
         path: Meadow.Contracts
-        ref: main
+        ref: develop
 
     - name: Setup .NET 8.0.x
       uses: actions/setup-dotnet@v4
