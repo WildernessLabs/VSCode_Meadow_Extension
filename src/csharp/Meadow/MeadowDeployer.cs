@@ -70,10 +70,7 @@ namespace VsCodeMeadowUtil
             }
             
             Logger?.LogInformation("Connecting to Meadow...");
-            meadowConnection = connectionManager.GetConnectionForRoute(PortName);
-
-            Logger?.LogInformation("Checking runtime state...");
-            await meadowConnection.WaitForMeadowAttach(CancelToken);
+            meadowConnection = connectionManager.GetConnection(PortName);
 
             if (await meadowConnection.IsRuntimeEnabled(CancelToken))
             {
@@ -96,6 +93,10 @@ namespace VsCodeMeadowUtil
                 await packageManager.TrimApplication(new FileInfo(Path.Combine(folder, "App.dll")), osVersion, isDebugging, cancellationToken: CancelToken);
 
                 Logger.LogInformation("Deploying application...");
+                await AppManager.DeployApplication(packageManager, meadowConnection, osVersion, folder, isDebugging, false, Logger, CancelToken);
+
+                await packageManager.TrimApplication(new FileInfo(Path.Combine(folder, "App.dll")), osVersion, isDebugging, cancellationToken: CancelToken);
+
                 await AppManager.DeployApplication(packageManager, meadowConnection, osVersion, folder, isDebugging, false, Logger, CancelToken);
 
                 //FIXME: without this delay, the debugger will fail to connect
