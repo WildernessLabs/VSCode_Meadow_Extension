@@ -29,9 +29,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	this.MeadowProjectManager = new MeadowProjectManager(context);
 
-	if (MeadowProjectManager.Shared.HasSupportedProjects) {
-		this.meadowBuildTaskProvider = vscode.tasks.registerTaskProvider(MeadowBuildTaskProvider.MeadowBuildScriptType, new MeadowBuildTaskProvider(context));
-	}
+	this.meadowBuildTaskProvider = vscode.tasks.registerTaskProvider(MeadowBuildTaskProvider.MeadowBuildScriptType, new MeadowBuildTaskProvider(context));
 	
 	//context.subscriptions.push(vscode.commands.registerCommand('extension.meadow.configureExceptions', () => configureExceptions()));
 	context.subscriptions.push(vscode.commands.registerCommand('extension.meadow.startSession', config => startSession(config)));
