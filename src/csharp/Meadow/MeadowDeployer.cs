@@ -100,7 +100,7 @@ namespace VsCodeMeadowUtil
             try
             {
                 var packageManager = new PackageManager(fileManager);
-
+                
                 await packageManager.TrimApplication(new FileInfo(Path.Combine(folder, "App.dll")), osVersion, isDebugging, cancellationToken: CancelToken);
 
                 await AppManager.DeployApplication(packageManager, meadowConnection, osVersion, folder, isDebugging, false, Logger, CancelToken);
