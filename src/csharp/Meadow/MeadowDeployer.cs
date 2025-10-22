@@ -72,6 +72,18 @@ namespace VsCodeMeadowUtil
             Logger?.LogInformation("Connecting to Meadow...");
             meadowConnection = connectionManager.GetConnection(PortName);
 
+            if (meadowConnection == null)
+            {
+                Logger?.LogError("No Meadow Connection available.");
+                return null;
+            }
+
+            meadowConnection.FileWriteProgress += MeadowConnection_DeploymentProgress;
+            meadowConnection.DeviceMessageReceived += MeadowConnection_DeviceMessageReceived;
+
+            Logger?.LogInformation("Checking runtime state...");
+            await meadowConnection.WaitForMeadowAttach(CancelToken);
+
             if (await meadowConnection.IsRuntimeEnabled(CancelToken))
             {
                 Logger?.LogInformation("Disabling runtime...");
@@ -88,12 +100,6 @@ namespace VsCodeMeadowUtil
             try
             {
                 var packageManager = new PackageManager(fileManager);
-
-            //FIXME: without this delay, the debugger will fail to connect
-            await Task.Delay(1500, CancelToken);
-
-                Logger.LogInformation("Deploying application...");
-                await AppManager.DeployApplication(packageManager, meadowConnection, osVersion, folder, isDebugging, false, Logger, CancelToken);
 
                 await packageManager.TrimApplication(new FileInfo(Path.Combine(folder, "App.dll")), osVersion, isDebugging, cancellationToken: CancelToken);
 
@@ -127,9 +133,8 @@ namespace VsCodeMeadowUtil
             {
                 logger.ReportFileProgress(e.fileName, p);
             }
-
-            // Send progress update to VSCode
-            DebugSession.SendEvent(new UpdateProgressBarEvent(e.fileName, p));
+            
+            // TODO DebugSession.SendEvent(new UpdateProgressBarEvent(e.fileName, p));
         }
     }
 }
