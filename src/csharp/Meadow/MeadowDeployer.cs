@@ -54,53 +54,59 @@ namespace VsCodeMeadowUtil
 
         public async Task<IMeadowConnection> Deploy(string folder, bool isDebugging)
         {
-                if (meadowConnection != null)
-                {
-                    meadowConnection.FileWriteProgress -= MeadowConnection_DeploymentProgress;
-                    meadowConnection.DeviceMessageReceived -= MeadowConnection_DeviceMessageReceived;
-                    meadowConnection = null;
-                }
+            if (meadowConnection != null)
+            {
+                meadowConnection.FileWriteProgress -= MeadowConnection_DeploymentProgress;
+                meadowConnection.DeviceMessageReceived -= MeadowConnection_DeviceMessageReceived;
+                meadowConnection = null;
+            }
 
-                Logger?.LogInformation("Connecting to Meadow...");
-                meadowConnection = connectionManager.GetConnection(PortName);
+            Logger?.LogInformation("Connecting to Meadow...");
+            meadowConnection = connectionManager.GetConnection(PortName);
 
-                meadowConnection.FileWriteProgress += MeadowConnection_DeploymentProgress;
-                meadowConnection.DeviceMessageReceived += MeadowConnection_DeviceMessageReceived;
+            if (meadowConnection == null)
+            {
+                Logger?.LogError("No Meadow Connection available.");
+                return null;
+            }
 
-                Logger?.LogInformation("Checking runtime state...");
-                await meadowConnection.WaitForMeadowAttach(CancelToken);
+            meadowConnection.FileWriteProgress += MeadowConnection_DeploymentProgress;
+            meadowConnection.DeviceMessageReceived += MeadowConnection_DeviceMessageReceived;
 
-                if (await meadowConnection.IsRuntimeEnabled(CancelToken))
-                {
-                    Logger?.LogInformation("Disabling runtime...");
-                    await meadowConnection.RuntimeDisable(CancelToken);
-                }
+            Logger?.LogInformation("Checking runtime state...");
+            await meadowConnection.WaitForMeadowAttach(CancelToken);
 
-                var deviceInfo = await meadowConnection?.GetDeviceInfo(CancelToken);
-                string osVersion = deviceInfo?.OsVersion;
-                Logger?.LogInformation($"Found Meadow with OS v{osVersion}");
+            if (await meadowConnection.IsRuntimeEnabled(CancelToken))
+            {
+                Logger?.LogInformation("Disabling runtime...");
+                await meadowConnection.RuntimeDisable(CancelToken);
+            }
 
-                var fileManager = new FileManager(null);
-                await fileManager.Refresh();
+            var deviceInfo = await meadowConnection?.GetDeviceInfo(CancelToken);
+            string osVersion = deviceInfo?.OsVersion;
+            Logger?.LogInformation($"Found Meadow with OS v{osVersion}");
 
-                try
-                {
-                    var packageManager = new PackageManager(fileManager);
+            var fileManager = new FileManager(null);
+            await fileManager.Refresh();
 
-                    await packageManager.TrimApplication(new FileInfo(Path.Combine(folder, "App.dll")), osVersion, isDebugging, cancellationToken: CancelToken);
+            try
+            {
+                var packageManager = new PackageManager(fileManager);
 
-                    await AppManager.DeployApplication(packageManager, meadowConnection, osVersion, folder, isDebugging, false, Logger, CancelToken);
+                await packageManager.TrimApplication(new FileInfo(Path.Combine(folder, "App.dll")), osVersion, isDebugging, cancellationToken: CancelToken);
 
-                    //FIXME: without this delay, the debugger will fail to connect
-                    await Task.Delay(1500, CancelToken);
+                await AppManager.DeployApplication(packageManager, meadowConnection, osVersion, folder, isDebugging, false, Logger, CancelToken);
 
-                    await meadowConnection.RuntimeEnable(CancelToken);
-                }
-                finally
-                {
-                    meadowConnection.FileWriteProgress -= MeadowConnection_DeploymentProgress;
-                }
-                return meadowConnection;
+                //FIXME: without this delay, the debugger will fail to connect
+                await Task.Delay(1500, CancelToken);
+
+                await meadowConnection.RuntimeEnable(CancelToken);
+            }
+            finally
+            {
+                meadowConnection.FileWriteProgress -= MeadowConnection_DeploymentProgress;
+            }
+            return meadowConnection;
         }
 
         private async void MeadowConnection_DeviceMessageReceived(object sender, (string message, string source) e)
@@ -119,7 +125,7 @@ namespace VsCodeMeadowUtil
             {
                 await logger.ReportFileProgress(e.fileName, p);
             }
- 
+
             // TODO DebugSession.SendEvent(new UpdateProgressBarEvent(e.fileName, p));
         }
     }
