@@ -28,6 +28,8 @@ namespace VsCodeMeadowUtil
 
         IMeadowConnection meadowConnection = null;
 
+        private bool disposed = false;
+
         public MeadowDeployer(MonoDebugSession monoDebugSession, ILogger logger, string portName, CancellationToken cancellationToken)
         {
             Logger = logger;
@@ -37,18 +39,24 @@ namespace VsCodeMeadowUtil
             this.connectionManager = new MeadowConnectionManager(settingsManager);
         }
 
-        public async void Dispose()
+        public void Dispose()
         {
-            try
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
             {
-                await meadowConnection?.RuntimeDisable(CancelToken);
-            }
-            catch
-            {
-            }
-            finally
-            {
-                meadowConnection = null;
+                if (disposing)
+                {
+                    // Dispose managed resources
+                    meadowConnection?.RuntimeDisable(CancelToken).GetAwaiter().GetResult();
+                    meadowConnection = null;
+                }
+                // Dispose unmanaged resources
+                disposed = true;
             }
         }
 
@@ -109,23 +117,23 @@ namespace VsCodeMeadowUtil
             return meadowConnection;
         }
 
-        private async void MeadowConnection_DeviceMessageReceived(object sender, (string message, string source) e)
+        private void MeadowConnection_DeviceMessageReceived(object sender, (string message, string source) e)
         {
             if (Logger is DebugSessionLogger logger)
             {
-                await logger.ReportDeviceMessage(e.source, e.message);
+                logger.ReportDeviceMessage(e.source, e.message);
             }
         }
 
-        private async void MeadowConnection_DeploymentProgress(object sender, (string fileName, long completed, long total) e)
+        private void MeadowConnection_DeploymentProgress(object sender, (string fileName, long completed, long total) e)
         {
             var p = (uint)((e.completed / (double)e.total) * 100d);
 
             if (Logger is DebugSessionLogger logger)
             {
-                await logger.ReportFileProgress(e.fileName, p);
+                logger.ReportFileProgress(e.fileName, p);
             }
-
+            
             // TODO DebugSession.SendEvent(new UpdateProgressBarEvent(e.fileName, p));
         }
     }

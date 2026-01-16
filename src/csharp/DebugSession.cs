@@ -184,8 +184,8 @@ namespace VSCodeDebug
 	public class UpdateProgressBarEvent : Event
     {
         public UpdateProgressBarEvent(string fileName, uint percent) 
-            : base("updateProgressBar", new {
-				filename = fileName,
+            : base("extension.meadow.updateProgressBar", new {
+				fileName = fileName,
 				percentage = percent
 			})
         {
