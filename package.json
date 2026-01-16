@@ -21,10 +21,9 @@
 	},
 	"engines": {
 		"vscode": "^1.81.1",
-		"node": "^6.3.0"
+		"node": ">=18.0.0"
 	},
 	"dependencies": {
-		"@types/execa": "^2.0.0",
 		"@types/lodash": "^4.14.168",
 		"@types/serialport": "^8.0.2",
 		"@types/vscode": "^1.75.1",
