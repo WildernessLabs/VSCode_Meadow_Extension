@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Linq;
 using System.Net;
 using VsCodeMeadowUtil;
@@ -229,12 +230,33 @@ namespace VSCodeDebug
 
 				if (isDebugging)
 				{
-					var meadowDebuggingServerTask = meadowConnection.StartDebuggingSession(launchOptions.DebugPort, logger, ctsDeployMeadow.Token, "VSCode");
-
 					_attachMode = true;
-					Log($"Connecting to debugger: {address}:{launchOptions.DebugPort}");
 
+					// Start the debugging session in a background task.
+					// StartDebuggingSession internally:
+					//   1. Starts a TCP listener on the debug port
+					//   2. Waits for a client (us) to connect
+					//   3. Then tells the device to start debugging
+					// We must connect AFTER the listener starts but BEFORE it times out waiting.
+					var meadowDebuggingServerTask = Task.Run(async () =>
+					{
+						try
+						{
+							await meadowConnection.StartDebuggingSession(launchOptions.DebugPort, logger, ctsDeployMeadow.Token, "VSCode");
+						}
+						catch (Exception ex)
+						{
+							Log($"Debugging session error: {ex.Message}");
+						}
+					}, ctsDeployMeadow.Token);
+
+					// Give the TCP listener time to start before we try to connect
+					await Task.Delay(250, ctsDeployMeadow.Token);
+
+					Log($"Connecting to debugger: {address}:{launchOptions.DebugPort}");
 					Connect(address, launchOptions.DebugPort);
+
+					// Wait for the debugging session to be fully established
 					await meadowDebuggingServerTask;
 				}
 
