@@ -7,7 +7,6 @@
 import * as vscode from 'vscode';
 import { MeadowProjectManager } from "./meadow-project-manager";
 import { MeadowConfigurationProvider } from "./meadow-configuration";
-import { OutputChannel } from 'vscode';
 import { MeadowBuildTaskProvider } from './meadow-build-task';
 import { DebugProtocol } from '@vscode/debugprotocol';
 import * as nls from 'vscode-nls';
@@ -16,7 +15,6 @@ const localize = nls.config({ locale: process.env.VSCODE_NLS_CONFIG })();
 
 const meadowConfiguration = vscode.workspace.getConfiguration('meadow');
 
-let meadowOutputChannel: OutputChannel = null;
 let meadowProgressBar: any = null;
 
 let progressResolver;
@@ -27,8 +25,6 @@ export const isMacOS = process.platform == "darwin";
 export const isLinux = process.platform == "linux";
 
 export function activate(context: vscode.ExtensionContext) {
-	meadowOutputChannel = vscode.window.createOutputChannel("Meadow");
-
 	this.MeadowProjectManager = new MeadowProjectManager(context);
 
 	this.meadowBuildTaskProvider = vscode.tasks.registerTaskProvider(MeadowBuildTaskProvider.MeadowBuildScriptType, new MeadowBuildTaskProvider(context));
@@ -70,6 +66,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 		if (type === "meadow") {
 			currentDebugSession = s;
+			// Focus the Debug Console when debugging starts
+			vscode.commands.executeCommand('workbench.debug.action.focusRepl');
 		}
 	}));
 
