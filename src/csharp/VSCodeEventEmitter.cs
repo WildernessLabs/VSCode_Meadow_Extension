@@ -38,6 +38,12 @@ namespace VSCodeDebug
 
         public void EmitDeviceMessage(string source, string message)
         {
+            // Ensure message ends with newline for proper formatting
+            if (!message.EndsWith("\n"))
+            {
+                message += "\n";
+            }
+
             // Route based on source type - device messages typically go to Meadow output
             if (source.StartsWith("stdout", StringComparison.OrdinalIgnoreCase) ||
                 source.StartsWith("info", StringComparison.OrdinalIgnoreCase))

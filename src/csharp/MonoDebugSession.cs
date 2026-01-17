@@ -12,6 +12,7 @@ using System.Net;
 using VsCodeMeadowUtil;
 using Mono.Debugging.Client;
 using Meadow.Hcom;
+using Meadow.Debugging.Core.Deployment;
 using Meadow.Debugging.Core.Events;
 
 namespace VSCodeDebug
@@ -221,15 +222,16 @@ namespace VSCodeDebug
 			var errorMsg = string.Empty;
 
 			try {
-				
+
 				var logger = new DebugSessionLogger(l => Log(l));
+				var deploymentCallbacks = new DeploymentCallbackAdapter(_eventEmitter);
 
 				var isDebugging = launchOptions.DebugPort > 1024;
-				
-				// DEPLOY
-				meadowDeployer = new MeadowDeployer(this, logger, launchOptions.Serial, ctsDeployMeadow.Token);
 
-				var meadowConnection = await meadowDeployer.Deploy(fullOutputPath, isDebugging);
+				// DEPLOY
+				meadowDeployer = new MeadowDeployer(deploymentCallbacks, logger, launchOptions.Serial, ctsDeployMeadow.Token);
+
+				var meadowConnection = await meadowDeployer.DeployAsync(fullOutputPath, isDebugging);
 
 				if (isDebugging)
 				{

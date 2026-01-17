@@ -1,42 +1,147 @@
-﻿using System;
+#nullable enable
+using System;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Meadow;
 using Meadow.CLI;
 using Meadow.CLI.Commands.DeviceManagement;
-using Meadow.Cloud.Client;
+using Meadow.Debugging.Core.Deployment;
 using Meadow.Hcom;
 using Meadow.Package;
 using Meadow.Software;
 using Microsoft.Extensions.Logging;
-using VSCodeDebug;
 
 namespace VsCodeMeadowUtil
 {
-    public class MeadowDeployer : IDisposable
+    /// <summary>
+    /// Deploys applications to Meadow devices.
+    /// Implements IDeploymentOrchestrator for use by any IDE (VSCode, Visual Studio, Rider).
+    /// </summary>
+    public class MeadowDeployer : IDeploymentOrchestrator
     {
-        public ILogger Logger { get; private set; }
-        public string PortName { get; private set; }
-        public CancellationToken CancelToken { get; private set; }
+        private readonly IDeploymentCallbacks _callbacks;
+        private readonly ILogger _logger;
+        private readonly CancellationToken _cancellationToken;
+        private readonly SettingsManager _settingsManager;
+        private readonly MeadowConnectionManager _connectionManager;
 
-        public MonoDebugSession DebugSession { get; private set; }
+        private IMeadowConnection? _meadowConnection;
+        private bool _disposed;
 
-        private readonly SettingsManager settingsManager = new SettingsManager();
-        private readonly MeadowConnectionManager connectionManager = null;
+        public string PortName { get; }
 
-        IMeadowConnection meadowConnection = null;
-
-        private bool disposed = false;
-
-        public MeadowDeployer(MonoDebugSession monoDebugSession, ILogger logger, string portName, CancellationToken cancellationToken)
+        /// <summary>
+        /// Create a new MeadowDeployer.
+        /// </summary>
+        /// <param name="callbacks">Callbacks for deployment events</param>
+        /// <param name="logger">Logger instance</param>
+        /// <param name="portName">Serial port name</param>
+        /// <param name="cancellationToken">Cancellation token</param>
+        public MeadowDeployer(
+            IDeploymentCallbacks callbacks,
+            ILogger logger,
+            string portName,
+            CancellationToken cancellationToken)
         {
-            Logger = logger;
-            PortName = portName;
-            CancelToken = cancellationToken;
-            DebugSession = monoDebugSession;
-            this.connectionManager = new MeadowConnectionManager(settingsManager);
+            _callbacks = callbacks ?? throw new ArgumentNullException(nameof(callbacks));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            PortName = portName ?? throw new ArgumentNullException(nameof(portName));
+            _cancellationToken = cancellationToken;
+
+            _settingsManager = new SettingsManager();
+            _connectionManager = new MeadowConnectionManager(_settingsManager);
+        }
+
+        public async Task<IMeadowConnection?> DeployAsync(string folder, bool isDebugging)
+        {
+            // Clean up previous connection
+            if (_meadowConnection != null)
+            {
+                _meadowConnection.FileWriteProgress -= OnFileWriteProgress;
+                _meadowConnection.DeviceMessageReceived -= OnDeviceMessageReceived;
+                _meadowConnection = null;
+            }
+
+            _logger.LogInformation("Connecting to Meadow...");
+
+            _meadowConnection = _connectionManager.GetConnection(PortName);
+
+            if (_meadowConnection == null)
+            {
+                _callbacks.OnError("No Meadow Connection available.");
+                _logger.LogError("No Meadow Connection available.");
+                return null;
+            }
+
+            _meadowConnection.FileWriteProgress += OnFileWriteProgress;
+            _meadowConnection.DeviceMessageReceived += OnDeviceMessageReceived;
+
+            try
+            {
+                _logger.LogInformation("Checking runtime state...");
+                await _meadowConnection.WaitForMeadowAttach(_cancellationToken);
+
+                if (await _meadowConnection.IsRuntimeEnabled(_cancellationToken))
+                {
+                    _logger.LogInformation("Disabling runtime...");
+                    await _meadowConnection.RuntimeDisable(_cancellationToken);
+                }
+
+                var deviceInfo = await _meadowConnection.GetDeviceInfo(_cancellationToken);
+                string osVersion = deviceInfo?.OsVersion ?? string.Empty;
+
+                _logger.LogInformation($"Found Meadow with OS v{osVersion}");
+
+                var fileManager = new FileManager(null!);
+                await fileManager.Refresh();
+
+                var packageManager = new PackageManager(fileManager);
+
+                await packageManager.TrimApplication(
+                    new FileInfo(Path.Combine(folder, "App.dll")),
+                    osVersion,
+                    isDebugging,
+                    cancellationToken: _cancellationToken);
+
+                await AppManager.DeployApplication(
+                    packageManager,
+                    _meadowConnection,
+                    osVersion,
+                    folder,
+                    isDebugging,
+                    false,
+                    _logger,
+                    _cancellationToken);
+
+                // Required delay before runtime enable
+                await Task.Delay(1500, _cancellationToken);
+
+                await _meadowConnection.RuntimeEnable(_cancellationToken);
+
+                return _meadowConnection;
+            }
+            catch (Exception ex)
+            {
+                _callbacks.OnError($"Deployment failed: {ex.Message}", ex);
+                throw;
+            }
+            finally
+            {
+                if (_meadowConnection != null)
+                {
+                    _meadowConnection.FileWriteProgress -= OnFileWriteProgress;
+                }
+            }
+        }
+
+        private void OnFileWriteProgress(object? sender, (string fileName, long completed, long total) e)
+        {
+            _callbacks.OnFileProgress(e.fileName, e.completed, e.total);
+        }
+
+        private void OnDeviceMessageReceived(object? sender, (string message, string? source) e)
+        {
+            _callbacks.OnDeviceMessage(e.source ?? "unknown", e.message);
         }
 
         public void Dispose()
@@ -47,94 +152,27 @@ namespace VsCodeMeadowUtil
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposed)
+            if (!_disposed)
             {
                 if (disposing)
                 {
-                    // Dispose managed resources
-                    meadowConnection?.RuntimeDisable(CancelToken).GetAwaiter().GetResult();
-                    meadowConnection = null;
+                    if (_meadowConnection != null)
+                    {
+                        _meadowConnection.FileWriteProgress -= OnFileWriteProgress;
+                        _meadowConnection.DeviceMessageReceived -= OnDeviceMessageReceived;
+                        try
+                        {
+                            _meadowConnection.RuntimeDisable(_cancellationToken).GetAwaiter().GetResult();
+                        }
+                        catch
+                        {
+                            // Ignore errors during cleanup
+                        }
+                        _meadowConnection = null;
+                    }
                 }
-                // Dispose unmanaged resources
-                disposed = true;
+                _disposed = true;
             }
-        }
-
-        public async Task<IMeadowConnection> Deploy(string folder, bool isDebugging)
-        {
-            if (meadowConnection != null)
-            {
-                meadowConnection.FileWriteProgress -= MeadowConnection_DeploymentProgress;
-                meadowConnection.DeviceMessageReceived -= MeadowConnection_DeviceMessageReceived;
-                meadowConnection = null;
-            }
-
-            Logger?.LogInformation("Connecting to Meadow...");
-            meadowConnection = connectionManager.GetConnection(PortName);
-
-            if (meadowConnection == null)
-            {
-                Logger?.LogError("No Meadow Connection available.");
-                return null;
-            }
-
-            meadowConnection.FileWriteProgress += MeadowConnection_DeploymentProgress;
-            meadowConnection.DeviceMessageReceived += MeadowConnection_DeviceMessageReceived;
-
-            Logger?.LogInformation("Checking runtime state...");
-            await meadowConnection.WaitForMeadowAttach(CancelToken);
-
-            if (await meadowConnection.IsRuntimeEnabled(CancelToken))
-            {
-                Logger?.LogInformation("Disabling runtime...");
-                await meadowConnection.RuntimeDisable(CancelToken);
-            }
-
-            var deviceInfo = await meadowConnection?.GetDeviceInfo(CancelToken);
-            string osVersion = deviceInfo?.OsVersion;
-            Logger?.LogInformation($"Found Meadow with OS v{osVersion}");
-
-            var fileManager = new FileManager(null);
-            await fileManager.Refresh();
-
-            try
-            {
-                var packageManager = new PackageManager(fileManager);
-
-                await packageManager.TrimApplication(new FileInfo(Path.Combine(folder, "App.dll")), osVersion, isDebugging, cancellationToken: CancelToken);
-
-                await AppManager.DeployApplication(packageManager, meadowConnection, osVersion, folder, isDebugging, false, Logger, CancelToken);
-
-                //FIXME: without this delay, the debugger will fail to connect
-                await Task.Delay(1500, CancelToken);
-
-                await meadowConnection.RuntimeEnable(CancelToken);
-            }
-            finally
-            {
-                meadowConnection.FileWriteProgress -= MeadowConnection_DeploymentProgress;
-            }
-            return meadowConnection;
-        }
-
-        private void MeadowConnection_DeviceMessageReceived(object sender, (string message, string source) e)
-        {
-            if (Logger is DebugSessionLogger logger)
-            {
-                logger.ReportDeviceMessage(e.source, e.message);
-            }
-        }
-
-        private void MeadowConnection_DeploymentProgress(object sender, (string fileName, long completed, long total) e)
-        {
-            var p = (uint)((e.completed / (double)e.total) * 100d);
-
-            if (Logger is DebugSessionLogger logger)
-            {
-                logger.ReportFileProgress(e.fileName, p);
-            }
-            
-            // TODO DebugSession.SendEvent(new UpdateProgressBarEvent(e.fileName, p));
         }
     }
 }
