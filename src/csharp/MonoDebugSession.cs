@@ -12,6 +12,7 @@ using System.Net;
 using VsCodeMeadowUtil;
 using Mono.Debugging.Client;
 using Meadow.Hcom;
+using Meadow.Debugging.Core.Events;
 
 namespace VSCodeDebug
 {
@@ -53,12 +54,14 @@ namespace VSCodeDebug
 		MeadowDeployer meadowDeployer;
 		DebuggingServer meadowDebuggingServer;
 		string previousLogMessage = string.Empty;
+		private readonly IDebugEventEmitter _eventEmitter;
 
 		public MonoDebugSession() : base()
 		{
 			_variableHandles = new Handles<ObjectValue[]>();
 			_frameHandles = new Handles<Mono.Debugging.Client.StackFrame>();
 			_seenThreads = new Dictionary<int, Thread>();
+			_eventEmitter = new VSCodeEventEmitter(this);
 
 			_debuggerSessionOptions = new DebuggerSessionOptions {
 				EvaluationOptions = EvaluationOptions.DefaultOptions
@@ -292,13 +295,13 @@ namespace VSCodeDebug
 						{
 							output += spliter[i];
 						}
-						SendEvent(new MeadowOutputEvent(output + Environment.NewLine));
+						_eventEmitter.EmitOutput(OutputCategory.Meadow, output + Environment.NewLine);
 					}
 				}
 				else
 				{
-					// This appears in yellow as it's is comming from VS
-					SendEvent(new ConsoleOutputEvent(message + Environment.NewLine));
+					// This appears in yellow as it's coming from VS
+					_eventEmitter.EmitOutput(OutputCategory.Console, message + Environment.NewLine);
 				}
 
 				previousLogMessage = message;
@@ -764,12 +767,12 @@ namespace VSCodeDebug
 
 				if(category.Contains("stdout") || category.Contains("stderr")) {
 					// This appears in the "Meadow" tab
-					SendEvent(new MeadowOutputEvent(data));
+					_eventEmitter.EmitOutput(OutputCategory.Meadow, data);
 				}
 				else
 				{
 					// This appears in the "Console" tab
-					SendEvent(new ConsoleOutputEvent(data + Environment.NewLine));
+					_eventEmitter.EmitOutput(OutputCategory.Console, data + Environment.NewLine);
 				}
 			}
 		}
