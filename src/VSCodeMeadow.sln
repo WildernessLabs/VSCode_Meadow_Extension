@@ -24,6 +24,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.SoftwareManager", ".
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.Cloud.Client", "..\..\Meadow.CLI\Source\Meadow.Cloud.Client\Meadow.Cloud.Client.csproj", "{7820644F-8B87-4864-81B4-A8CB5859A71C}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Meadow.Debugging.Core", "csharp\Meadow.Debugging.Core\Meadow.Debugging.Core.csproj", "{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Meadow.Debugging.DAP", "csharp\Meadow.Debugging.DAP\Meadow.Debugging.DAP.csproj", "{B2C3D4E5-F678-9012-BCDE-F12345678901}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

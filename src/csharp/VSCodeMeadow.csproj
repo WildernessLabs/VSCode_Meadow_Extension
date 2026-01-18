@@ -5,23 +5,31 @@
 		<LangVersion>10.0</LangVersion>
 		<OutputType>Exe</OutputType>
 		<AssemblyName>vscode-meadow</AssemblyName>
+		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
-	<!-- Exclude the Core project's source files from this project -->
+	<!-- Exclude the subproject source files from this project -->
 	<ItemGroup>
 		<Compile Remove="Meadow.Debugging.Core\**\*.cs" />
+		<Compile Remove="Meadow.Debugging.DAP\**\*.cs" />
+		<!-- Exclude old files that have been moved to Meadow.Debugging.DAP -->
+		<Compile Remove="Adapters\**\*.cs" />
+		<Compile Remove="DebugSession.cs" />
+		<Compile Remove="Protocol.cs" />
+		<Compile Remove="MonoDebugSession.cs" />
+		<Compile Remove="Handles.cs" />
+		<Compile Remove="Utilities.cs" />
+		<Compile Remove="DeploymentCallbackAdapter.cs" />
+		<Compile Remove="VSCodeEventEmitter.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-		<PackageReference Include="Mono.Cecil" Version="0.11.5" />
 		<PackageReference Include="Mono.Options" Version="6.12.0.148" />
 	</ItemGroup>
+
 	<ItemGroup>
-	  <ProjectReference Include="Meadow.Debugging.Core\Meadow.Debugging.Core.csproj" />
-	  <ProjectReference Include="..\..\externals\debugger-libs\Mono.Debugger.Soft\Mono.Debugger.Soft.csproj" />
-	  <ProjectReference Include="..\..\externals\debugger-libs\Mono.Debugging.Soft\Mono.Debugging.Soft.csproj" />
-	  <ProjectReference Include="..\..\externals\debugger-libs\Mono.Debugging\Mono.Debugging.csproj" />
-	  <ProjectReference Include="..\..\..\Meadow.CLI\Source\Meadow.Tooling.Core\Meadow.Tooling.Core.csproj" />
+		<!-- Reference the shared DAP library which includes Core, Adapters, etc. -->
+		<ProjectReference Include="Meadow.Debugging.DAP\Meadow.Debugging.DAP.csproj" />
 	</ItemGroup>
 </Project>
