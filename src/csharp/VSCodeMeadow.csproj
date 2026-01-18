@@ -12,15 +12,6 @@
 	<ItemGroup>
 		<Compile Remove="Meadow.Debugging.Core\**\*.cs" />
 		<Compile Remove="Meadow.Debugging.DAP\**\*.cs" />
-		<!-- Exclude old files that have been moved to Meadow.Debugging.DAP -->
-		<Compile Remove="Adapters\**\*.cs" />
-		<Compile Remove="DebugSession.cs" />
-		<Compile Remove="Protocol.cs" />
-		<Compile Remove="MonoDebugSession.cs" />
-		<Compile Remove="Handles.cs" />
-		<Compile Remove="Utilities.cs" />
-		<Compile Remove="DeploymentCallbackAdapter.cs" />
-		<Compile Remove="VSCodeEventEmitter.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
