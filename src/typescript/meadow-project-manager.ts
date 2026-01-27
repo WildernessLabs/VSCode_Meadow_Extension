@@ -72,6 +72,7 @@ export class MeadowProjectManager {
 
 		this.extensionContext = ctx;
 		this.StartupProjects = new Array<MSBuildProjectInfo>();
+		this.meadowDevices = new Array<DeviceData>();
 
 		vscode.workspace.findFiles('**/*.csproj').then(allProjFiles => this.parseProjects(allProjFiles));
 
