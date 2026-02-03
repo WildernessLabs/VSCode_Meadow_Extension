@@ -10,6 +10,10 @@ This is the extension for VSCode that enables Meadow apps to be build, debugged 
 
 ## Release Notes
 
+### 2.2.0
+
+- Stability Changes for OS 2.2 and above.
+
 ### 2.0.1
 
 - Update logging to provide more information and be more like Visual Studio
