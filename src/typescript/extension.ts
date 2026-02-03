@@ -7,7 +7,6 @@
 import * as vscode from 'vscode';
 import { MeadowProjectManager } from "./meadow-project-manager";
 import { MeadowConfigurationProvider } from "./meadow-configuration";
-import { OutputChannel } from 'vscode';
 import { MeadowBuildTaskProvider } from './meadow-build-task';
 import { DebugProtocol } from '@vscode/debugprotocol';
 import * as nls from 'vscode-nls';
@@ -16,8 +15,9 @@ const localize = nls.config({ locale: process.env.VSCODE_NLS_CONFIG })();
 
 const meadowConfiguration = vscode.workspace.getConfiguration('meadow');
 
-let meadowOutputChannel: OutputChannel = null;
 let meadowProgressBar: any = null;
+
+let progressResolver;
 
 var currentDebugSession: vscode.DebugSession;
 export const isWindows = process.platform == "win32";
@@ -25,25 +25,33 @@ export const isMacOS = process.platform == "darwin";
 export const isLinux = process.platform == "linux";
 
 export function activate(context: vscode.ExtensionContext) {
-	meadowOutputChannel = vscode.window.createOutputChannel("Meadow");
-
 	this.MeadowProjectManager = new MeadowProjectManager(context);
 
 	this.meadowBuildTaskProvider = vscode.tasks.registerTaskProvider(MeadowBuildTaskProvider.MeadowBuildScriptType, new MeadowBuildTaskProvider(context));
 	
 	//context.subscriptions.push(vscode.commands.registerCommand('extension.meadow.configureExceptions', () => configureExceptions()));
-	context.subscriptions.push(vscode.commands.registerCommand('extension.meadow.startSession', config => startSession(config)));
+	context.subscriptions.push(vscode.commands.registerCommand(
+		'extension.meadow.startSession',
+		config => startSession(config)));
 
-	context.subscriptions.push(vscode.commands.registerCommand('updateProgressBar', (fileName: string, percent: number) => {
-		console.log(`updateProgressBar`);
-		meadowProgressBar = vscode.window.withProgress({
-			location: vscode.ProgressLocation.Notification,
-			title: "File Transferring",
-			cancellable: false
-		}, async (progress) => {
-			progress.report({ increment: percent, message: `Transferring ${fileName}` });
-		});
-	}));
+	context.subscriptions.push(vscode.commands.registerCommand(
+		'extension.meadow.updateProgressBar',
+			(data) => {
+			const { fileName, percentage } = data;
+			console.log("Starting progress bar for ${fileName}");
+			meadowProgressBar = vscode.window.withProgress({
+				location: vscode.ProgressLocation.Notification,
+				title: "Transferring ${fileName}",
+				cancellable: false
+			},
+			async (progress) => {
+				return new Promise(resolve => {
+					progressResolver = resolve;  // Store resolver to mark progress completion
+					updateProgress(progress, fileName, percentage);
+				});
+			});
+		})
+	);
 
 	const provider = new MeadowConfigurationProvider(context);
 	context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('meadow', provider, vscode.DebugConfigurationProviderTriggerKind.Initial | vscode.DebugConfigurationProviderTriggerKind.Dynamic));
@@ -58,6 +66,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 		if (type === "meadow") {
 			currentDebugSession = s;
+			// Focus the Debug Console when debugging starts
+			vscode.commands.executeCommand('workbench.debug.action.focusRepl');
 		}
 	}));
 
@@ -70,6 +80,17 @@ export function activate(context: vscode.ExtensionContext) {
 			// this.disableAllServiceExtensions();
 		}
 	}));
+}
+
+// Function to update progress dynamically
+function updateProgress(progress, fileName, percentage) {
+    progress.report({ increment: percentage, message: "Transferring ${fileName}" });
+
+    // Optionally complete the progress bar when 100% is reached
+    if (percentage >= 100 && progressResolver) {
+        progressResolver();  // Ends the progress bar
+        console.log("File transfer complete: ${fileName}");
+    }
 }
 
 export function deactivate() {
@@ -156,7 +177,7 @@ function getModel(): ExceptionConfigurations {
 	for (var exception in model) {
 		exceptionItems.push({
 			label: exception,
-			description: model[exception] !== 'never' ? `⚡ ${translate(model[exception])}` : ''
+			description: model[exception] !== 'never' ? "⚡ ${translate(model[exception])}" : ''
 		});
 	}
 

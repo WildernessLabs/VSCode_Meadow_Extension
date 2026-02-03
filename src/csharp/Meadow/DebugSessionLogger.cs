@@ -9,9 +9,12 @@ namespace VsCodeMeadowUtil
 		string previousFileName = string.Empty;
 		uint previousPercentage = 0;
 
-		public DebugSessionLogger(Action<string> callback)
+		private readonly LogLevel _minLogLevel;
+
+		public DebugSessionLogger(Action<string> callback, LogLevel minLogLevel = LogLevel.Information)
 		{
 			Callback = callback;
+			_minLogLevel = minLogLevel;
 		}
 
 		public Action<string> Callback { get; }
@@ -24,25 +27,42 @@ namespace VsCodeMeadowUtil
 			if (System.Diagnostics.Debugger.IsAttached)
 				return true;
 
-			return logLevel >= LogLevel.Information;
+			return logLevel >= _minLogLevel;
 		}
 
 		public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
 		{
-			if (IsEnabled(logLevel))
+			if (!IsEnabled(logLevel))
 			{
-				Callback?.Invoke(formatter(state, exception));
+				return;
+			}
+
+			if (formatter == null)
+			{
+				throw new ArgumentNullException(nameof(formatter));
+			}
+
+			try
+			{
+				var message = formatter(state, exception);
+
+				Callback?.Invoke(message);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Logging failed: {ex.Message}");
+				throw;
 			}
 		}
 
-		internal async Task ReportDeviceMessage(string source, string message)
+		internal void ReportDeviceMessage(string source, string message)
 		{
 			this.LogInformation($"{source}: {message}");
 		}
 
-		internal async Task ReportFileProgress(string fileName, uint percentage)
+		internal void ReportFileProgress(string fileName, uint percentage)
 		{
-			if (percentage > 0 
+			if (percentage > 0
 			&& percentage > 99)
 			{
 				if (!previousFileName.Equals(fileName)

@@ -10,6 +10,14 @@ This is the extension for VSCode that enables Meadow apps to be build, debugged 
 
 ## Release Notes
 
+### 2.2.0
+
+- Stability Changes for OS 2.2 and above.
+
+### 2.0.1
+
+- Update logging to provide more information and be more like Visual Studio
+
 ### 2.0.0
 
 - Update to get debugging working with Meadow.CLI 2.x
@@ -117,7 +125,7 @@ You can refresh the list of attached devices by using the following short-cut on
 - macOS use: `Cmd+Alt+Shift+R`
 - Other platforms use: `Ctrl+Alt+Shift+R`
 
-or search for the select device command by pressing `Ctrl+Shift+P` and typing "Meadow" when prompted
+or search for the Refresh Device List command by pressing `Ctrl+Shift+P` and typing "Meadow" when prompted
 
 ### Toggle the Build Configuration
 
