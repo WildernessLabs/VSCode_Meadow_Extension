@@ -133,7 +133,7 @@ namespace VsCodeMeadowUtil
             {
                 logger.ReportFileProgress(e.fileName, p);
             }
-
+            
             // TODO DebugSession.SendEvent(new UpdateProgressBarEvent(e.fileName, p));
         }
     }
