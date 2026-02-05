@@ -23,16 +23,7 @@ jobs:
         path: main
         submodules: true
 
-    - if: ${{ github.ref == 'refs/heads/main' }}
-      name: Checkout Meadow.CLI.Core side-by-side
-      uses: actions/checkout@v4
-      with:
-        repository: WildernessLabs/Meadow.CLI
-        path: Meadow.CLI
-        ref: main
-
-    - if: ${{ github.ref != 'refs/heads/main' }}
-      name: Checkout Meadow.CLI.Core side-by-side
+    - name: Checkout Meadow.CLI side-by-side
       uses: actions/checkout@v4
       with:
         repository: WildernessLabs/Meadow.CLI
