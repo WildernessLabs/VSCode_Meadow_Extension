@@ -16,6 +16,7 @@ namespace Meadow.Debugging.DAP.Utilities
         public string? MSBuildPropertyFile { get; set; }
         public int DebugPort { get; set; } = -1;
         public string? Serial { get; set; }
+        public bool SkipDeploy { get; set; } = false;
         public IReadOnlyDictionary<string, string>? MSBuildProperties { get; set; }
 
         private Dictionary<string, string> _debugInfoProps = new Dictionary<string, string>();
@@ -36,6 +37,7 @@ namespace Meadow.Debugging.DAP.Utilities
             DebugPort = GetInt(args, propertyKeys.DebugPort, 55555);
             Serial = GetString(args, propertyKeys.Serial);
             MSBuildPropertyFile = CleanseStringPaths(GetString(args, propertyKeys.MSBuildPropertyFile));
+            SkipDeploy = GetBool(args, propertyKeys.SkipDeploy, false);
         }
 
         public string? GetBuildProperty(string propertyName, string? defaultValue = null)
@@ -55,15 +57,45 @@ namespace Meadow.Debugging.DAP.Utilities
 
         void ParseDebugInfoPropsFile()
         {
-            if (!string.IsNullOrEmpty(MSBuildPropertyFile) && File.Exists(MSBuildPropertyFile))
+            if (string.IsNullOrEmpty(MSBuildPropertyFile))
             {
+                return;
+            }
+
+            try
+            {
+                if (!File.Exists(MSBuildPropertyFile))
+                {
+                    throw new FileNotFoundException($"MSBuild property file not found at: {MSBuildPropertyFile}");
+                }
+
                 var lines = File.ReadAllLines(MSBuildPropertyFile);
+                if (lines.Length == 0)
+                {
+                    throw new InvalidOperationException($"MSBuild property file is empty: {MSBuildPropertyFile}");
+                }
+
                 foreach (var line in lines)
                 {
+                    if (string.IsNullOrWhiteSpace(line))
+                        continue;
+
                     var parts = line.Split('=', 2, StringSplitOptions.TrimEntries);
                     if (parts.Length == 2)
+                    {
                         _debugInfoProps[parts[0].ToLowerInvariant()] = parts[1];
+                    }
                 }
+
+                if (_debugInfoProps.Count == 0)
+                {
+                    throw new InvalidOperationException($"No valid key=value properties found in MSBuild property file: {MSBuildPropertyFile}");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Re-throw the exception with context so Launch() can catch and handle it
+                throw new InvalidOperationException($"Failed to parse MSBuild property file: {ex.Message}", ex);
             }
         }
 
@@ -71,6 +103,7 @@ namespace Meadow.Debugging.DAP.Utilities
         {
             (bool success, string message) validateString(string? value, string name)
                 => string.IsNullOrWhiteSpace(value) ? (false, $"{name} is not valid") : (true, "");
+            
             var checks = new[] {
                 validateString(ProjectPath, nameof(ProjectPath)),
                 validateString(ProjectConfiguration, nameof(ProjectConfiguration)),
@@ -81,6 +114,12 @@ namespace Meadow.Debugging.DAP.Utilities
             {
                 if (!check.success)
                     return check;
+            }
+
+            // Check if the MSBuildPropertyFile actually exists
+            if (!File.Exists(MSBuildPropertyFile))
+            {
+                return (false, $"MSBuildPropertyFile does not exist at: {MSBuildPropertyFile}");
             }
 
             if (string.IsNullOrWhiteSpace(Serial))
@@ -186,6 +225,7 @@ namespace Meadow.Debugging.DAP.Utilities
         public string ProjectPath { get; set; } = "projectPath";
         public string DebugPort { get; set; } = "debugPort";
         public string Serial { get; set; } = "serial";
+        public string SkipDeploy { get; set; } = "skipDeploy";
 
         /// <summary>
         /// Default VSCode property keys.

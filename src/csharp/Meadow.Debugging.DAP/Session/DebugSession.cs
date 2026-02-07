@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 using System;
+using System.Threading.Tasks;
 using Meadow.Debugging.DAP.Protocol;
 using Meadow.Debugging.DAP.Utilities;
 
@@ -74,7 +75,15 @@ namespace Meadow.Debugging.DAP.Session
                         break;
 
                     case "launch":
-                        Launch(response, args);
+                        try
+                        {
+                            Task launchTask = Launch(response, args);
+                            launchTask.GetAwaiter().GetResult();
+                        }
+                        catch (Exception ex)
+                        {
+                            try { DapLogger.Log("LAUNCH EXCEPTION: {0}: {1}", ex.GetType().Name, ex.Message); } catch { }
+                        }
                         break;
 
                     case "attach":
@@ -82,7 +91,7 @@ namespace Meadow.Debugging.DAP.Session
                         break;
 
                     case "disconnect":
-                        Disconnect(response, args);
+                        Disconnect(response, args).GetAwaiter().GetResult();
                         break;
 
                     case "next":
@@ -148,6 +157,7 @@ namespace Meadow.Debugging.DAP.Session
             }
             catch (Exception e)
             {
+                DapLogger.Log(">>> DISPATCH CATCH: {0} threw {1}: {2}", command, e.GetType().Name, e.Message);
                 SendErrorResponse(response, 1104, "error while processing request '{_request}' (exception: {_exception})", new { _request = command, _exception = e.Message });
             }
 
@@ -159,11 +169,11 @@ namespace Meadow.Debugging.DAP.Session
 
         public abstract void Initialize(Response response, dynamic args);
 
-        public abstract void Launch(Response response, dynamic arguments);
+        public abstract Task Launch(Response response, dynamic arguments);
 
         public abstract void Attach(Response response, dynamic arguments);
 
-        public abstract void Disconnect(Response response, dynamic arguments);
+        public abstract Task Disconnect(Response response, dynamic arguments);
 
         public virtual void SetFunctionBreakpoints(Response response, dynamic arguments)
         {

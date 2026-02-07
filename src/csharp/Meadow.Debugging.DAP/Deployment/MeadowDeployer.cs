@@ -52,6 +52,35 @@ namespace Meadow.Debugging.DAP.Deployment
             _connectionManager = new MeadowConnectionManager(_settingsManager);
         }
 
+        /// <summary>
+        /// Connects to the Meadow device without deploying.
+        /// Used when deployment was already handled externally (e.g., by VS2022 deploy provider).
+        /// </summary>
+        public async Task<IMeadowConnection?> ConnectForDebuggingAsync()
+        {
+            if (_meadowConnection != null)
+            {
+                _meadowConnection.DeviceMessageReceived -= OnDeviceMessageReceived;
+                _meadowConnection = null;
+            }
+
+            _logger.LogInformation("Connecting to Meadow (debug-only, skip deploy)...");
+
+            _meadowConnection = _connectionManager.GetConnection(PortName);
+            if (_meadowConnection == null)
+            {
+                _callbacks.OnError("No Meadow Connection available.");
+                _logger.LogError("No Meadow Connection available.");
+                return null;
+            }
+
+            _meadowConnection.DeviceMessageReceived += OnDeviceMessageReceived;
+
+            await _meadowConnection.WaitForMeadowAttach(_cancellationToken);
+
+            return _meadowConnection;
+        }
+
         public async Task<IMeadowConnection?> DeployAsync(string folder, bool isDebugging)
         {
             // Clean up previous connection

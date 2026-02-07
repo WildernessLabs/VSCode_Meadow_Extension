@@ -154,8 +154,26 @@ namespace Meadow.Debugging.DAP.Protocol
                                 DapLogger.Log(TRACE, "C {0}: {1}", request.command, JsonConvert.SerializeObject(request.arguments, Formatting.Indented));
 
                                 var response = new Response(request);
-                                DispatchRequest(request.command, request.arguments, response);
-                                SendMessage(response);
+                                DapLogger.Log(">>> Dispatch: calling DispatchRequest for '{0}'", request.command);
+                                try
+                                {
+                                    DispatchRequest(request.command, request.arguments, response);
+                                    DapLogger.Log(">>> Dispatch: DispatchRequest returned for '{0}'", request.command);
+                                }
+                                catch (Exception dispatchEx)
+                                {
+                                    DapLogger.Log(">>> DISPATCH OUTER EXCEPTION: {0}: {1}", dispatchEx.GetType().Name, dispatchEx.Message);
+                                    DapLogger.Log(">>> DISPATCH OUTER EXCEPTION stack: {0}", dispatchEx.StackTrace);
+                                    // Send error response as fallback — DispatchRequest's inner catch
+                                    // normally handles this, but if something escapes, we need to respond.
+                                    try
+                                    {
+                                        response.success = false;
+                                        response.message = dispatchEx.Message;
+                                        SendMessage(response);
+                                    }
+                                    catch { }
+                                }
                             }
                         }
                         break;

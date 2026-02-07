@@ -230,49 +230,94 @@ namespace Meadow.Debugging.DAP.Session
             SendEvent(new InitializedEvent());
         }
 
-        public override async void Launch(Response response, dynamic args)
+        public override async Task Launch(Response response, dynamic args)
         {
             _attachMode = false;
-
-            SetExceptionBreakpoints(args.__exceptionOptions);
-
-            var launchOptions = new LaunchData(args, _launchPropertyKeys);
-            var valid = launchOptions.Validate();
-            if (!valid.success)
-            {
-                SendErrorResponse(response, 3002, valid.message);
-                return;
-            }
-
-            var host = GetString(args, "address");
-            IPAddress address = string.IsNullOrWhiteSpace(host) ? IPAddress.Loopback : DapUtilities.ResolveIPAddress(host)!;
-            if (address == null)
-            {
-                SendErrorResponse(response, 3013, "Invalid address '{address}'.", new { address = address });
-                return;
-            }
-
-            if (_ctsDeployMeadow != null && !_ctsDeployMeadow.IsCancellationRequested)
-                _ctsDeployMeadow.Cancel();
-
-            _ctsDeployMeadow = new CancellationTokenSource();
-
-            var fullOutputPath =
-                DapUtilities.FixPathSeparators(launchOptions.GetBuildProperty("OutputPath"));
 
             var errorMsg = string.Empty;
 
             try
             {
+                // Safely access __exceptionOptions - it may not exist on the dynamic args
+                dynamic? exceptionOptions = null;
+                try
+                {
+                    exceptionOptions = args.__exceptionOptions;
+                }
+                catch (Exception)
+                {
+                    // Property doesn't exist, which is fine - SetExceptionBreakpoints handles null
+                }
+                SetExceptionBreakpoints(exceptionOptions);
+
+                var launchOptions = new LaunchData(args, _launchPropertyKeys);
+
+                var valid = launchOptions.Validate();
+                if (!valid.success)
+                {
+                    SendErrorResponse(response, 3002, valid.message);
+                    return;
+                }
+
+                var host = GetString(args, "address");
+                IPAddress address = string.IsNullOrWhiteSpace(host) ? IPAddress.Loopback : DapUtilities.ResolveIPAddress(host)!;
+                if (address == null)
+                {
+                    SendErrorResponse(response, 3013, "Invalid address '{address}'.", new { address = address });
+                    return;
+                }
+
+                if (_ctsDeployMeadow != null && !_ctsDeployMeadow.IsCancellationRequested)
+                    _ctsDeployMeadow.Cancel();
+
+                _ctsDeployMeadow = new CancellationTokenSource();
+
+                string? outputPath = launchOptions.GetBuildProperty("OutputPath");
+                if (string.IsNullOrWhiteSpace(outputPath))
+                {
+                    throw new InvalidOperationException($"MSBuild property 'OutputPath' not found or empty. Check that MSBuildPropertyFile exists at: {launchOptions.MSBuildPropertyFile}");
+                }
+
+                var fullOutputPath = DapUtilities.FixPathSeparators(outputPath);
+
+                if (string.IsNullOrWhiteSpace(fullOutputPath))
+                {
+                    throw new InvalidOperationException("FixPathSeparators returned empty output path");
+                }
+
+                if (!Directory.Exists(fullOutputPath))
+                {
+                    throw new DirectoryNotFoundException($"Output path does not exist: {fullOutputPath}");
+                }
+
                 var logger = new DebugSessionLogger(l => Log(l));
                 var deploymentCallbacks = new DeploymentCallbackAdapter(_eventEmitter);
 
                 var isDebugging = launchOptions.DebugPort > 1024;
 
-                // DEPLOY
                 _meadowDeployer = new MeadowDeployer(deploymentCallbacks, logger, launchOptions.Serial!, _ctsDeployMeadow.Token);
 
-                var meadowConnection = await _meadowDeployer.DeployAsync(fullOutputPath!, isDebugging);
+                IMeadowConnection? meadowConnection;
+                try
+                {
+                    if (launchOptions.SkipDeploy)
+                    {
+                        meadowConnection = await _meadowDeployer.ConnectForDebuggingAsync();
+                    }
+                    else
+                    {
+                        meadowConnection = await _meadowDeployer.DeployAsync(fullOutputPath!, isDebugging);
+                    }
+
+                    if (meadowConnection == null)
+                    {
+                        throw new InvalidOperationException("Failed to establish Meadow connection");
+                    }
+                }
+                catch (Exception deployEx)
+                {
+                    throw new InvalidOperationException($"Deployment/connection failed: {deployEx.Message}", deployEx);
+                }
 
                 if (isDebugging)
                 {
@@ -292,34 +337,55 @@ namespace Meadow.Debugging.DAP.Session
                         }
                         catch (Exception ex)
                         {
-                            Log($"Debugging session error: {ex.Message}");
+                            Log($"[Launch] Debug server task error: {ex.GetType().Name}: {ex.Message}");
+                            throw;
                         }
                     }, _ctsDeployMeadow.Token);
 
                     // Give the TCP listener time to start before we try to connect
                     await Task.Delay(250, _ctsDeployMeadow.Token);
 
-                    Log($"Connecting to debugger: {address}:{launchOptions.DebugPort}");
-                    Connect(address, launchOptions.DebugPort);
+                    try
+                    {
+                        Connect(address, launchOptions.DebugPort);
+                    }
+                    catch (Exception connectEx)
+                    {
+                        throw new InvalidOperationException($"Failed to connect to debugger: {connectEx.Message}", connectEx);
+                    }
 
                     // Wait for the debugging session to be fully established
-                    await meadowDebuggingServerTask;
+                    try
+                    {
+                        await meadowDebuggingServerTask;
+                    }
+                    catch (Exception sessionEx)
+                    {
+                        throw new InvalidOperationException($"Debug session start failed: {sessionEx.Message}", sessionEx);
+                    }
+                }
+                else
+                {
                 }
 
                 SendResponse(response);
                 return;
-
             }
             catch (Exception ex)
             {
                 errorMsg = ex.Message;
+                Log($"[Launch] CRITICAL ERROR: {ex.GetType().Name}: {errorMsg}");
+                if (ex.InnerException != null)
+                {
+                    Log($"[Launch] Inner exception: {ex.InnerException.GetType().Name}: {ex.InnerException.Message}");
+                }
             }
 
-            SendErrorResponse(response, 3002, $"Deploy failed {errorMsg}");
+            SendErrorResponse(response, 3002, $"Launch failed: {errorMsg}");
 
-            Disconnect(response, null);
+            await Disconnect(response, null);
 
-            Terminate("Deploy failed.");
+            Terminate("Launch failed.");
         }
 
         private void Log(string message)
@@ -374,7 +440,17 @@ namespace Meadow.Debugging.DAP.Session
         {
             _attachMode = true;
 
-            SetExceptionBreakpoints(args.__exceptionOptions);
+            // Safely access __exceptionOptions - it may not exist on the dynamic args
+            dynamic? exceptionOptions = null;
+            try
+            {
+                exceptionOptions = args.__exceptionOptions;
+            }
+            catch
+            {
+                // Property doesn't exist, which is fine - SetExceptionBreakpoints handles null
+            }
+            SetExceptionBreakpoints(exceptionOptions);
 
             // validate argument 'address'
             var host = GetString(args, "address");
@@ -404,7 +480,7 @@ namespace Meadow.Debugging.DAP.Session
             SendResponse(response);
         }
 
-        public override async void Disconnect(Response response, dynamic arguments)
+        public override async Task Disconnect(Response response, dynamic arguments)
         {
             if (_meadowDeployer != null)
                 _meadowDeployer.Dispose();
@@ -838,43 +914,50 @@ namespace Meadow.Debugging.DAP.Session
         {
             if (exceptionOptions != null)
             {
-                // clear all existing catchpoints
-                foreach (var cp in _catchpoints)
+                try
                 {
-                    _session?.Breakpoints.Remove(cp);
-                }
-                _catchpoints.Clear();
-
-                var exceptions = exceptionOptions.ToObject<dynamic[]>();
-                for (int i = 0; i < exceptions.Length; i++)
-                {
-                    var exception = exceptions[i];
-
-                    string? exName = null;
-                    string exBreakMode = exception.breakMode;
-
-                    if (exception.path != null)
+                    // clear all existing catchpoints
+                    foreach (var cp in _catchpoints)
                     {
-                        var paths = exception.path.ToObject<dynamic[]>();
-                        var path = paths[0];
-                        if (path.names != null)
+                        _session?.Breakpoints.Remove(cp);
+                    }
+                    _catchpoints.Clear();
+
+                    var exceptions = exceptionOptions.ToObject<dynamic[]>();
+                    for (int i = 0; i < exceptions.Length; i++)
+                    {
+                        var exception = exceptions[i];
+
+                        string? exName = null;
+                        string exBreakMode = exception.breakMode;
+
+                        if (exception.path != null)
                         {
-                            var names = path.names.ToObject<dynamic[]>();
-                            if (names.Length > 0)
+                            var paths = exception.path.ToObject<dynamic[]>();
+                            var path = paths[0];
+                            if (path.names != null)
                             {
-                                exName = names[0];
+                                var names = path.names.ToObject<dynamic[]>();
+                                if (names.Length > 0)
+                                {
+                                    exName = names[0];
+                                }
+                            }
+                        }
+
+                        if (exName != null && exBreakMode == "always")
+                        {
+                            var cp = _session?.Breakpoints.AddCatchpoint(exName);
+                            if (cp != null)
+                            {
+                                _catchpoints.Add(cp);
                             }
                         }
                     }
-
-                    if (exName != null && exBreakMode == "always")
-                    {
-                        var cp = _session?.Breakpoints.AddCatchpoint(exName);
-                        if (cp != null)
-                        {
-                            _catchpoints.Add(cp);
-                        }
-                    }
+                }
+                catch (Exception)
+                {
+                    // Exception setting exception breakpoints, but don't crash
                 }
             }
         }

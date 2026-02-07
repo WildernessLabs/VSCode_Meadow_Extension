@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Meadow.CLI;
@@ -50,6 +51,24 @@ namespace VsCodeMeadowUtil
 
             _settingsManager = new SettingsManager();
             _connectionManager = new MeadowConnectionManager(_settingsManager);
+        }
+
+        /// <summary>
+        /// Discovers available Meadow devices connected via serial ports.
+        /// Used by IDE extensions to populate device pickers.
+        /// </summary>
+        /// <returns>Array of serial port names (e.g., "COM3", "/dev/ttyUSB0")</returns>
+        public static async Task<string[]> GetAvailableMeadowDevicesAsync()
+        {
+            try
+            {
+                var ports = await MeadowConnectionManager.GetSerialPorts();
+                return ports.ToArray();
+            }
+            catch (Exception)
+            {
+                return Array.Empty<string>();
+            }
         }
 
         public async Task<IMeadowConnection?> DeployAsync(string folder, bool isDebugging)
