@@ -155,11 +155,9 @@ namespace Meadow.Debugging.DAP.Protocol
                                 DapLogger.Log(TRACE, "C {0}: {1}", request.command, JsonConvert.SerializeObject(request.arguments, Formatting.Indented));
 
                                 var response = new Response(request);
-                                DapLogger.Log(">>> Dispatch: calling DispatchRequest for '{0}'", request.command);
                                 try
                                 {
                                     DispatchRequest(request.command, request.arguments, response);
-                                    DapLogger.Log(">>> Dispatch: DispatchRequest returned for '{0}'", request.command);
                                 }
                                 catch (Exception dispatchEx)
                                 {

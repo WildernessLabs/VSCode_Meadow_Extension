@@ -384,8 +384,6 @@ namespace Meadow.Debugging.DAP.Session
         {
             if (_previousLogMessage != message)
             {
-                Console.WriteLine(message);
-
                 if (message.StartsWith("stdout") || message.StartsWith("info"))
                 {
                     // This appears in blue as it is from "Meadow"
