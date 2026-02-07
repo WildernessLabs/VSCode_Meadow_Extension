@@ -13,6 +13,8 @@ namespace Meadow.Debugging.DAP.Events
     public class DapEventEmitter : IDebugEventEmitter
     {
         private readonly ProtocolServer _protocolServer;
+        private string? _currentProgressId;
+        private string? _currentProgressFile;
 
         public DapEventEmitter(ProtocolServer protocolServer)
         {
@@ -35,7 +37,30 @@ namespace Meadow.Debugging.DAP.Events
 
         public void EmitDeploymentProgress(string fileName, uint percentage)
         {
-            _protocolServer.SendEvent(new UpdateProgressBarEvent(fileName, percentage));
+            // Standard DAP progress events — works with VS2022, VSCode, and any DAP client
+            if (_currentProgressId == null || _currentProgressFile != fileName)
+            {
+                // End previous file's progress if switching files
+                if (_currentProgressId != null)
+                {
+                    _protocolServer.SendEvent(new ProgressEndEvent(_currentProgressId, $"Done: {_currentProgressFile}"));
+                }
+
+                _currentProgressId = $"deploy_{Guid.NewGuid():N}";
+                _currentProgressFile = fileName;
+                _protocolServer.SendEvent(new ProgressStartEvent(_currentProgressId, $"Deploying: {fileName}", (int)percentage));
+            }
+            else
+            {
+                _protocolServer.SendEvent(new ProgressUpdateEvent(_currentProgressId, $"Deploying: {fileName}", (int)percentage));
+            }
+
+            if (percentage >= 100 && _currentProgressId != null)
+            {
+                _protocolServer.SendEvent(new ProgressEndEvent(_currentProgressId, $"Done: {fileName}"));
+                _currentProgressId = null;
+                _currentProgressFile = null;
+            }
         }
 
         public void EmitDeviceMessage(string source, string message)

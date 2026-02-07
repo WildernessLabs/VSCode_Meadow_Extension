@@ -29,6 +29,7 @@ namespace Meadow.Debugging.DAP.Protocol
 
         private int _sequenceNumber;
         private Dictionary<int, TaskCompletionSource<Response>> _pendingRequests;
+        private readonly object _sendLock = new object();
 
         private Stream? _outputStream;
 
@@ -202,27 +203,30 @@ namespace Meadow.Debugging.DAP.Protocol
 
         protected void SendMessage(ProtocolMessage message)
         {
-            if (message.seq == 0)
+            lock (_sendLock)
             {
-                message.seq = _sequenceNumber++;
-            }
+                if (message.seq == 0)
+                {
+                    message.seq = _sequenceNumber++;
+                }
 
-            DapLogger.Log(TRACE_RESPONSE && message.type == "response", " R: {0}", JsonConvert.SerializeObject(message, Formatting.Indented));
+                DapLogger.Log(TRACE_RESPONSE && message.type == "response", " R: {0}", JsonConvert.SerializeObject(message, Formatting.Indented));
 
-            if (message.type == "event" && message is Event e)
-            {
-                DapLogger.Log(TRACE, "E {0}: {1}", e.eventType, JsonConvert.SerializeObject(e.body, Formatting.Indented));
-            }
+                if (message.type == "event" && message is Event e)
+                {
+                    DapLogger.Log(TRACE, "E {0}: {1}", e.eventType, JsonConvert.SerializeObject(e.body, Formatting.Indented));
+                }
 
-            var data = ConvertToBytes(message);
-            try
-            {
-                _outputStream?.Write(data, 0, data.Length);
-                _outputStream?.Flush();
-            }
-            catch (Exception)
-            {
-                // ignore
+                var data = ConvertToBytes(message);
+                try
+                {
+                    _outputStream?.Write(data, 0, data.Length);
+                    _outputStream?.Flush();
+                }
+                catch (Exception)
+                {
+                    // ignore
+                }
             }
         }
 

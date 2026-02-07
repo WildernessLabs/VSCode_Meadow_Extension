@@ -210,19 +210,11 @@ namespace Meadow.Debugging.DAP.Session
 
             SendResponse(response, new Capabilities()
             {
-                // This debug adapter does not need the configurationDoneRequest.
                 supportsConfigurationDoneRequest = false,
-
-                // This debug adapter does not support function breakpoints.
                 supportsFunctionBreakpoints = false,
-
-                // This debug adapter doesn't support conditional breakpoints.
                 supportsConditionalBreakpoints = false,
-
-                // This debug adapter does not support a side effect free evaluate request for data hovers.
                 supportsEvaluateForHovers = false,
-
-                // This debug adapter does not support exception breakpoint filters
+                supportsProgressReporting = true,
                 exceptionBreakpointFilters = new dynamic[0]
             });
 

@@ -15,6 +15,7 @@ namespace Meadow.Debugging.DAP.Protocol
         public bool supportsFunctionBreakpoints;
         public bool supportsConditionalBreakpoints;
         public bool supportsEvaluateForHovers;
+        public bool supportsProgressReporting;
         public dynamic[]? exceptionBreakpointFilters;
     }
 

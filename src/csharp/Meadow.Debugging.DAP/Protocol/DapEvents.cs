@@ -70,15 +70,38 @@ namespace Meadow.Debugging.DAP.Protocol
         { }
     }
 
-    public class UpdateProgressBarEvent : Event
+    public class ProgressStartEvent : Event
     {
-        public UpdateProgressBarEvent(string fileName, uint percent)
-            : base("extension.meadow.updateProgressBar", new
+        public ProgressStartEvent(string progressId, string title, int? percentage = null)
+            : base("progressStart", new
             {
-                fileName = fileName,
-                percentage = percent
+                progressId = progressId,
+                title = title,
+                percentage = percentage
             })
-        {
-        }
+        { }
+    }
+
+    public class ProgressUpdateEvent : Event
+    {
+        public ProgressUpdateEvent(string progressId, string? message = null, int? percentage = null)
+            : base("progressUpdate", new
+            {
+                progressId = progressId,
+                message = message,
+                percentage = percentage
+            })
+        { }
+    }
+
+    public class ProgressEndEvent : Event
+    {
+        public ProgressEndEvent(string progressId, string? message = null)
+            : base("progressEnd", new
+            {
+                progressId = progressId,
+                message = message
+            })
+        { }
     }
 }

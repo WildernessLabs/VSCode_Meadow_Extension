@@ -15,10 +15,6 @@ const localize = nls.config({ locale: process.env.VSCODE_NLS_CONFIG })();
 
 const meadowConfiguration = vscode.workspace.getConfiguration('meadow');
 
-let meadowProgressBar: any = null;
-
-let progressResolver;
-
 var currentDebugSession: vscode.DebugSession;
 export const isWindows = process.platform == "win32";
 export const isMacOS = process.platform == "darwin";
@@ -33,25 +29,6 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand(
 		'extension.meadow.startSession',
 		config => startSession(config)));
-
-	context.subscriptions.push(vscode.commands.registerCommand(
-		'extension.meadow.updateProgressBar',
-			(data) => {
-			const { fileName, percentage } = data;
-			console.log("Starting progress bar for ${fileName}");
-			meadowProgressBar = vscode.window.withProgress({
-				location: vscode.ProgressLocation.Notification,
-				title: "Transferring ${fileName}",
-				cancellable: false
-			},
-			async (progress) => {
-				return new Promise(resolve => {
-					progressResolver = resolve;  // Store resolver to mark progress completion
-					updateProgress(progress, fileName, percentage);
-				});
-			});
-		})
-	);
 
 	const provider = new MeadowConfigurationProvider(context);
 	context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('meadow', provider, vscode.DebugConfigurationProviderTriggerKind.Initial | vscode.DebugConfigurationProviderTriggerKind.Dynamic));
@@ -80,17 +57,6 @@ export function activate(context: vscode.ExtensionContext) {
 			// this.disableAllServiceExtensions();
 		}
 	}));
-}
-
-// Function to update progress dynamically
-function updateProgress(progress, fileName, percentage) {
-    progress.report({ increment: percentage, message: "Transferring ${fileName}" });
-
-    // Optionally complete the progress bar when 100% is reached
-    if (percentage >= 100 && progressResolver) {
-        progressResolver();  // Ends the progress bar
-        console.log("File transfer complete: ${fileName}");
-    }
 }
 
 export function deactivate() {
