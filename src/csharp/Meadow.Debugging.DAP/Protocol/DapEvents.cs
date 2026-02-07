@@ -64,7 +64,7 @@ namespace Meadow.Debugging.DAP.Protocol
         public MeadowOutputEvent(string outpt)
             : base("output", new
             {
-                category = "Meadow",
+                category = "stdout",
                 output = outpt
             })
         { }

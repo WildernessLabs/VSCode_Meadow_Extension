@@ -44,7 +44,10 @@ export function activate(context: vscode.ExtensionContext) {
 		if (type === "meadow") {
 			currentDebugSession = s;
 			// Focus the Debug Console when debugging starts
-			vscode.commands.executeCommand('workbench.debug.action.focusRepl');
+			// Small delay ensures the Debug Console panel is fully initialized
+			setTimeout(() => {
+				vscode.commands.executeCommand('workbench.debug.action.focusRepl');
+			}, 500);
 		}
 	}));
 
