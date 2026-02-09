@@ -4,15 +4,15 @@ VisualStudioVersion = 17.7.33808.371
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "debugger", "debugger", "{DD5D7FCB-5097-433E-8399-BB037883FB2F}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Meadow", "Meadow", "{639FE3D4-9D7F-4823-9911-48FE49C6998F}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "cli", "cli", "{639FE3D4-9D7F-4823-9911-48FE49C6998F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSCodeMeadow", "csharp\VSCodeMeadow.csproj", "{D46A8779-DAE7-4B90-ACBA-08893A504193}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Meadow.Debugging.Host", "..\..\Meadow.Debugging\Meadow.Debugging.Host\Meadow.Debugging.Host.csproj", "{C3D4E5F6-7890-1234-CDEF-123456789012}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mono.Debugging", "..\externals\debugger-libs\Mono.Debugging\Mono.Debugging.csproj", "{CD6FED13-1984-4491-97AB-1A4361E1F582}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mono.Debugging", "..\..\Meadow.Debugging\externals\debugger-libs\Mono.Debugging\Mono.Debugging.csproj", "{CD6FED13-1984-4491-97AB-1A4361E1F582}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mono.Debugger.Soft", "..\externals\debugger-libs\Mono.Debugger.Soft\Mono.Debugger.Soft.csproj", "{8D8752AF-06C6-40CE-AA55-B454DD6808E1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mono.Debugger.Soft", "..\..\Meadow.Debugging\externals\debugger-libs\Mono.Debugger.Soft\Mono.Debugger.Soft.csproj", "{8D8752AF-06C6-40CE-AA55-B454DD6808E1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mono.Debugging.Soft", "..\externals\debugger-libs\Mono.Debugging.Soft\Mono.Debugging.Soft.csproj", "{7592E68B-CE43-4433-8B5A-F7890BAA2ABC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mono.Debugging.Soft", "..\..\Meadow.Debugging\externals\debugger-libs\Mono.Debugging.Soft\Mono.Debugging.Soft.csproj", "{7592E68B-CE43-4433-8B5A-F7890BAA2ABC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.HCom", "..\..\Meadow.CLI\Source\Meadow.HCom\Meadow.HCom.csproj", "{7F1115C6-5081-4997-AC0F-789D95B5092C}"
 EndProject
@@ -24,9 +24,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.SoftwareManager", ".
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.Cloud.Client", "..\..\Meadow.CLI\Source\Meadow.Cloud.Client\Meadow.Cloud.Client.csproj", "{7820644F-8B87-4864-81B4-A8CB5859A71C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Meadow.Debugging.Core", "csharp\Meadow.Debugging.Core\Meadow.Debugging.Core.csproj", "{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Meadow.Debugging.Core", "..\..\Meadow.Debugging\Meadow.Debugging.Core\Meadow.Debugging.Core.csproj", "{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Meadow.Debugging.DAP", "csharp\Meadow.Debugging.DAP\Meadow.Debugging.DAP.csproj", "{B2C3D4E5-F678-9012-BCDE-F12345678901}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Meadow.Debugging.DAP", "..\..\Meadow.Debugging\Meadow.Debugging.DAP\Meadow.Debugging.DAP.csproj", "{B2C3D4E5-F678-9012-BCDE-F12345678901}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,10 +34,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{D46A8779-DAE7-4B90-ACBA-08893A504193}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D46A8779-DAE7-4B90-ACBA-08893A504193}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D46A8779-DAE7-4B90-ACBA-08893A504193}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D46A8779-DAE7-4B90-ACBA-08893A504193}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3D4E5F6-7890-1234-CDEF-123456789012}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3D4E5F6-7890-1234-CDEF-123456789012}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3D4E5F6-7890-1234-CDEF-123456789012}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3D4E5F6-7890-1234-CDEF-123456789012}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CD6FED13-1984-4491-97AB-1A4361E1F582}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CD6FED13-1984-4491-97AB-1A4361E1F582}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CD6FED13-1984-4491-97AB-1A4361E1F582}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -70,6 +70,14 @@ Global
 		{7820644F-8B87-4864-81B4-A8CB5859A71C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7820644F-8B87-4864-81B4-A8CB5859A71C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7820644F-8B87-4864-81B4-A8CB5859A71C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2C3D4E5-F678-9012-BCDE-F12345678901}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2C3D4E5-F678-9012-BCDE-F12345678901}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2C3D4E5-F678-9012-BCDE-F12345678901}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2C3D4E5-F678-9012-BCDE-F12345678901}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -6,13 +6,8 @@
 		<OutputType>Exe</OutputType>
 		<AssemblyName>vscode-meadow</AssemblyName>
 		<Nullable>enable</Nullable>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	</PropertyGroup>
-
-	<!-- Exclude the subproject source files from this project -->
-	<ItemGroup>
-		<Compile Remove="Meadow.Debugging.Core\**\*.cs" />
-		<Compile Remove="Meadow.Debugging.DAP\**\*.cs" />
-	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
@@ -20,7 +15,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<!-- Reference the shared DAP library which includes Core, Adapters, etc. -->
-		<ProjectReference Include="Meadow.Debugging.DAP\Meadow.Debugging.DAP.csproj" />
+		<!-- Reference the shared debugging libraries from the Meadow.Debugging sibling repo -->
+		<ProjectReference Include="..\..\..\Meadow.Debugging\Meadow.Debugging.DAP\Meadow.Debugging.DAP.csproj" />
 	</ItemGroup>
 </Project>
