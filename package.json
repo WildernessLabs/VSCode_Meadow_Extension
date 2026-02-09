@@ -150,7 +150,7 @@
 			{
 				"type": "meadow",
 				"label": "Meadow (Debug)",
-				"program": "./src/csharp/bin/Debug/net8.0/vscode-meadow.dll",
+				"program": "./src/csharp/bin/Debug/net8.0/meadow-debugging.dll",
 				"runtime": "dotnet",
 				"initialConfigurations": [
 					{
@@ -179,7 +179,7 @@
 			{
 				"type": "meadow",
 				"label": "Meadow (Release)",
-				"program": "./src/csharp/bin/Release/net8.0/vscode-meadow.dll",
+				"program": "./src/csharp/bin/Release/net8.0/meadow-debugging.dll",
 				"runtime": "dotnet",
 				"initialConfigurations": [
 					{

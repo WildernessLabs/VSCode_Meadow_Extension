@@ -29,7 +29,7 @@ jobs:
       with:
         repository: WildernessLabs/Meadow.CLI
         path: Meadow.CLI
-        ref: main
+        ref: develop
 
     - if: ${{ github.ref != 'refs/heads/main' }}
       name: Checkout Meadow.CLI.Core side-by-side
