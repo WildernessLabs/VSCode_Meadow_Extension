@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <!-- After building Meadow.Debugging.Host, copy vscode-meadow.exe to the VSCode extension's bin folder
+       so it can be included in the .vsix package. The .vscodeignore file expects files in src/csharp/bin/. -->
+  
+  <Target Name="CopyMeadowDebuggerHost" AfterTargets="Build">
+    <PropertyGroup>
+      <HostOutputDir>..\..\..\..\Meadow.Debugging.Host\bin\$(Configuration)\net8.0\</HostOutputDir>
+      <VsCodeBinDir>bin\$(Configuration)\net8.0\</VsCodeBinDir>
+    </PropertyGroup>
+    
+    <ItemGroup>
+      <HostFiles Include="$(HostOutputDir)**\*.*" />
+    </ItemGroup>
+    
+    <Copy SourceFiles="@(HostFiles)" 
+          DestinationFolder="$(VsCodeBinDir)%(RecursiveDir)" 
+          SkipUnchangedFiles="true" />
+    
+    <Message Text="Copied Meadow.Debugging.Host output to $(VsCodeBinDir)" Importance="high" />
+  </Target>
+</Project>

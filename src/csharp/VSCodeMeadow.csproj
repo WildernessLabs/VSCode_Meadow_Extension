@@ -16,6 +16,6 @@
 
 	<ItemGroup>
 		<!-- Reference the shared debugging libraries from the Meadow.Debugging sibling repo -->
-		<ProjectReference Include="..\..\..\Meadow.Debugging\Meadow.Debugging.DAP\Meadow.Debugging.DAP.csproj" />
+		<ProjectReference Include="..\..\..\Meadow.Debugging.DAP\Meadow.Debugging.DAP.csproj" />
 	</ItemGroup>
 </Project>
