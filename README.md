@@ -10,6 +10,10 @@ This is the extension for VSCode that enables Meadow apps to be build, debugged 
 
 ## Release Notes
 
+### 3.0.0
+
+- Unified IDEs to all use centralised DAP for debugging.
+
 ### 2.2.0
 
 - Stability Changes for OS 2.2 and above.
