@@ -27,7 +27,7 @@ jobs:
       with:
         repository: WildernessLabs/Meadow.Debugging
         path: Meadow.Debugging
-        ref: develop
+        ref: main
         submodules: true
 
     - name: Checkout Meadow.CLI side-by-side
