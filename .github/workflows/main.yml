@@ -90,7 +90,7 @@ jobs:
     - name: Build Meadow.Debugging
       run: |
         dotnet restore Meadow.Debugging/Meadow.Debugging.sln
-        dotnet build Meadow.Debugging/Meadow.Debugging.sln -c Debug --no-restore
+        dotnet build Meadow.Debugging/Meadow.Debugging.sln -c Debug --no-restore -p:TargetIDE=vscode
 
     - name: Build WebPack
       run: |
