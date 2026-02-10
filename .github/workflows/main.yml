@@ -15,24 +15,22 @@ jobs:
   build-vscode:
     runs-on: windows-latest
     name: Build VSCode Extension
-    
+
     steps:
     - name: Checkout current repo
       uses: actions/checkout@v4
       with:
         path: main
-        submodules: true
 
-    - if: ${{ github.ref == 'refs/heads/main' }}
-      name: Checkout Meadow.CLI.Core side-by-side
+    - name: Checkout Meadow.Debugging side-by-side
       uses: actions/checkout@v4
       with:
-        repository: WildernessLabs/Meadow.CLI
-        path: Meadow.CLI
+        repository: WildernessLabs/Meadow.Debugging
+        path: Meadow.Debugging
         ref: develop
+        submodules: true
 
-    - if: ${{ github.ref != 'refs/heads/main' }}
-      name: Checkout Meadow.CLI.Core side-by-side
+    - name: Checkout Meadow.CLI side-by-side
       uses: actions/checkout@v4
       with:
         repository: WildernessLabs/Meadow.CLI
@@ -46,12 +44,25 @@ jobs:
         path: Meadow.Contracts
         ref: develop
 
+    - name: Checkout Meadow.Units side-by-side
+      uses: actions/checkout@v4
+      with:
+        repository: WildernessLabs/Meadow.Units
+        path: Meadow.Units
+        ref: develop
+
+    - name: Checkout Meadow.Logging side-by-side
+      uses: actions/checkout@v4
+      with:
+        repository: WildernessLabs/Meadow.Logging
+        path: Meadow.Logging
+        ref: develop
+
     - name: Setup .NET 8.0.x
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: | 
-          8.0.x
-  
+        dotnet-version: 8.0.x
+
     - name: Setup Nuget
       uses: Nuget/setup-nuget@v2
 
@@ -68,7 +79,6 @@ jobs:
     - name: Install FallBack Sources
       run: |
         nuget install Microsoft.SymbolStore -Version 1.0.411401 -FallbackSource "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json"
-      # May not be needed for now, but keeping it around nuget install Microsoft.FileFormats -Version 1.0.411401 -FallbackSource "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json"
 
     - if: ${{ github.event_name == 'workflow_dispatch' }}
       name: Update VSCode Version Numbers
@@ -77,13 +87,10 @@ jobs:
         $newcontent = $content -replace '"version": "1.*",', '"version": "${{ENV.IDE_TOOLS_RELEASE_VERSION}}",'
         $newcontent | Set-Content main/package.json
 
-    - name: Restore VSCode Extension dependencies
+    - name: Build Meadow.Debugging
       run: |
-        dotnet restore main/src/csharp/VSCodeMeadow.csproj -p:Configuration=Debug -v:diag -bl:restore.binlog
-
-    - name: Build VSCode Extension
-      id: VSCode-Extension
-      run: dotnet build main/src/csharp/VSCodeMeadow.csproj -p:Configuration=Debug -v:diag -bl:build.binlog
+        dotnet restore Meadow.Debugging/Meadow.Debugging.sln
+        dotnet build Meadow.Debugging/Meadow.Debugging.sln -c Debug --no-restore
 
     - name: Build WebPack
       run: |
@@ -110,16 +117,9 @@ jobs:
         name: VSCodeMeadow.vsix.${{ ENV.IDE_TOOLS_RELEASE_VERSION }}
         path: 'main/*.vsix'
 
-    - name: Upload Binlog Artifacts
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: BinLogs
-        path: '**/*.binlog'
-
     - if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' }}
       name: Publish VSCode Extension
       run: |
         cd main
-        
+
         vsce publish -p ${{ secrets.MARKETPLACE_PUBLISH_PAT }}

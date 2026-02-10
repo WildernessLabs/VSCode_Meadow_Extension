@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <!-- This targets file runs after the solution is built.
+       It copies the Meadow.Debugging.Host output to the VSCode extension's bin folder
+       so the .vsix package includes the vscode-meadow.exe. -->
+  
+  <Target Name="CopyMeadowDebuggerHostAfterBuild" AfterTargets="Build">
+    <Exec Command="powershell -Command &quot;
+      `$HostDebugSource = '..\..\Meadow.Debugging\Meadow.Debugging.Host\bin\Debug\net8.0';
+      `$HostReleaseSource = '..\..\Meadow.Debugging\Meadow.Debugging.Host\bin\Release\net8.0';
+      `$VsCodeDebugDest = 'csharp\bin\Debug\net8.0';
+      `$VsCodeReleaseDest = 'csharp\bin\Release\net8.0';
+      
+      if (Test-Path `$HostDebugSource) {
+        Copy-Item -Path `$HostDebugSource\* -Destination `$VsCodeDebugDest -Recurse -Force;
+        Write-Host 'Copied Host Debug output to VSCode extension';
+      }
+      
+      if (Test-Path `$HostReleaseSource) {
+        Copy-Item -Path `$HostReleaseSource\* -Destination `$VsCodeReleaseDest -Recurse -Force;
+        Write-Host 'Copied Host Release output to VSCode extension';
+      }
+    &quot;" />
+  </Target>
+</Project>

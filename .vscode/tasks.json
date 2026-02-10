@@ -23,12 +23,12 @@
 		{
 			"label": "Debug Build",
 			"type": "shell",
-			"command": "dotnet build -p:Configuration=Debug ./src/csharp/VSCodeMeadow.csproj"
+			"command": "dotnet build -c Debug ../Meadow.Debugging/Meadow.Debugging.sln"
 		},
 		{
 			"label": "Release Build",
 			"type": "shell",
-			"command": "dotnet build -p:Configuration=Release ./src/csharp/VSCodeMeadow.csproj"
+			"command": "dotnet build -c Release ../Meadow.Debugging/Meadow.Debugging.sln"
 		},
 	]
 }
