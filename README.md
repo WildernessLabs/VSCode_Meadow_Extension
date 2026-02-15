@@ -4,35 +4,53 @@
 
 # VSCode_Meadow_Extension
 
-This is the extension for VSCode that enables Meadow apps to be build, debugged and deployed to a Meadow device.
+This extension enables you to build, debug, and deploy Meadow applications directly from VSCode. It integrates with VSCode's debug UI and command palette to provide a streamlined workflow for Meadow development.
 
 <img alt="meadow vscode extension" src="https://user-images.githubusercontent.com/271950/134820282-83c9842a-023a-47ae-976e-7b6c58e851c0.png">
+
+## Architecture
+
+### Debug Adapter Protocol (DAP)
+
+The VSCode extension uses the Debug Adapter Protocol to handle all debugging operations. This is the same protocol used by VS2022 and Rider, which means the core debugging logic is shared across all three IDEs. When you press F5 to start debugging, here's what happens behind the scenes:
+
+1. The extension launches the DAP adapter process (vscode-meadow.exe)
+2. The adapter handles all communication with your Meadow device
+3. Debug events flow back to VSCode's debug UI through the adapter
+4. When you stop debugging, the adapter cleanly closes the connection and resumes your device
+
+This architecture has a major benefit: we maintain a single codebase for debugging that works consistently across VSCode, Visual Studio, and Rider. Bugs get fixed once and benefit all three IDEs.
+
+### Why DAP Matters
+
+Before DAP, each IDE had its own debugging implementation. That meant debugging a breakpoint might work differently depending on which IDE you used. Now, whether you're in VSCode, VS2022, or Rider, the debugging experience is the same. The extension focuses on the VSCode-specific integration (UI, commands, settings), while the actual debugging is handled by shared code in the Meadow.Debugging repository.
 
 ## Release Notes
 
 ### 3.0.0
 
 - Unified IDEs to all use centralised DAP for debugging.
+- Debug sessions now properly clean up when stopped, allowing immediate redeployment without device reset.
 
 ### 2.2.0
 
-- Stability Changes for OS 2.2 and above.
+- Stability changes for OS 2.2 and above.
 
 ### 2.0.1
 
-- Update logging to provide more information and be more like Visual Studio
+- Update logging to provide more information and be more like Visual Studio.
 
 ### 2.0.0
 
-- Update to get debugging working with Meadow.CLI 2.x
+- Update to get debugging working with Meadow.CLI 2.x.
 
 ### 1.9.7
 
-- Change to pick up the fact ProjLab is now part of NoLink in Meadow.CLI
+- Change to pick up the fact ProjLab is now part of NoLink in Meadow.CLI.
 
 ### 1.9.6
 
-- Add extra check to re-enable the runtime, if it isn't enabled after deployment.
+- Add extra check to re-enable the runtime if it isn't enabled after deployment.
 
 ### 1.9.4
 
@@ -145,42 +163,42 @@ You can also use the following short-cut on:
 
 ### Prerequisites
 
-- Install Python 
+- Install Python
 - Install NPM
 
-Then run the following commands on the command line, once NPM is installed
+Then run the following commands on the command line, once NPM is installed:
 - `npm i -g @vscode/vsce`
 - `npm i -g @vscode/debugprotocol`
 - `npm install -g webpack`
 - `npm install -D ts-loader`
 - `npm i typescript --save-dev`
-- .NET ([Mono on macOS](https://www.mono-project.com/download/stable/#download-mac), [.NET 6.x on Windows/Linux](https://dotnet.microsoft.com/en-us/download/dotnet/6.0))
+- .NET (Mono on macOS, .NET 6.x on Windows/Linux)
 
 ### Initial setup
 
-With all the listed pre-requisites installed, run `npm i` to ensure all of the packages are installed and up to date for the project.
+With all the listed prerequisites installed, run `npm i` to ensure all of the packages are installed and up to date for the project.
 
 ### Checkout
 
 - Be sure to checkout this repo with submodules: `git clone --recurse-submodules git@github.com:WildernessLabs/VSCode_Meadow_Extension.git`
-- [Meadow.CLI](https://github.com/WildernessLabs/Meadow.CLI) repo must be cloned adjacent to this checkout.
+- The Meadow.CLI repo must be cloned adjacent to this checkout.
+- The Meadow.Debugging repo contains the DAP adapter code and must be available for the extension to reference the debug protocol implementation.
 
 ### Building the Extension
 
-The extension has 2 parts. There is a client, which is written in _TypeScript_ and a server which is writtne in _C#_.
+The extension has two parts: a client written in TypeScript and a server written in C#.
 
-- Open the extension folder VSCode.
-- Got to _Run and Debug_ (macOS: `Cmd+Shift+D`. Others: `Ctrl+Shift+D`)
+The TypeScript client handles the VSCode UI integration. It manages the device list, build configuration toggles, and communicating with VSCode's debug UI. When you start a debug session, the client prepares the launch configuration and passes it to VSCode's debug system.
 
-<img width="50%" alt="VSCode Extension Marketplace" src="Design/vscode-run-and-debug.png">
+The C# server is the DAP adapter (vscode-meadow.exe). This is compiled from the Meadow.Debugging repository and included in the extension package. The adapter handles all the actual debugging work: device deployment, connection management, and protocol communication. The TypeScript client doesn't need to know about these details. It just needs to launch the adapter and let VSCode's debug protocol handler manage the conversation.
 
-You can choose the `Debug Extension + Server` option in the debug menu in VSCode to debug both parts at the same time.
+To build and debug:
 
-This will launch the server process in debug listening mode.
+- Open the extension folder in VSCode.
+- Go to Run and Debug (macOS: Cmd+Shift+D. Others: Ctrl+Shift+D)
+- Choose Debug Extension + Server to debug both the TypeScript UI and the C# adapter at the same time.
 
-You will be able to set breakpoints in the host instance of VSCode and debug the TypeScript extension.
-
-This does not allow you to debug the arbitrary commands sent to the vscode-meadow.exe process from the extension for things like getting a list of devices. This will only allow you to debug the code path of a VSCode instance starting a Deploy/Debug session.
+This approach lets you debug the VSCode integration while the adapter handles the device communication in the background.
 
 ## Debugging just the TypeScript Extension
 
