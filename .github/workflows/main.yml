@@ -18,12 +18,12 @@ jobs:
 
     steps:
     - name: Checkout current repo
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         path: main
 
     - name: Checkout Meadow.Debugging side-by-side
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         repository: WildernessLabs/Meadow.Debugging
         path: Meadow.Debugging
@@ -31,45 +31,47 @@ jobs:
         submodules: true
 
     - name: Checkout Meadow.CLI side-by-side
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         repository: WildernessLabs/Meadow.CLI
         path: Meadow.CLI
-        ref: develop
+        ref: meadow-3.0
 
     - name: Checkout Meadow.Contracts side-by-side
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         repository: WildernessLabs/Meadow.Contracts
         path: Meadow.Contracts
         ref: develop
 
     - name: Checkout Meadow.Units side-by-side
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         repository: WildernessLabs/Meadow.Units
         path: Meadow.Units
         ref: develop
 
     - name: Checkout Meadow.Logging side-by-side
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         repository: WildernessLabs/Meadow.Logging
         path: Meadow.Logging
         ref: develop
 
-    - name: Setup .NET 8.0.x
-      uses: actions/setup-dotnet@v4
+    - name: Setup .NET '8.0.x'
+      uses: actions/setup-dotnet@v6
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: | 
+          8.0.x
+          10.0.x
 
     - name: Setup Nuget
-      uses: Nuget/setup-nuget@v2
+      uses: nuget/setup-nuget@v3
 
-    - name: Setup Node.js 20
-      uses: actions/setup-node@v4
+    - name: Setup Node.js 24
+      uses: actions/setup-node@v7
       with:
-        node-version: 20
+        node-version: 24
 
     - name: Install vsce
       run: |
@@ -112,7 +114,7 @@ jobs:
         vsce package
 
     - name: Upload VSIX Artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: VSCodeMeadow.vsix.${{ ENV.IDE_TOOLS_RELEASE_VERSION }}
         path: 'main/*.vsix'
